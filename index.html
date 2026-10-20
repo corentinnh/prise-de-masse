@@ -114,6 +114,7 @@ input[type=date]{min-height:42px}
 .offItem .k{color:var(--accent)} .offItem .p{color:var(--prot)}
 .ghost:disabled{opacity:.6;cursor:default}
 .src{font-size:.7rem;color:var(--muted);text-align:right}
+.lnk{background:none;border:0;padding:0;color:var(--prot);text-decoration:underline;text-underline-offset:2px;font-size:inherit}
 .ghost{background:none;border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px;font-weight:600}
 .add{background:var(--ink);color:var(--bg);border:0;border-radius:10px;padding:12px;font-weight:600}
 .status{font-size:.85rem;color:var(--muted);text-align:center;font-weight:500;min-height:1.2em}
@@ -220,7 +221,7 @@ td .del{width:28px;height:28px;font-size:1.05rem}
       <label>Grammes<input id="fG" type="number" inputmode="decimal" min="0" placeholder="150"></label>
       <label>Moment<select id="fM"><option value="matin">Matin</option><option value="midi">Midi</option><option value="collation">Collation</option><option value="soir">Soir</option></select></label>
       <div class="calc full" id="calc">Choisis un aliment et un grammage : calories et protéines se calculent toutes seules.</div>
-      <button type="button" class="ghost full" id="est" hidden>Chercher les calories et protéines</button>
+      <button type="button" class="ghost full" id="est" hidden>Estimer en ligne</button>
       <div class="offRes full" id="offRes"></div>
       <label>Calories<input id="fK" type="number" inputmode="numeric" min="0" placeholder="0"></label>
       <label>Protéines (g)<input id="fP" type="number" inputmode="decimal" min="0" step="0.1" placeholder="0"></label>
@@ -284,23 +285,73 @@ const KEY="pdms-v1";
 const MOMENTS=[["matin","Matin"],["midi","Midi"],["collation","Collation"],["soir","Soir"]];
 /* Valeurs moyennes pour 100 g : [nom, kcal, protéines] */
 const FOODS=[
-["Blanc de poulet cuit",165,31],["Escalope de dinde cuite",135,29],["Steak haché 5% cuit",150,26],["Steak haché 15% cuit",230,25],
-["Bœuf rumsteck cuit",180,30],["Jambon blanc",115,20],["Œuf entier",145,12.6],["Blanc d'œuf",52,11],
-["Thon au naturel",116,26],["Saumon cuit",208,22],["Cabillaud cuit",105,23],["Crevettes cuites",99,24],
-["Riz blanc cuit",130,2.7],["Riz complet cuit",123,2.7],["Pâtes cuites",157,5.8],["Pâtes complètes cuites",150,6],
-["Quinoa cuit",120,4.4],["Patate douce cuite",90,2],["Pomme de terre cuite",80,2],["Lentilles cuites",116,9],
-["Pois chiches cuits",140,7.5],["Haricots rouges cuits",127,8.7],["Flocons d'avoine",370,13],["Pain blanc",270,9],
-["Pain complet",240,9],["Pain de mie",265,8],["Fromage blanc 0%",45,7.5],["Fromage blanc 3%",75,7],
-["Skyr",63,11],["Yaourt nature",60,4],["Lait demi-écrémé",46,3.3],["Emmental",380,28],["Mozzarella",250,18],
-["Whey (poudre)",380,75],["Banane",90,1.1],["Pomme",52,0.3],["Avocat",160,2],["Brocoli cuit",35,2.8],
-["Haricots verts cuits",30,2],["Courgette cuite",20,1.2],["Amandes",600,21],["Beurre de cacahuète",590,25],
-["Huile d'olive",900,0],["Tofu ferme",130,14],["Chocolat noir 70%",580,8]
+// Viandes (cuites)
+["Blanc de poulet cuit",165,31],["Cuisse de poulet rôtie",210,26],["Poulet rôti avec la peau",215,27],["Nuggets de poulet",260,15],["Cordon bleu",250,14],
+["Escalope de dinde cuite",135,29],["Blanc de dinde en tranches",105,22],["Escalope de veau cuite",150,30],
+["Steak haché 5% cuit",150,26],["Steak haché 15% cuit",230,25],["Steak haché 20% cuit",250,24],["Bœuf rumsteck cuit",180,30],["Entrecôte grillée",220,27],["Bœuf bourguignon",140,15],
+["Côte de porc grillée",230,28],["Filet mignon de porc cuit",160,28],["Rôti de porc",200,28],["Lardons cuits",300,15],
+["Saucisse de Toulouse cuite",300,16],["Merguez cuite",300,15],["Saucisse de Strasbourg",270,12],["Jambon blanc",115,20],["Jambon cru",250,26],["Chorizo",450,24],["Saucisson sec",430,26],
+["Gigot d'agneau cuit",230,27],["Magret de canard cuit",230,25],["Viande de kebab",250,18],
+// Poissons
+["Thon au naturel",116,26],["Thon à l'huile",190,25],["Saumon cuit",208,22],["Saumon fumé",180,22],["Cabillaud cuit",105,23],["Colin cuit",100,21],["Truite cuite",150,22],
+["Sardines à l'huile",210,24],["Maquereau",230,20],["Crevettes cuites",99,24],["Moules cuites",120,20],["Surimi",100,8],["Poisson pané",220,12],
+// Œufs et produits laitiers
+["Œuf entier",145,12.6],["Œuf dur",145,12.6],["Blanc d'œuf",52,11],["Omelette nature",150,11],
+["Lait écrémé",33,3.4],["Lait demi-écrémé",46,3.3],["Lait entier",64,3.2],["Lait d'amande",15,0.5],["Lait chocolaté",75,3.2],
+["Yaourt nature",60,4],["Yaourt grec",125,5],["Yaourt aux fruits",95,3.5],["Yaourt protéiné (type HiPro)",60,10],["Skyr",63,11],["Fromage blanc 0%",45,7.5],["Fromage blanc 3%",75,7],["Petit-suisse",110,9],["Cottage cheese",100,11],["Crème dessert",120,3],
+["Emmental",380,28],["Comté",410,27],["Camembert",290,20],["Mozzarella",250,18],["Feta",260,16],["Chèvre frais",200,12],["Parmesan",400,35],["Fromage à raclette",340,23],
+["Beurre",740,0.7],["Crème fraîche épaisse",300,2.4],["Crème légère 15%",160,3],
+// Féculents (cuits)
+["Riz blanc cuit",130,2.7],["Riz complet cuit",123,2.7],["Riz basmati cuit",130,3],["Pâtes cuites",157,5.8],["Pâtes complètes cuites",150,6],["Pâtes fraîches cuites",165,6],["Nouilles cuites",140,4.5],
+["Semoule cuite",115,4],["Boulgour cuit",85,3],["Quinoa cuit",120,4.4],["Pomme de terre cuite",80,2],["Purée de pommes de terre",85,2],["Frites",300,3.5],["Potatoes",220,3],["Patate douce cuite",90,2],
+["Lentilles cuites",116,9],["Pois chiches cuits",140,7.5],["Haricots rouges cuits",127,8.7],["Haricots blancs cuits",110,7],["Maïs",100,3],
+["Flocons d'avoine",370,13],["Muesli",380,9],["Granola",450,9],["Corn flakes",380,7],["Céréales chocolatées",390,7],
+// Pains
+["Pain blanc",270,9],["Baguette",270,9],["Pain complet",240,9],["Pain de mie",265,8],["Pain de mie complet",250,9],["Pain burger",280,9],["Wrap tortilla",300,8],["Biscotte",400,11],["Pain au lait",340,9],
+// Viennoiseries, desserts et sucré
+["Croissant",420,8],["Pain au chocolat",420,7],["Viennoise au chocolat",410,8],["Brioche",360,8],["Pain aux raisins",330,6],["Crêpe",220,6],["Gaufre",400,6],
+["Cookie",480,5],["Biscuits secs",440,7],["Biscuits fourrés",460,6],["Gâteau au chocolat",400,5],["Muffin",400,5],["Donut",420,5],["Glace",210,3.5],["Compote",70,0.3],
+["Pâte à tartiner chocolat-noisette",540,6],["Confiture",250,0.4],["Miel",320,0.4],["Chocolat noir 70%",580,8],["Chocolat au lait",540,7],["Barre chocolatée",450,4],["Bonbons",350,3],["Chocolat en poudre",400,5],
+// Fruits
+["Banane",90,1.1],["Pomme",52,0.3],["Poire",55,0.4],["Orange",47,0.9],["Clémentine",47,0.8],["Kiwi",60,1],["Fraises",33,0.7],["Raisin",70,0.6],["Mangue",65,0.6],["Ananas",50,0.5],["Myrtilles",57,0.7],
+["Avocat",160,2],["Dattes",280,2.5],["Abricots secs",240,3],["Raisins secs",300,3],
+// Légumes
+["Brocoli cuit",35,2.8],["Haricots verts cuits",30,2],["Courgette cuite",20,1.2],["Carotte",35,0.8],["Tomate",20,0.9],["Salade verte",15,1.4],["Concombre",12,0.6],["Épinards cuits",25,3],
+["Champignons",25,3],["Poivron",30,1],["Petits pois",80,5],["Chou-fleur cuit",25,2],["Oignon",40,1.2],["Ratatouille",60,1.2],["Soupe de légumes",35,1],
+// Plats
+["Poulet à la crème",180,16],["Poulet au curry",150,14],["Lasagnes",150,8],["Spaghetti bolognaise",140,7],["Pâtes carbonara",200,8],["Gratin de pâtes",170,8],
+["Pizza margherita",250,11],["Pizza 4 fromages",280,12],["Pizza reine",240,11],["Quiche lorraine",270,10],["Hachis parmentier",140,8],["Chili con carne",120,9],["Couscous",140,9],["Paella",150,9],
+["Gratin dauphinois",140,3.5],["Tartiflette",200,8],["Croque-monsieur",250,13],["Sandwich jambon-beurre",260,12],["Sandwich poulet crudités",210,11],["Wrap au poulet",210,11],["Hot-dog",260,10],
+["Hamburger",250,13],["Cheeseburger",260,14],["Kebab complet",220,11],["Tacos",230,10],["Sushi et maki",150,6],["Salade César",150,9],["Taboulé",160,4],["Nouilles sautées",170,5],["Riz cantonais",170,6],
+// En-cas
+["Amandes",600,21],["Noix",680,15],["Noix de cajou",590,18],["Cacahuètes",600,26],["Beurre de cacahuète",590,25],["Chips",540,6],["Pop-corn",450,9],["Barre protéinée",360,30],["Barre de céréales",400,6],["Crackers",450,9],
+["Houmous",300,7],["Falafel",330,13],["Tofu ferme",130,14],["Tempeh",190,19],
+// Boissons
+["Soda",42,0],["Soda zéro",0.3,0],["Jus d'orange",45,0.7],["Smoothie",55,0.6],["Bière",43,0.4],["Vin",85,0.1],["Boisson énergisante",45,0],
+// Sauces et matières grasses
+["Huile d'olive",900,0],["Mayonnaise",700,1.5],["Ketchup",110,1.2],["Moutarde",150,7],["Sauce soja",60,8],["Vinaigrette",450,0.5],["Sauce tomate",50,1.5],["Pesto",450,5],
+// Compléments
+["Whey (poudre)",380,75],["Caséine (poudre)",360,78],["Gainer (poudre)",380,15]
 ];
+/* Mots ignorés et synonymes pour la recherche souple dans la liste. */
+const STOP=new Set(["de","du","des","la","le","les","l","d","a","au","aux","et","en","avec","un","une","type","cuit","cuite","cuits","cuites","nature"]);
+const SYN={coca:"soda",cola:"soda",pepsi:"soda",nutella:"pate tartiner chocolat noisette",burger:"hamburger",bigmac:"hamburger",yaourt:"yaourt",yogourt:"yaourt",hipro:"yaourt proteine",oeufs:"oeuf",steak:"steak hache",kebab:"kebab",frite:"frites",pates:"pates",spaghetti:"pates",spaghettis:"pates",coquillettes:"pates",penne:"pates",riz:"riz",patates:"pomme terre",patate:"pomme terre",pdt:"pomme terre",viennoise:"viennoise",chocolatine:"pain chocolat",prot:"proteine",proteinee:"proteine",proteine:"proteine"};
+function toks(s){
+  const out=[];
+  for(let w of norm(s).replace(/['’]/g," ").split(/[^a-z0-9%]+/)){
+    if(!w||STOP.has(w))continue;
+    if(SYN[w]){out.push(...SYN[w].split(" "));continue}
+    if(w.length>3&&/[sx]$/.test(w))w=w.slice(0,-1);
+    out.push(w);
+  }
+  return out;
+}
+let FOOD_TOKS=null;
 const z=n=>String(n).padStart(2,"0");
 const ds=d=>d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate());
 const parse=s=>{const[y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
 const shift=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return ds(d)};
-const norm=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/œ/g,"oe").toLowerCase().trim().replace(/\s+/g," ");
+const norm=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/œ/gi,"oe").toLowerCase().trim().replace(/\s+/g," ");
 const slug=s=>norm(s).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,100)||"aliment";
 const clone=d=>JSON.parse(JSON.stringify(d));
 const fmt=n=>Math.round(n).toLocaleString("fr-FR");
@@ -328,8 +379,18 @@ function day(s){return S.jours[s]||blank()}
 function tot(d){return(d.repas||[]).reduce((a,r)=>({k:a.k+(+r.kcal||0),p:a.p+(+r.prot||0)}),{k:0,p:0})}
 function findFood(name){
   const n=norm(name); if(!n)return null;
-  const c=S.aliments[slug(name)]; if(c)return{kcal100:+c.kcal100||0,prot100:+c.prot100||0};
-  const f=FOODS.find(x=>norm(x[0])===n); return f?{kcal100:f[1],prot100:f[2]}:null;
+  const c=S.aliments[slug(name)]; if(c)return{kcal100:+c.kcal100||0,prot100:+c.prot100||0,nom:c.nom,src:"tes aliments"};
+  const f=FOODS.find(x=>norm(x[0])===n); if(f)return{kcal100:f[1],prot100:f[2],nom:f[0],src:"liste"};
+  /* Recherche souple : tous les mots tapés doivent se retrouver (au début d'un mot) dans le nom de l'aliment. */
+  const q=toks(name); if(!q.length)return null;
+  /* Priorité aux aliments dont le nom commence par le premier mot tapé, puis aux noms les plus courts. */
+  const rank=(x,y)=>((x.t[0]||"").startsWith(q[0])?0:1)-((y.t[0]||"").startsWith(q[0])?0:1)||x.t.length-y.t.length;
+  const hit=t=>q.every(w=>t.some(x=>x.startsWith(w)||(w.length>=4&&w.startsWith(x)&&x.length>=4)));
+  const mine=Object.values(S.aliments).filter(a=>a&&a.nom).map(a=>({a,t:toks(a.nom)})).filter(o=>hit(o.t)).sort(rank)[0];
+  if(mine)return{kcal100:+mine.a.kcal100||0,prot100:+mine.a.prot100||0,nom:mine.a.nom,src:"tes aliments",approx:true};
+  FOOD_TOKS=FOOD_TOKS||FOODS.map(f=>({f,t:toks(f[0])}));
+  const best=FOOD_TOKS.filter(o=>hit(o.t)).sort(rank)[0];
+  return best?{kcal100:best.f[1],prot100:best.f[2],nom:best.f[0],src:"liste",approx:true}:null;
 }
 function fillDatalist(){
   const names=[...new Set([...FOODS.map(f=>f[0]),...Object.values(S.aliments).map(c=>c.nom).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,"fr"));
@@ -340,8 +401,8 @@ function recalc(){
   $("#est").hidden=!(name.trim()&&!f);
   if(norm(name)!==offFor)$("#offRes").innerHTML="";
   if(!name.trim()){$("#calc").textContent="Choisis un aliment et un grammage : calories et protéines se calculent toutes seules.";return}
-  if(!f){$("#calc").textContent="Aliment pas dans la liste : cherche ses valeurs, ou mets-les à la main (il sera retenu pour la prochaine fois).";return}
-  $("#calc").innerHTML=`<b>${f.kcal100}</b> kcal · <b>${f.prot100}</b> g prot pour 100 g`;
+  if(!f){$("#calc").textContent="Pas dans la liste : estime-le en ligne, ou mets les valeurs à la main (il sera retenu pour la prochaine fois).";return}
+  $("#calc").innerHTML=`<b>${f.kcal100}</b> kcal · <b>${f.prot100}</b> g prot pour 100 g`+(f.approx||norm(f.nom)!==norm(name)?`<br>d'après « ${esc(f.nom)} »${f.src==="tes aliments"?" (tes aliments)":""}`:"");
   if(g>0){$("#fK").value=Math.round(f.kcal100*g/100);$("#fP").value=Math.round(f.prot100*g/10)/10}
 }
 
@@ -377,6 +438,15 @@ async function offSearch(q){
   }
   throw lastErr||new Error("off");
 }
+function offList(res){
+  return res.map((x,i)=>`<button type="button" class="offItem" data-i="${i}"><span class="on">${esc(x.nom)}${x.marque?` <small>${esc(x.marque)}</small>`:""}</span><span class="ov"><span class="k">${x.k} kcal</span> · <span class="p">${x.p} g</span></span></button>`).join("")+'<div class="src">Données Open Food Facts · valeurs pour 100 g</div>';
+}
+function offApply(x,typed){
+  rememberFood(typed,x.k,x.p); offFor=norm(typed); recalc();
+  const box=$("#offRes");
+  box.innerHTML=`<div class="hint">Valeurs de « ${esc(x.nom)}${x.marque?" "+esc(x.marque):""} » (Open Food Facts). <button type="button" class="lnk" id="offMore">Pas le bon ? Voir d'autres résultats</button></div>`;
+  if(!(+$("#fG").value>0))$("#fG").focus();
+}
 $("#est").onclick=async()=>{
   const name=$("#fAl").value.trim(); if(!name||offBusy)return;
   const box=$("#offRes"), b=$("#est");
@@ -385,20 +455,19 @@ $("#est").onclick=async()=>{
   try{
     const res=await offSearch(name);
     if(norm($("#fAl").value)!==offFor)return;
-    box.innerHTML=res.length
-      ?'<div class="hint">Choisis le produit qui correspond, valeurs pour 100 g.</div>'+res.map((x,i)=>`<button type="button" class="offItem" data-i="${i}"><span class="on">${esc(x.nom)}${x.marque?` <small>${esc(x.marque)}</small>`:""}</span><span class="ov"><span class="k">${x.k} kcal</span> · <span class="p">${x.p} g</span></span></button>`).join("")+'<div class="src">Données Open Food Facts</div>'
-      :'<div class="hint">Aucun produit trouvé. Essaie un autre nom (ex. la marque), ou mets les valeurs à la main.</div>';
-    box._res=res;
+    box._res=res; box._typed=name;
+    if(res.length)offApply(res[0],name);
+    else box.innerHTML='<div class="hint">Rien trouvé. Essaie un autre nom (ou la marque), ou mets les valeurs à la main.</div>';
   }catch(e){
     box.innerHTML='<div class="hint">Recherche impossible pour l\'instant. Réessaie dans une minute, ou mets les valeurs à la main.</div>';
-  }finally{offBusy=false; b.disabled=false; b.textContent="Chercher les calories et protéines"}
+  }finally{offBusy=false; b.disabled=false; b.textContent="Estimer en ligne"}
 };
 $("#offRes").addEventListener("click",e=>{
+  const box=$("#offRes");
+  if(e.target.closest("#offMore")){box.innerHTML='<div class="hint">Choisis le bon produit :</div>'+offList(box._res||[]);return}
   const b=e.target.closest(".offItem"); if(!b)return;
-  const x=($("#offRes")._res||[])[+b.dataset.i]; if(!x)return;
-  rememberFood($("#fAl").value,x.k,x.p);
-  $("#offRes").innerHTML=""; offFor=""; recalc();
-  if(!(+$("#fG").value>0))$("#fG").focus();
+  const x=(box._res||[])[+b.dataset.i]; if(!x)return;
+  offApply(x,box._typed||$("#fAl").value);
 });
 const C=2*Math.PI*52;
 function ring(val,goal,unit,rId,pId,gId){
