@@ -105,6 +105,15 @@ select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),
 input[type=date]{min-height:42px}
 .calc{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);background:var(--bg);border-radius:8px;padding:8px 10px}
 .calc b{color:var(--ink);font-weight:500}
+.offRes{display:flex;flex-direction:column;gap:6px}
+.offRes:empty{display:none}
+.offItem{display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;font-size:.85rem}
+.offItem .on{min-width:0;overflow-wrap:anywhere}
+.offItem small{color:var(--muted)}
+.offItem .ov{flex:none;font-family:var(--f-mono);font-size:.78rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.offItem .k{color:var(--accent)} .offItem .p{color:var(--prot)}
+.ghost:disabled{opacity:.6;cursor:default}
+.src{font-size:.7rem;color:var(--muted);text-align:right}
 .ghost{background:none;border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px;font-weight:600}
 .add{background:var(--ink);color:var(--bg);border:0;border-radius:10px;padding:12px;font-weight:600}
 .status{font-size:.85rem;color:var(--muted);text-align:center;font-weight:500;min-height:1.2em}
@@ -211,6 +220,8 @@ td .del{width:28px;height:28px;font-size:1.05rem}
       <label>Grammes<input id="fG" type="number" inputmode="decimal" min="0" placeholder="150"></label>
       <label>Moment<select id="fM"><option value="matin">Matin</option><option value="midi">Midi</option><option value="collation">Collation</option><option value="soir">Soir</option></select></label>
       <div class="calc full" id="calc">Choisis un aliment et un grammage : calories et protéines se calculent toutes seules.</div>
+      <button type="button" class="ghost full" id="est" hidden>Chercher les calories et protéines</button>
+      <div class="offRes full" id="offRes"></div>
       <label>Calories<input id="fK" type="number" inputmode="numeric" min="0" placeholder="0"></label>
       <label>Protéines (g)<input id="fP" type="number" inputmode="decimal" min="0" step="0.1" placeholder="0"></label>
       <button class="add full" type="submit">Ajouter</button>
@@ -326,11 +337,69 @@ function fillDatalist(){
 }
 function recalc(){
   const name=$("#fAl").value, g=+$("#fG").value, f=findFood(name);
+  $("#est").hidden=!(name.trim()&&!f);
+  if(norm(name)!==offFor)$("#offRes").innerHTML="";
   if(!name.trim()){$("#calc").textContent="Choisis un aliment et un grammage : calories et protéines se calculent toutes seules.";return}
-  if(!f){$("#calc").textContent="Aliment pas dans la liste : mets les valeurs à la main, il sera retenu pour la prochaine fois.";return}
+  if(!f){$("#calc").textContent="Aliment pas dans la liste : cherche ses valeurs, ou mets-les à la main (il sera retenu pour la prochaine fois).";return}
   $("#calc").innerHTML=`<b>${f.kcal100}</b> kcal · <b>${f.prot100}</b> g prot pour 100 g`;
   if(g>0){$("#fK").value=Math.round(f.kcal100*g/100);$("#fP").value=Math.round(f.prot100*g/10)/10}
 }
+
+/* ---------- Estimation via Open Food Facts (seule fonction qui utilise le réseau, l'app marche sans) ---------- */
+let offFor="", offBusy=false;
+function offPick(o){
+  const n=o.nutriments||{};
+  let k=parseFloat(n["energy-kcal_100g"]);
+  if(!(k>=0)){const kj=parseFloat(n["energy-kj_100g"]??n["energy_100g"]);if(kj>=0)k=kj/4.184}
+  const p=parseFloat(n["proteins_100g"]);
+  if(!(k>=0)||!(p>=0)||k>950)return null;
+  const nom=String(o.product_name_fr||o.product_name||"").trim(); if(!nom)return null;
+  const br=Array.isArray(o.brands)?o.brands[0]:String(o.brands||"").split(",")[0];
+  return{nom,marque:(br||"").trim(),k:Math.round(k),p:Math.round(p*10)/10};
+}
+async function offSearch(q){
+  const fields="code,product_name,product_name_fr,brands,nutriments";
+  const urls=[
+    `https://search.openfoodfacts.org/search?q=${encodeURIComponent(q)}&langs=fr&page_size=20&fields=${fields}`,
+    `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=20&lc=fr&fields=${fields}`
+  ];
+  let lastErr;
+  for(const u of urls){
+    try{
+      const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),10000);
+      const r=await fetch(u,{signal:ctl.signal}); clearTimeout(t);
+      if(!r.ok)throw new Error("http "+r.status);
+      const j=await r.json(), list=j.hits||j.products||[];
+      const seen=new Set(), out=[];
+      for(const o of list){const x=offPick(o);if(!x)continue;const key=norm(x.nom+"|"+x.marque);if(seen.has(key))continue;seen.add(key);out.push(x);if(out.length>=6)break}
+      return out;
+    }catch(e){lastErr=e}
+  }
+  throw lastErr||new Error("off");
+}
+$("#est").onclick=async()=>{
+  const name=$("#fAl").value.trim(); if(!name||offBusy)return;
+  const box=$("#offRes"), b=$("#est");
+  if(navigator.onLine===false){box.innerHTML='<div class="hint">Pas de réseau : mets les valeurs à la main.</div>';return}
+  offBusy=true; b.disabled=true; b.textContent="Recherche…"; offFor=norm(name);
+  try{
+    const res=await offSearch(name);
+    if(norm($("#fAl").value)!==offFor)return;
+    box.innerHTML=res.length
+      ?'<div class="hint">Choisis le produit qui correspond, valeurs pour 100 g.</div>'+res.map((x,i)=>`<button type="button" class="offItem" data-i="${i}"><span class="on">${esc(x.nom)}${x.marque?` <small>${esc(x.marque)}</small>`:""}</span><span class="ov"><span class="k">${x.k} kcal</span> · <span class="p">${x.p} g</span></span></button>`).join("")+'<div class="src">Données Open Food Facts</div>'
+      :'<div class="hint">Aucun produit trouvé. Essaie un autre nom (ex. la marque), ou mets les valeurs à la main.</div>';
+    box._res=res;
+  }catch(e){
+    box.innerHTML='<div class="hint">Recherche impossible pour l\'instant. Réessaie dans une minute, ou mets les valeurs à la main.</div>';
+  }finally{offBusy=false; b.disabled=false; b.textContent="Chercher les calories et protéines"}
+};
+$("#offRes").addEventListener("click",e=>{
+  const b=e.target.closest(".offItem"); if(!b)return;
+  const x=($("#offRes")._res||[])[+b.dataset.i]; if(!x)return;
+  rememberFood($("#fAl").value,x.k,x.p);
+  $("#offRes").innerHTML=""; offFor=""; recalc();
+  if(!(+$("#fG").value>0))$("#fG").focus();
+});
 const C=2*Math.PI*52;
 function ring(val,goal,unit,rId,pId,gId){
   const pct=goal>0?val/goal:0;

@@ -7,6 +7,7 @@ Web app installable (PWA) pour suivre une prise de masse sèche au quotidien.
 ## Fonctions
 
 - **Repas** : aliment + grammage → calories et protéines calculées automatiquement (liste d'aliments intégrée, et les aliments saisis à la main sont retenus).
+- **Estimation** : pour un aliment inconnu, recherche des valeurs pour 100 g dans [Open Food Facts](https://world.openfoodfacts.org) (nécessite du réseau).
 - **Objectifs** : cercles de progression calories / protéines pour la journée.
 - **Idées pour compléter** : suggestions de repas selon ce qu'il reste à manger et l'heure, ajoutables en un clic.
 - **Compléments** : cases whey et créatine.
@@ -21,7 +22,7 @@ Web app installable (PWA) pour suivre une prise de masse sèche au quotidien.
 
 ## Données
 
-Toutes les données restent **sur l'appareil** (stockage local du navigateur). Rien n'est envoyé sur un serveur ni dans ce repo. Chaque personne qui utilise l'app a son propre journal, séparé.
+Toutes les données restent **sur l'appareil** (stockage local du navigateur). Rien n'est envoyé sur un serveur ni dans ce repo. Seul le nom d'un aliment recherché est envoyé à Open Food Facts quand on utilise la recherche. Chaque personne qui utilise l'app a son propre journal, séparé.
 
 Penser à faire un export régulier : supprimer l'app ou effacer les données du navigateur efface le journal.
 
