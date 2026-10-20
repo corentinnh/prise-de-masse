@@ -138,13 +138,19 @@ td .del{width:28px;height:28px;font-size:1.05rem}
 .need{font-size:.9rem}
 .need b{font-family:var(--f-mono);font-weight:500}
 .need .k{color:var(--accent)} .need .p{color:var(--prot)}
-.idea{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center}
-.idea .t{font-weight:600;min-width:0}
-.idea .items{grid-column:1;font-size:.82rem;color:var(--muted);min-width:0}
-.idea .vals{grid-column:1;font-family:var(--f-mono);font-size:.8rem;font-variant-numeric:tabular-nums}
+.idea{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.idea .head,.idea .then{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.idea .head>div,.idea .then>div{min-width:0;display:flex;flex-direction:column;gap:3px}
+.idea .then{border-top:1px dashed var(--line);padding-top:8px}
+.idea .t{font-weight:600}
+.idea .tl{font-weight:500;font-size:.88rem}
+.idea .items{font-size:.82rem;color:var(--muted)}
+.idea .vals{font-family:var(--f-mono);font-size:.8rem;font-variant-numeric:tabular-nums}
 .idea .vals .k{color:var(--accent)} .idea .vals .p{color:var(--prot)}
-.idea .after{grid-column:1;font-size:.78rem;color:var(--muted)}
-.idea .plus{grid-column:2;grid-row:1/span 4;background:var(--ink);color:var(--bg);border:0;border-radius:10px;padding:9px 14px;font-weight:600;font-size:.85rem}
+.idea .after{font-size:.78rem;color:var(--muted)}
+.idea .plus{flex:none;background:var(--ink);color:var(--bg);border:0;border-radius:10px;padding:9px 14px;font-weight:600;font-size:.85rem}
+.idea .plus.sm{background:none;color:var(--ink);border:1px solid var(--line);padding:7px 12px}
+.slot{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600;margin-top:2px}
 @media (prefers-reduced-motion:no-preference){.bar .b{transition:height .25s ease}.ring .fill{transition:stroke-dashoffset .6s ease}}
 </style>
 </head>
@@ -402,57 +408,134 @@ $("#f").addEventListener("submit",e=>{
 });
 
 /* ---------- Idées pour compléter ---------- */
+/* Créneaux de la journée : un repas principal est proposé tant que son heure de fin n'est pas passée et qu'il n'a pas encore été noté. */
+const SLOTS=[
+ {m:"matin",nom:"ton petit-déj",fin:10.5,main:true},
+ {m:"midi",nom:"ton déjeuner",fin:14.5,main:true},
+ {m:"collation",nom:"ta collation",fin:18.5,main:false},
+ {m:"soir",nom:"ton dîner",fin:22.5,main:true}
+];
+const PAIN={f:"Pain complet",g:80,u:["tranche de pain complet","tranches de pain complet",40]};
+const BANANE={f:"Banane",g:120,u:["banane","bananes",120],fix:1};
 const IDEAS=[
- {nom:"Skyr, flocons d'avoine et banane",m:["matin","collation"],it:[["Skyr",300,"300 g de skyr"],["Flocons d'avoine",40,"40 g de flocons d'avoine"],["Banane",120,"1 banane"]]},
- {nom:"Shaker whey, lait et banane",m:["matin","collation"],it:[["Whey (poudre)",30,"30 g de whey"],["Lait demi-écrémé",300,"30 cl de lait"],["Banane",120,"1 banane"]]},
- {nom:"Shaker whey à l'eau",m:["collation","matin","soir"],it:[["Whey (poudre)",30,"30 g de whey"]]},
- {nom:"Omelette et pain complet",m:["matin","midi","soir"],it:[["Œuf entier",180,"3 œufs"],["Pain complet",80,"2 tranches de pain complet"]]},
- {nom:"Tartines beurre de cacahuète",m:["matin","collation"],it:[["Pain complet",80,"2 tranches de pain complet"],["Beurre de cacahuète",30,"30 g de beurre de cacahuète"],["Banane",120,"1 banane"]]},
- {nom:"Poulet, riz et brocoli",m:["midi","soir"],it:[["Blanc de poulet cuit",150,"150 g de poulet"],["Riz blanc cuit",200,"200 g de riz cuit"],["Brocoli cuit",150,"150 g de brocoli"]]},
- {nom:"Steak haché et pâtes",m:["midi","soir"],it:[["Steak haché 5% cuit",150,"1 steak 5 % (150 g)"],["Pâtes cuites",220,"220 g de pâtes cuites"]]},
- {nom:"Saumon et patate douce",m:["midi","soir"],it:[["Saumon cuit",150,"150 g de saumon"],["Patate douce cuite",250,"250 g de patate douce"],["Haricots verts cuits",150,"150 g de haricots verts"]]},
- {nom:"Dinde, quinoa et courgette",m:["midi","soir"],it:[["Escalope de dinde cuite",150,"150 g de dinde"],["Quinoa cuit",200,"200 g de quinoa cuit"],["Courgette cuite",150,"150 g de courgette"]]},
- {nom:"Lentilles et œufs",m:["midi","soir"],it:[["Lentilles cuites",250,"250 g de lentilles cuites"],["Œuf entier",120,"2 œufs"]]},
- {nom:"Thon et pain complet",m:["midi","collation"],it:[["Thon au naturel",140,"1 boîte de thon (140 g)"],["Pain complet",80,"2 tranches de pain complet"]]},
- {nom:"Fromage blanc et amandes",m:["collation","soir"],it:[["Fromage blanc 0%",250,"250 g de fromage blanc 0 %"],["Amandes",25,"une poignée d'amandes (25 g)"]]},
- {nom:"Skyr nature",m:["collation","soir"],it:[["Skyr",200,"200 g de skyr"]]},
- {nom:"Jambon et pain complet",m:["collation","midi"],it:[["Jambon blanc",80,"2 tranches de jambon"],["Pain complet",80,"2 tranches de pain complet"]]}
-].map(x=>{let k=0,p=0;const rows=x.it.map(([n,g,lab])=>{const f=FOODS.find(F=>F[0]===n);const kk=f[1]*g/100,pp=f[2]*g/100;k+=kk;p+=pp;return{n,g,lab,k:kk,p:pp}});return{...x,rows,k,p}});
-function momentNow(){const h=new Date().getHours();return h<11?"matin":h<15?"midi":h<18.5?"collation":"soir"}
+ // Repas
+ {nom:"Poulet, riz et brocoli",type:"repas",m:["midi","soir"],it:[{f:"Blanc de poulet cuit",g:150,n:"poulet"},{f:"Riz blanc cuit",g:200,n:"riz cuit"},{f:"Brocoli cuit",g:150,n:"brocoli",fix:1}]},
+ {nom:"Steak haché et pâtes",type:"repas",m:["midi","soir"],it:[{f:"Steak haché 5% cuit",g:150,n:"steak haché 5 %"},{f:"Pâtes cuites",g:220,n:"pâtes cuites"}]},
+ {nom:"Saumon et patate douce",type:"repas",m:["midi","soir"],it:[{f:"Saumon cuit",g:150,n:"saumon"},{f:"Patate douce cuite",g:250,n:"patate douce"},{f:"Haricots verts cuits",g:150,n:"haricots verts",fix:1}]},
+ {nom:"Dinde, quinoa et courgette",type:"repas",m:["midi","soir"],it:[{f:"Escalope de dinde cuite",g:150,n:"dinde"},{f:"Quinoa cuit",g:200,n:"quinoa cuit"},{f:"Courgette cuite",g:150,n:"courgette",fix:1}]},
+ {nom:"Cabillaud, pommes de terre et brocoli",type:"repas",m:["midi","soir"],it:[{f:"Cabillaud cuit",g:180,n:"cabillaud"},{f:"Pomme de terre cuite",g:300,n:"pommes de terre"},{f:"Brocoli cuit",g:150,n:"brocoli",fix:1}]},
+ {nom:"Thon, riz et haricots verts",type:"repas",m:["midi","soir"],it:[{f:"Thon au naturel",g:140,u:["boîte de thon","boîtes de thon",140]},{f:"Riz blanc cuit",g:200,n:"riz cuit"},{f:"Haricots verts cuits",g:150,n:"haricots verts",fix:1}]},
+ {nom:"Lentilles et œufs",type:"repas",m:["midi","soir"],it:[{f:"Lentilles cuites",g:250,n:"lentilles cuites"},{f:"Œuf entier",g:120,u:["œuf","œufs",60]}]},
+ {nom:"Omelette et pain complet",type:"repas",m:["matin","soir"],it:[{f:"Œuf entier",g:180,u:["œuf","œufs",60]},PAIN]},
+ {nom:"Bowl skyr, avoine et banane",type:"repas",m:["matin"],it:[{f:"Skyr",g:300,n:"skyr"},{f:"Flocons d'avoine",g:50,n:"flocons d'avoine"},BANANE]},
+ {nom:"Porridge protéiné",type:"repas",m:["matin"],it:[{f:"Flocons d'avoine",g:60,n:"flocons d'avoine"},{f:"Lait demi-écrémé",g:250,cl:"lait demi-écrémé"},{f:"Whey (poudre)",g:30,n:"whey",fix:1}]},
+ {nom:"Tartines beurre de cacahuète et skyr",type:"repas",m:["matin"],it:[PAIN,{f:"Beurre de cacahuète",g:20,n:"beurre de cacahuète"},{f:"Skyr",g:200,n:"skyr"}]},
+ // Collations
+ {nom:"Shaker whey, lait et banane",type:"collation",it:[{f:"Whey (poudre)",g:30,n:"whey"},{f:"Lait demi-écrémé",g:300,cl:"lait demi-écrémé"},BANANE]},
+ {nom:"Shaker whey à l'eau",type:"collation",it:[{f:"Whey (poudre)",g:30,n:"whey"}]},
+ {nom:"Fromage blanc et amandes",type:"collation",it:[{f:"Fromage blanc 0%",g:250,n:"fromage blanc 0 %"},{f:"Amandes",g:25,n:"amandes"}]},
+ {nom:"Skyr nature",type:"collation",it:[{f:"Skyr",g:200,n:"skyr"}]},
+ {nom:"Skyr, flocons d'avoine et banane",type:"collation",it:[{f:"Skyr",g:150,n:"skyr"},{f:"Flocons d'avoine",g:30,n:"flocons d'avoine"},BANANE]},
+ {nom:"Tartines beurre de cacahuète",type:"collation",it:[PAIN,{f:"Beurre de cacahuète",g:30,n:"beurre de cacahuète"},BANANE]},
+ {nom:"Jambon et pain complet",type:"collation",it:[{f:"Jambon blanc",g:80,u:["tranche de jambon","tranches de jambon",40]},PAIN]},
+ {nom:"Banane et amandes",type:"collation",it:[BANANE,{f:"Amandes",g:30,n:"amandes"}]}
+];
+/* Construit une version de l'idée avec ses portions multipliées par f (les légumes et unités fixes ne bougent pas). */
+function build(idea,f){
+  let k=0,p=0;
+  const rows=idea.it.map(x=>{
+    const F=FOODS.find(y=>y[0]===x.f);
+    let g, lab;
+    const ff=x.fix?1:f;
+    if(x.u){const n=Math.max(1,Math.round(x.g*ff/x.u[2]));g=n*x.u[2];lab=n+" "+(n>1?x.u[1]:x.u[0])}
+    else if(x.cl){g=Math.max(50,Math.round(x.g*ff/50)*50);lab=Math.round(g/10)+" cl de "+x.cl}
+    else{const step=x.g<=40?5:10;g=Math.max(step,Math.round(x.g*ff/step)*step);lab=g+" g "+(/^[aeiouyéèêœ]/i.test(x.n)?"d'":"de ")+x.n}
+    const kk=F[1]*g/100, pp=F[2]*g/100; k+=kk; p+=pp;
+    return{n:x.f,g,lab,k:kk,p:pp};
+  });
+  return{nom:idea.nom,type:idea.type,rows,k,p};
+}
+function sized(idea,Tk){
+  const base=build(idea,1); if(!(Tk>0))return base;
+  const f=Math.min(1.4,Math.max(.6,Math.round(Tk/base.k*10)/10));
+  return build(idea,f);
+}
+/* Note d'une proposition : couvrir les protéines et les calories visées sans dépasser ce qu'il reste. */
+function fit(x,Tk,Tp,Rk){
+  const covK=Tk>0?Math.min(x.k,Tk)/Tk:1, covP=Tp>0?Math.min(x.p,Tp)/Tp:1;
+  const over=Rk>0?Math.max(0,x.k-Rk)/Math.max(Rk,200):x.k/400;
+  const dev=Tk>0?Math.abs(x.k-Tk)/Tk:0;
+  return covP*.55+covK*.45-over*1.3-dev*.15;
+}
+function bestSnacks(Lk,Lp,n,exclude){
+  return IDEAS.filter(x=>x.type==="collation"&&!(exclude&&exclude.has(x.nom))).map(x=>{const b=build(x,1);return{b,s:fit(b,Math.max(0,Lk),Math.max(0,Lp),Lk)}})
+    .sort((a,b)=>b.s-a.s).slice(0,n).map(o=>o.b);
+}
+let shown=[];
+const valsHtml=x=>`<span class="k">+${fmt(x.k)} kcal</span> · <span class="p">+${fmt(x.p)} g prot</span>`;
+function afterText(Rk,Rp,gk,gp,suffix){
+  const a=[];
+  if(gk>0)a.push(Rk>40?`${fmt(Rk)} kcal`:Rk<-40?`+${fmt(-Rk)} kcal au-dessus`:"kcal OK");
+  if(gp>0)a.push(Rp>3?`${fmt(Rp)} g prot`:"prot OK");
+  return "Après ça : "+a.join(" · ")+(suffix||"");
+}
 function renderIdeas(t){
-  const g=S.objectifs||{}, box=$("#ideas");
+  const g=S.objectifs||{}, box=$("#ideas"); shown=[];
   if(!(g.kcal>0||g.prot>0)){box.innerHTML='<div class="hint">Règle tes objectifs pour avoir des idées de repas adaptées à ce qu\'il te reste.</div>';return}
+  if(cur!==TODAY){box.innerHTML='<div class="hint">Les idées de repas s\'affichent pour la journée en cours.</div>';return}
   const Rk=g.kcal>0?g.kcal-t.k:0, Rp=g.prot>0?g.prot-t.p:0;
-  if(Rk<=20&&Rp<=2){box.innerHTML='<div class="empty">Objectifs du jour atteints ✓ Rien à ajouter.</div>';return}
-  const mo=cur===TODAY?momentNow():"soir";
-  const scored=IDEAS.map(x=>{
-    let s;
-    if(Rp>2&&Rk>20)s=Math.min(x.p,Rp)/Rp*.6+Math.min(x.k,Rk)/Rk*.4-Math.max(0,x.k-Rk)/Rk*.9;
-    else if(Rp>2)s=Math.min(x.p,Rp)/Rp-x.k/500;
-    else s=Math.min(x.k,Rk)/Rk-Math.max(0,x.k-Rk)/Rk*.9-x.p/200;
-    if(x.m.includes(mo))s+=.2;
-    return{x,s};
-  }).sort((a,b)=>b.s-a.s).slice(0,3);
-  let need='<div class="need">Il te reste ';
+  if(Rk<=40&&Rp<=3){box.innerHTML='<div class="empty">Objectifs du jour atteints ✓ Rien à ajouter.</div>';return}
+  const now=new Date(), h=now.getHours()+now.getMinutes()/60;
+  const logged=new Set((day(cur).repas||[]).map(r=>r.moment));
+  const mains=SLOTS.filter(s=>s.main&&h<s.fin&&!logged.has(s.m));
   const parts=[];
-  if(Rk>20)parts.push(`<b class="k">${fmt(Rk)} kcal</b>`);
-  if(Rp>2)parts.push(`<b class="p">${fmt(Rp)} g</b> de protéines`);
-  need+=parts.join(" et ")+(Rk<=20&&g.kcal>0?" (calories déjà atteintes)":"")+".</div>";
-  box.innerHTML=need+scored.map(({x},i)=>{
-    const ak=g.kcal>0?g.kcal-t.k-x.k:0, ap=g.prot>0?g.prot-t.p-x.p:0;
-    const after=[];
-    if(g.kcal>0)after.push(ak>20?`${fmt(ak)} kcal`:ak<-20?`+${fmt(-ak)} kcal au-dessus`:"kcal OK");
-    if(g.prot>0)after.push(ap>2?`${fmt(ap)} g prot`:"prot OK");
-    return `<div class="idea"><div class="t">${esc(x.nom)}</div><div class="items">${x.rows.map(r=>esc(r.lab)).join(" · ")}</div><div class="vals"><span class="k">+${fmt(x.k)} kcal</span> · <span class="p">+${fmt(x.p)} g prot</span></div><div class="after">Après ça : ${after.join(" · ")}</div><button class="plus" data-i="${IDEAS.indexOf(x)}" aria-label="Ajouter ${esc(x.nom)}">Ajouter</button></div>`;
-  }).join("");
+  if(Rk>40)parts.push(`<b class="k">${fmt(Rk)} kcal</b>`);
+  if(Rp>3)parts.push(`<b class="p">${fmt(Rp)} g</b> de protéines`);
+  let html=`<div class="need">Il te reste ${parts.join(" et ")}${Rk<=40&&g.kcal>0?" (calories déjà atteintes)":""}.</div>`;
+
+  if(mains.length&&Rk>250){
+    const slot=mains[0], last=mains.length===1;
+    /* Part de la journée de chaque repas : le dîner reste un vrai repas, le reste part en collation. */
+    const W={matin:.25,midi:.35,soir:.4}, share=W[slot.m]/mains.reduce((a,s)=>a+W[s.m],0);
+    const Tk=last?Math.min(Rk,Math.max(500,Math.min(750,Rk*.75))):Rk*share*.85;
+    const Tp=Rk>0?Rp*Tk/Rk:Rp*share;
+    const meals=IDEAS.filter(x=>x.type==="repas"&&x.m.includes(slot.m)).map(x=>{const b=sized(x,Tk);return{b,s:fit(b,Tk,Tp,Rk)}})
+      .sort((a,b)=>b.s-a.s).slice(0,3).map(o=>o.b);
+    const later=mains.slice(1).map(s=>s.nom.replace(/^ton |^ta /,"le ")).join(" et ");
+    html+=`<div class="slot">Pour ${slot.nom}</div>`;
+    const usedSnacks=new Set();
+    html+=meals.map(meal=>{
+      const mi=shown.push({x:meal,moment:slot.m})-1;
+      const Lk=Rk-meal.k, Lp=Rp-meal.p;
+      let snack="", fin=afterText(Lk,Lp,g.kcal,g.prot,later&&(Lk>40||Lp>3)?` pour ${later}`:"");
+      if(last&&(Lk>=150||Lp>=10)){
+        const s=bestSnacks(Lk,Lp,1,usedSnacks)[0];
+        if(s){usedSnacks.add(s.nom);const si=shown.push({x:s,moment:"collation"})-1;
+          snack=`<div class="then"><div><div class="tl">Puis en collation : ${esc(s.nom)}</div><div class="items">${s.rows.map(r=>esc(r.lab)).join(" · ")}</div><div class="vals">${valsHtml(s)}</div></div><button class="plus sm" data-i="${si}" aria-label="Ajouter ${esc(s.nom)}">Ajouter</button></div>`;
+          fin=afterText(Lk-s.k,Lp-s.p,g.kcal,g.prot);
+        }
+      }
+      return `<div class="idea"><div class="head"><div><div class="t">${esc(meal.nom)}</div><div class="items">${meal.rows.map(r=>esc(r.lab)).join(" · ")}</div><div class="vals">${valsHtml(meal)}</div></div><button class="plus" data-i="${mi}" aria-label="Ajouter ${esc(meal.nom)}">Ajouter</button></div>${snack}<div class="after">${fin}</div></div>`;
+    }).join("");
+  }else{
+    const snacks=bestSnacks(Rk,Rp,3);
+    html+=`<div class="slot">${mains.length?"Une collation suffit":"Pour finir ta journée"}</div>`;
+    html+=snacks.map(s=>{
+      const si=shown.push({x:s,moment:"collation"})-1;
+      return `<div class="idea"><div class="head"><div><div class="t">${esc(s.nom)}</div><div class="items">${s.rows.map(r=>esc(r.lab)).join(" · ")}</div><div class="vals">${valsHtml(s)}</div></div><button class="plus" data-i="${si}" aria-label="Ajouter ${esc(s.nom)}">Ajouter</button></div><div class="after">${afterText(Rk-s.k,Rp-s.p,g.kcal,g.prot)}</div></div>`;
+    }).join("");
+  }
+  box.innerHTML=html;
 }
 $("#ideas").addEventListener("click",e=>{
   const b=e.target.closest(".plus"); if(!b)return;
-  const x=IDEAS[+b.dataset.i]; if(!x)return;
-  const mo=$("#fM").value, d=clone(day(cur)); d.repas=d.repas||[];
-  for(const r of x.rows)d.repas.push({moment:mo,aliment:r.n,quantite:r.lab,grammes:r.g,kcal:Math.round(r.k),prot:Math.round(r.p*10)/10});
+  const o=shown[+b.dataset.i]; if(!o)return;
+  const d=clone(day(cur)); d.repas=d.repas||[];
+  for(const r of o.x.rows)d.repas.push({moment:o.moment,aliment:r.n,quantite:r.lab,grammes:r.g,kcal:Math.round(r.k),prot:Math.round(r.p*10)/10});
   save(d);
 });
+/* Recalcule les idées quand l'heure change de créneau, même sans rien toucher. */
+setInterval(()=>{if(document.visibilityState==="visible"&&cur===TODAY)renderIdeas(tot(day(cur)))},5*60*1000);
 
 /* ---------- Objectifs ---------- */
 $("#editGoals").onclick=()=>{$("#gfK").value=S.objectifs.kcal||"";$("#gfP").value=S.objectifs.prot||"";$("#gf").hidden=false;$("#editGoals").hidden=true;$("#gfK").focus()};
