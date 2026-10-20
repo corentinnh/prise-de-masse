@@ -103,7 +103,7 @@ label{display:flex;flex-direction:column;gap:4px;font-size:.75rem;color:var(--mu
 input,select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;min-width:0;width:100%;-webkit-appearance:none;appearance:none}
 select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 16px) 55%,calc(100% - 11px) 55%;background-size:5px 5px;background-repeat:no-repeat;padding-right:28px}
 input[type=date]{min-height:42px}
-.calc{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);background:var(--bg);border-radius:8px;padding:8px 10px}
+.calc{font-family:var(--f-mono);font-size:.8rem;line-height:1.45;color:var(--muted);background:var(--bg);border-radius:8px;padding:8px 10px;min-height:calc(2.9em + 16px)}
 .calc b{color:var(--ink);font-weight:500}
 .offRes{display:flex;flex-direction:column;gap:6px}
 .offRes:empty{display:none}
@@ -220,7 +220,7 @@ td .del{width:28px;height:28px;font-size:1.05rem}
       <datalist id="foods"></datalist>
       <label>Grammes<input id="fG" type="number" inputmode="decimal" min="0" placeholder="150"></label>
       <label>Moment<select id="fM"><option value="matin">Matin</option><option value="midi">Midi</option><option value="collation">Collation</option><option value="soir">Soir</option></select></label>
-      <div class="calc full" id="calc">Choisis un aliment et un grammage : calories et protéines se calculent toutes seules.</div>
+      <div class="calc full" id="calc">Tape un aliment et un grammage : le calcul se fait tout seul.</div>
       <button type="button" class="ghost full" id="est" hidden>Estimer en ligne</button>
       <div class="offRes full" id="offRes"></div>
       <label>Calories<input id="fK" type="number" inputmode="numeric" min="0" placeholder="0"></label>
@@ -396,14 +396,20 @@ function fillDatalist(){
   const names=[...new Set([...FOODS.map(f=>f[0]),...Object.values(S.aliments).map(c=>c.nom).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,"fr"));
   $("#foods").innerHTML=names.map(n=>`<option value="${esc(n)}"></option>`).join("");
 }
+/* manual = l'utilisateur a tapé lui-même les calories ou protéines : on ne les écrase pas tant que l'aliment ne change pas. */
+let manual=false, lastName="";
 function recalc(){
   const name=$("#fAl").value, g=+$("#fG").value, f=findFood(name);
+  if(norm(name)!==lastName){lastName=norm(name);manual=false}
   $("#est").hidden=!(name.trim()&&!f);
   if(norm(name)!==offFor)$("#offRes").innerHTML="";
-  if(!name.trim()){$("#calc").textContent="Choisis un aliment et un grammage : calories et protéines se calculent toutes seules.";return}
-  if(!f){$("#calc").textContent="Pas dans la liste : estime-le en ligne, ou mets les valeurs à la main (il sera retenu pour la prochaine fois).";return}
+  if(!name.trim()){$("#calc").textContent="Tape un aliment et un grammage : le calcul se fait tout seul.";return}
+  if(!f&&!manual){$("#fK").value="";$("#fP").value=""}
+  if(!f){$("#calc").textContent="Pas dans la liste : estime-le en ligne ou tape les valeurs.";return}
   $("#calc").innerHTML=`<b>${f.kcal100}</b> kcal · <b>${f.prot100}</b> g prot pour 100 g`+(f.approx||norm(f.nom)!==norm(name)?`<br>d'après « ${esc(f.nom)} »${f.src==="tes aliments"?" (tes aliments)":""}`:"");
+  if(manual)return;
   if(g>0){$("#fK").value=Math.round(f.kcal100*g/100);$("#fP").value=Math.round(f.prot100*g/10)/10}
+  else{$("#fK").value="";$("#fP").value=""}
 }
 
 /* ---------- Estimation via Open Food Facts (seule fonction qui utilise le réseau, l'app marche sans) ---------- */
@@ -532,17 +538,19 @@ $("#prev").onclick=()=>{cur=shift(cur,-1);render()};
 $("#next").onclick=()=>{if(cur<TODAY){cur=shift(cur,1);render()}};
 for(const id of["whey","creatine"]){$("#"+id).onclick=()=>{const d=clone(day(cur));d[id]=!d[id];save(d)}}
 $("#meals").addEventListener("click",e=>{const b=e.target.closest(".del");if(!b)return;const d=clone(day(cur));d.repas.splice(+b.dataset.i,1);save(d)});
-$("#fAl").addEventListener("input",recalc);
-$("#fG").addEventListener("input",recalc);
+/* "change" en plus de "input" : sur iPhone, choisir une suggestion du clavier ne déclenche pas toujours "input". */
+for(const ev of["input","change"]){$("#fAl").addEventListener(ev,recalc);$("#fG").addEventListener(ev,recalc)}
+for(const id of["#fK","#fP"])$(id).addEventListener("input",()=>{manual=true});
 $("#fM").value=new Date().getHours()<11?"matin":new Date().getHours()<16?"midi":"soir";
 $("#f").addEventListener("submit",e=>{
   e.preventDefault();
   const al=$("#fAl").value.trim(); if(!al)return;
+  recalc();
   const g=+$("#fG").value||0, k=+$("#fK").value||0, p=+$("#fP").value||0;
   if(g>0&&!findFood(al)&&(k||p))rememberFood(al,k*100/g,p*100/g);
   const d=clone(day(cur)); d.repas=d.repas||[];
   d.repas.push({moment:$("#fM").value,aliment:al,quantite:g?g+" g":"",grammes:g,kcal:k,prot:p});
-  if(save(d)){["#fAl","#fG","#fK","#fP"].forEach(s=>$(s).value="");recalc()}
+  if(save(d)){["#fAl","#fG","#fK","#fP"].forEach(s=>$(s).value="");manual=false;recalc()}
 });
 
 /* ---------- Idées pour compléter ---------- */
