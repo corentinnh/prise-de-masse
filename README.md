@@ -48,6 +48,7 @@ Penser à faire un export régulier : supprimer l'app ou effacer les données du
 - **Open Food Facts** : données sous licence ODbL.
 - **Métabolisme de base** : formule de Mifflin-St Jeor. Dépense = métabolisme × 1,2 (vie quotidienne) + moyenne des activités notées.
 - **Activités** : valeurs MET du Compendium des activités physiques, dépense nette = (MET − 1) × poids × durée.
+- **Marche** : saisie au nombre de pas de la journée. Longueur de pas ≈ 41,4 % de la taille, coût net ≈ 0,5 kcal/kg/km (ACSM) ; les 3 000 premiers pas sont déjà comptés dans la vie quotidienne.
 - **Recommandations** : perte de poids −20 %, maintien, prise de masse sèche +10 % ; protéines 2 g/kg (1,6 g/kg en maintien).
 
 Aucune dépendance ni étape de build : le site est servi tel quel par GitHub Pages depuis la branche `main`.

@@ -145,6 +145,12 @@ td .del{width:28px;height:28px;font-size:1.05rem}
 #mf{padding:0;border:0;background:none}
 .btns{display:grid;grid-template-columns:1fr;gap:8px}
 #pf,#af{padding:0;border:0;background:none}
+.more{border:1px solid var(--line);border-radius:10px;padding:0 12px}
+.more summary{cursor:pointer;padding:11px 0;font-size:.85rem;font-weight:500;color:var(--ink);list-style:none;display:flex;justify-content:space-between;gap:10px}
+.more summary::-webkit-details-marker{display:none}
+.more summary::after{content:"+";color:var(--muted);font-family:var(--f-mono)}
+.more[open] summary::after{content:"−"}
+.more .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-bottom:12px}
 .pres{display:flex;flex-direction:column;gap:12px}
 .pres:empty{display:none}
 .imc{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
@@ -256,8 +262,9 @@ td .del{width:28px;height:28px;font-size:1.05rem}
     <div id="aList"></div>
     <form id="af">
       <label class="full">Activité<select id="aType"></select></label>
-      <label>Intensité<select id="aInt"><option value="0">Légère</option><option value="1" selected>Modérée</option><option value="2">Intense</option></select></label>
-      <label>Durée (min)<input id="aMin" type="number" inputmode="numeric" min="1" placeholder="60"></label>
+      <label id="aIntL">Intensité<select id="aInt"><option value="0">Légère</option><option value="1" selected>Modérée</option><option value="2">Intense</option></select></label>
+      <label id="aMinL">Durée (min)<input id="aMin" type="number" inputmode="numeric" min="1" placeholder="60"></label>
+      <label id="aPasL" class="full" hidden>Nombre de pas de la journée (app Santé)<input id="aPas" type="number" inputmode="numeric" min="0" placeholder="8000"></label>
       <label class="full">Calories dépensées (estimées)<input id="aK" type="number" inputmode="numeric" min="0" placeholder="0"></label>
       <div class="calc full" id="aCalc">Choisis une activité et une durée : la dépense se calcule avec ton poids.</div>
       <button class="add full" type="submit">Ajouter l'activité</button>
@@ -298,10 +305,15 @@ td .del{width:28px;height:28px;font-size:1.05rem}
     <form id="mf">
       <label class="full">Date<input id="mDate" type="date"></label>
       <label class="full">Poids (kg)<input id="mPoids" type="number" inputmode="decimal" min="0" step="0.1" placeholder="70,0"></label>
-      <label>Tour de taille, au nombril (cm)<input id="mTaille" type="number" inputmode="decimal" min="0" step="0.5"></label>
-      <label>Tour de bras (cm)<input id="mBras" type="number" inputmode="decimal" min="0" step="0.5"></label>
-      <label>Tour de poitrine (cm)<input id="mPoitrine" type="number" inputmode="decimal" min="0" step="0.5"></label>
-      <label>Tour de cuisse (cm)<input id="mCuisse" type="number" inputmode="decimal" min="0" step="0.5"></label>
+      <details class="full more" id="mMore">
+        <summary>Mensurations (tour de taille, bras…)</summary>
+        <div class="grid2">
+          <label>Tour de taille, au nombril (cm)<input id="mTaille" type="number" inputmode="decimal" min="0" step="0.5"></label>
+          <label>Tour de bras (cm)<input id="mBras" type="number" inputmode="decimal" min="0" step="0.5"></label>
+          <label>Tour de poitrine (cm)<input id="mPoitrine" type="number" inputmode="decimal" min="0" step="0.5"></label>
+          <label>Tour de cuisse (cm)<input id="mCuisse" type="number" inputmode="decimal" min="0" step="0.5"></label>
+        </div>
+      </details>
       <button class="add full" type="submit">Enregistrer la mesure</button>
       <div class="status full" id="mStatus" role="status">Remplis seulement ce que tu as mesuré.</div>
     </form>
@@ -814,15 +826,19 @@ function renderMesures(){
     $("#wChart").innerHTML=s;
   }
   if(!all.length){$("#mHist").innerHTML='<div class="hint">Tes mesures apparaîtront ici, de la plus récente à la plus ancienne.</div>';return}
-  let t='<div class="tblwrap"><table><thead><tr><th>Date</th><th>Poids</th><th>Δ</th><th>Taille</th><th>Bras</th><th>Poitrine</th><th>Cuisse</th><th></th></tr></thead><tbody>';
+  /* Les colonnes de mensurations n'apparaissent que si au moins une a été notée. */
+  const tours=[["taille","Taille"],["bras","Bras"],["poitrine","Poitrine"],["cuisse","Cuisse"]].filter(([k])=>all.some(m=>+m[k]>0));
+  let t='<div class="tblwrap"><table><thead><tr><th>Date</th><th>Poids</th><th>Δ</th>'+tours.map(x=>`<th>${x[1]}</th>`).join("")+'<th></th></tr></thead><tbody>';
   for(const m of all.slice().reverse().slice(0,30)){
     const i=w.findIndex(x=>x.date===m.date), pv=i>0?w[i-1]:null;
     const c=k=>+m[k]>0?n1(+m[k]):"–";
-    t+=`<tr><td>${dShort(m.date)}</td><td>${c("poids")}</td><td class="dl">${pv?sgn(m.poids-pv.poids):""}</td><td>${c("taille")}</td><td>${c("bras")}</td><td>${c("poitrine")}</td><td>${c("cuisse")}</td><td><button class="del" data-d="${esc(m.date)}" aria-label="Supprimer la mesure du ${dShort(m.date)}">×</button></td></tr>`;
+    t+=`<tr><td>${dShort(m.date)}</td><td>${c("poids")}</td><td class="dl">${pv?sgn(m.poids-pv.poids):""}</td>${tours.map(([k])=>`<td>${c(k)}</td>`).join("")}<td><button class="del" data-d="${esc(m.date)}" aria-label="Supprimer la mesure du ${dShort(m.date)}">×</button></td></tr>`;
   }
   $("#mHist").innerHTML=t+"</tbody></table></div>";
 }
 $("#mDate").value=TODAY; $("#mDate").max=TODAY;
+try{const v=localStorage.getItem("pdms-ui-mensurations");$("#mMore").open=v?v==="1":Object.values(S.mesures).some(m=>m&&(m.taille||m.bras||m.poitrine||m.cuisse))}catch(e){}
+$("#mMore").addEventListener("toggle",()=>{try{localStorage.setItem("pdms-ui-mensurations",$("#mMore").open?"1":"0")}catch(e){}});
 $("#mf").addEventListener("submit",e=>{
   e.preventDefault();
   const date=$("#mDate").value||TODAY;
@@ -934,7 +950,7 @@ $("#pRes").addEventListener("click",e=>{
 /* Valeurs MET (Compendium des activités physiques) pour légère / modérée / intense. Dépense nette = (MET - 1) x poids x durée,
    le métabolisme de repos étant déjà compté dans la « vie quotidienne ». */
 const ACTS=[
- ["muscu","Musculation",[3.5,5,6]],["course","Course à pied",[8,9.8,11.5]],["velo","Vélo",[4,6.8,10]],["marche","Marche",[2.8,3.5,5]],
+ ["muscu","Musculation",[3.5,5,6]],["course","Course à pied",[8,9.8,11.5]],["velo","Vélo",[4,6.8,10]],["marche","Marche (nombre de pas)",[2.8,3.5,5]],
  ["natation","Natation",[5.8,7,9.8]],["foot","Football",[7,8,10]],["basket","Basket",[4.5,6.5,8]],["tennis","Tennis / padel",[5,7.3,8]],
  ["combat","Boxe / sports de combat",[5.5,7.8,10.3]],["hiit","HIIT / CrossFit",[6,8,10]],["cardio","Cardio en salle (elliptique, rameur…)",[5,7,8.5]],
  ["danse","Danse",[4.5,6,7.8]],["escalade","Escalade",[5.8,7.5,8]],["rando","Randonnée",[5.3,6,7.8]],["yoga","Yoga / étirements",[2.5,3,4]],
@@ -942,8 +958,25 @@ const ACTS=[
 ];
 let aManual=false;
 function aPoids(){const w=dernierPoids(cur);return w?+w.poids:0}
+/* Marche au nombre de pas : longueur de pas ≈ 41,4 % de la taille, coût net de la marche ≈ 0,5 kcal par kg et par km (équations ACSM).
+   Les 3 000 premiers pas de la journée sont déjà comptés dans la « vie quotidienne » du profil. */
+const PAS_BASE=3000;
+function foulee(){const t=+(S.profil||{}).taille;return t>0?t*.414/100:.75}
+function pasKcal(pas,kg){const km=Math.max(0,pas-PAS_BASE)*foulee()/1000;return{km,kcal:.5*kg*km,kmTot:pas*foulee()/1000}}
 function aCalc(){
   const a=ACTS.find(x=>x[0]===$("#aType").value), i=+$("#aInt").value, m=+$("#aMin").value, kg=aPoids();
+  const marche=!!a&&a[0]==="marche";
+  $("#aPasL").hidden=!marche; $("#aIntL").hidden=marche; $("#aMinL").hidden=marche;
+  if(marche){
+    const pas=Math.round(+$("#aPas").value)||0;
+    if(!kg){$("#aCalc").textContent="Ajoute une pesée (Poids et mensurations) pour calculer la dépense.";if(!aManual)$("#aK").value="";return}
+    const r=pasKcal(pas,kg), t=+(S.profil||{}).taille;
+    $("#aCalc").innerHTML=pas>0
+      ?`${fmt(pas)} pas ≈ <b>${n1(r.kmTot)} km</b> (pas de ${Math.round(foulee()*100)} cm${t?"":", taille non renseignée"}). Les ${fmt(PAS_BASE)} premiers pas sont déjà comptés dans ta vie quotidienne.`
+      :`Tape le total de pas de la journée (app Santé de l'iPhone). Les ${fmt(PAS_BASE)} premiers sont déjà comptés dans ta vie quotidienne.`;
+    if(!aManual)$("#aK").value=pas>0?Math.round(r.kcal):"";
+    return;
+  }
   if(!a||!a[2]){$("#aCalc").textContent="Tape les calories dépensées (par exemple celles de ta montre).";return}
   if(!kg){$("#aCalc").textContent="Ajoute une pesée (Poids et mensurations) pour calculer la dépense.";if(!aManual)$("#aK").value="";return}
   const per=(a[2][i]-1)*kg/60;
@@ -953,20 +986,32 @@ function aCalc(){
 function renderActivites(){
   const l=S.activites[cur]||[], tot=l.reduce((s,a)=>s+(+a.kcal||0),0);
   $("#aTot").textContent=fmt(tot)+" kcal";
-  $("#aList").innerHTML=l.length?l.map((a,i)=>`<div class="row"><div class="name">${esc(a.label)}<small>${a.minutes?a.minutes+" min":""}${a.intensite!=null&&a.type!=="autre"?" · "+["légère","modérée","intense"][a.intensite]:""}</small></div><span class="v k">${fmt(+a.kcal||0)}</span><span class="v"></span><button class="del" data-ai="${i}" aria-label="Supprimer ${esc(a.label)}">×</button></div>`).join("")
+  $("#aList").innerHTML=l.length?l.map((a,i)=>`<div class="row"><div class="name">${esc(a.label)}<small>${a.pas?fmt(a.pas)+" pas":a.minutes?a.minutes+" min":""}${a.intensite!=null&&a.type!=="autre"&&!a.pas?" · "+["légère","modérée","intense"][a.intensite]:""}</small></div><span class="v k">${fmt(+a.kcal||0)}</span><span class="v"></span><button class="del" data-ai="${i}" aria-label="Supprimer ${esc(a.label)}">×</button></div>`).join("")
     :'<div class="hint">Aucune activité ce jour-là.</div>';
   const m=activiteMoyenne();
   $("#aAvg").textContent=m.aucune?"La moyenne de tes activités sert à calculer ta dépense dans ton profil.":`Moyenne : ${fmt(m.avg)} kcal par jour sur les ${m.jours} derniers jours, utilisée pour calculer ta dépense dans ton profil.`;
   aCalc();
 }
 $("#aType").innerHTML=ACTS.map(a=>`<option value="${a[0]}">${esc(a[1])}</option>`).join("");
-for(const id of["#aType","#aInt","#aMin"])for(const ev of["input","change"])$(id).addEventListener(ev,()=>{if(id!=="#aMin")aManual=false;aCalc()});
+for(const id of["#aType","#aInt","#aMin","#aPas"])for(const ev of["input","change"])$(id).addEventListener(ev,()=>{if(id==="#aType"||id==="#aInt")aManual=false;aCalc()});
 $("#aK").addEventListener("input",()=>{aManual=true});
 $("#af").addEventListener("submit",e=>{
   e.preventDefault(); aCalc();
   const a=ACTS.find(x=>x[0]===$("#aType").value), m=Math.round(+$("#aMin").value)||0, k=Math.round(+$("#aK").value)||0;
-  if(!k){say("#aStatus",a&&a[2]?"Indique une durée (et une pesée) pour estimer la dépense.":"Tape les calories dépensées.","err");return}
   const l=(S.activites[cur]||[]).slice();
+  if(a[0]==="marche"){
+    const pas=Math.round(+$("#aPas").value)||0;
+    if(!pas){say("#aStatus","Tape ton nombre de pas de la journée.","err");return}
+    /* Un seul total de pas par jour : une nouvelle saisie remplace la précédente. */
+    const i=l.findIndex(x=>x.type==="marche"&&x.pas), item={type:"marche",label:"Marche",pas,minutes:0,kcal:k};
+    const remplace=i>=0; if(remplace)l[i]=item; else l.push(item);
+    S.activites[cur]=l;
+    if(!persist()){say("#aStatus","Pas enregistré : stockage plein ou bloqué.","err");return}
+    $("#aPas").value="";$("#aK").value="";aManual=false;
+    renderActivites(); renderProfil(); say("#aStatus",remplace?"Pas de la journée mis à jour ✓":"Pas ajoutés ✓","ok");
+    return;
+  }
+  if(!k){say("#aStatus",a&&a[2]?"Indique une durée (et une pesée) pour estimer la dépense.":"Tape les calories dépensées.","err");return}
   l.push({type:a[0],label:a[1].replace(/ \(.*\)$/,""),intensite:+$("#aInt").value,minutes:m,kcal:k});
   S.activites[cur]=l;
   if(!persist()){say("#aStatus","Pas enregistré : stockage plein ou bloqué.","err");return}
@@ -1007,7 +1052,7 @@ function summary(){
   const all=Object.values(S.mesures).filter(m=>m&&m.date).sort((a,b)=>a.date<b.date?-1:1);
   const pr=S.profil||{}, b=besoins();
   if(pr.age||pr.taille)t+=`\nProfil : ${pr.sexe==="f"?"femme":"homme"}, ${pr.age||"?"} ans, ${pr.taille||"?"} cm, objectif ${OBJ_LABEL[pr.objectif]||"?"}${b&&b.imc?`, IMC ${n1(b.imc)}`:""}\n`;
-  const act=[];for(let i=13;i>=0;i--){const s=shift(TODAY,-i),l=S.activites[s]||[];if(l.length)act.push(`- ${s} : ${l.map(a=>`${a.label}${a.minutes?" "+a.minutes+" min":""} (${fmt(a.kcal)} kcal)`).join(", ")}`)}
+  const act=[];for(let i=13;i>=0;i--){const s=shift(TODAY,-i),l=S.activites[s]||[];if(l.length)act.push(`- ${s} : ${l.map(a=>`${a.label}${a.pas?" "+a.pas+" pas":a.minutes?" "+a.minutes+" min":""} (${fmt(a.kcal)} kcal)`).join(", ")}`)}
   t+="\nActivité physique, 14 derniers jours :\n"+(act.length?act.join("\n")+"\n":"- aucune activité notée\n");
   if(b&&b.tdee)t+=`Dépense estimée : ${fmt(b.tdee)} kcal/jour (dont ${fmt(b.act.avg)} kcal/jour d'activité en moyenne)\n`;
   t+="\nPoids et mensurations :\n";
