@@ -6,6 +6,14 @@ Web app installable (PWA) pour suivre une prise de masse sèche au quotidien.
 
 ## Fonctions
 
+L'app est organisée en 4 onglets : **Aujourd'hui** (cercles, compléments, repas par moment, idée pour le prochain repas), **Ajouter** (recherche, portions, récents, favoris, mes repas, copie de la veille, activité), **Progrès** (poids lissé, semaine, activité, mesures) et **Profil** (profil, objectifs, goûts, repas composés, sauvegarde).
+
+- **Récents et favoris** : remettre un aliment déjà noté en un appui, ou copier un repas de la veille.
+- **Repas composés** : un repas enregistré une fois (« Mon bowl du midi ») s'ajoute d'un coup.
+- **Portions en unités** : œuf, tranche, pot, dose, pièce, cuillère… avec conversion en grammes.
+- **Annuler** : chaque suppression ou ajout peut être annulé pendant 6 secondes.
+- **Premier lancement** : 3 écrans (profil, objectif, premier repas) pour un nouvel utilisateur.
+- **Poids lissé** : moyenne des pesées sur 7 jours et rythme par mois comparé à l'objectif.
 - **Repas** : aliment + grammage → calories et protéines calculées automatiquement (liste d'aliments intégrée, et les aliments saisis à la main sont retenus).
 - **Bases d'aliments hors connexion** : liste de l'app, table officielle **Ciqual 2025** (environ 3 200 aliments et plats) et environ 150 plats du monde. Recherche souple et choix parmi plusieurs résultats.
 - **Estimation en ligne** : pour un produit de marque absent des bases, recherche dans [Open Food Facts](https://world.openfoodfacts.org) (nécessite du réseau).
