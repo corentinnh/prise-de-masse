@@ -1,10 +1,12 @@
 /* Service worker : garde l'app disponible hors connexion.
    Change VERSION à chaque mise à jour pour que les téléphones récupèrent la nouvelle version. */
-const VERSION = "pdms-2026-10-20-5";
+const VERSION = "pdms-2026-10-21-1";
 const ASSETS = [
   "./",
   "index.html",
   "manifest.webmanifest",
+  "data/ciqual-2025.json",
+  "data/plats-du-monde.json",
   "fonts/bricolage-grotesque-latin-600-normal.woff2",
   "fonts/bricolage-grotesque-latin-800-normal.woff2",
   "fonts/ibm-plex-mono-latin-500-normal.woff2",
