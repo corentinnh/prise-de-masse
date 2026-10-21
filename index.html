@@ -405,6 +405,19 @@ input,select{border-radius:12px}
 .spday .t.repos{color:var(--muted)}
 .spday .k{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
 .spday .k::after{content:" ›";color:var(--muted);font-weight:500}
+.spweeks{display:flex;flex-wrap:wrap;gap:6px}
+.spweeks button{border-radius:999px;padding:8px 14px;font-weight:700;font-size:.85rem;border:1px solid color-mix(in srgb,var(--ink) 14%,transparent);background:color-mix(in srgb,var(--ink) 5%,transparent);color:var(--ink);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spweeks button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.spweeks .new{border-style:dashed;background:none}
+.spwact{display:flex;gap:16px}
+.spwact .lnk{font-size:.85rem;padding:4px 0}
+.spwact .lnk:disabled{color:var(--muted);text-decoration:none;opacity:.6}
+.spwform{display:flex;gap:8px}
+.spwform input{flex:1}
+.spwform .add{padding:9px 16px}
+.spauto{align-items:flex-start;padding:12px;border-radius:16px;background:linear-gradient(135deg,color-mix(in srgb,#ff8a5b 14%,transparent),color-mix(in srgb,#7b5cff 14%,transparent))}
+.spauto small{display:block;color:var(--muted);font-weight:500;font-size:.78rem;margin-top:2px}
+.spauto input{margin-top:1px}
 .sptot{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .sptot:empty{display:none}
 .sptot div{background:color-mix(in srgb,var(--ink) 5%,transparent);border-radius:16px;padding:10px 12px;font-size:.78rem;color:var(--muted)}
@@ -647,6 +660,13 @@ input,select{border-radius:12px}
   <section class="card" id="spCard" aria-label="Planning sportif">
     <div class="cardhead"><h2>Planning sportif</h2><span class="sub" id="spKg"></span></div>
     <div id="spView">
+      <div class="block">
+        <div class="eyebrow">Semaine type active</div>
+        <div class="spweeks" id="spWeeks"></div>
+        <div class="spwact" id="spWAct"><button type="button" class="lnk" data-swa="ren">Renommer</button><button type="button" class="lnk" data-swa="dup">Dupliquer</button><button type="button" class="lnk" data-swa="del">Supprimer</button></div>
+        <div class="spwform" id="spWForm" hidden><input id="spWName" maxlength="30" placeholder="Ex. : Semaine avec match" autocomplete="off" aria-label="Nom de la semaine type"><button type="button" class="add" id="spWOk">OK</button></div>
+      </div>
+      <label class="chk spauto"><input type="checkbox" id="spAuto"><span><b>Noter automatiquement chaque jour</b><small>Les séances et les pas prévus s'ajoutent tout seuls au journal, une fois par jour. Pas fait ? Retire-les dans Ajouter.</small></span></label>
       <div class="hint" id="spHint"></div>
       <div id="spList"></div>
       <div class="sptot" id="spTot"></div>
@@ -848,7 +868,7 @@ let TODAY=ds(new Date());
 let cur=TODAY;
 
 /* ---------- Stockage local ---------- */
-function emptyState(){return{jours:{},aliments:{},mesures:{},objectifs:{kcal:0,prot:0},profil:{},activites:{},gouts:{aime:[],seulement:false},favoris:{},repasComposes:{},planning:null,planSport:{},recoVue:null,onboarded:false,dernierExport:null}}
+function emptyState(){return{jours:{},aliments:{},mesures:{},objectifs:{kcal:0,prot:0},profil:{},activites:{},gouts:{aime:[],seulement:false},favoris:{},repasComposes:{},planning:null,planSport:{},semaines:[],semaineActive:null,planAuto:null,recoVue:null,onboarded:false,dernierExport:null}}
 let S=emptyState();
 try{const raw=localStorage.getItem(KEY);if(raw){const o=JSON.parse(raw);S=Object.assign(emptyState(),o)}}catch(e){}
 function persist(){
@@ -1710,7 +1730,7 @@ function renderActivites(){
   const l=S.activites[cur]||[], tot=l.reduce((s,a)=>s+(+a.kcal||0),0);
   renderAPlan();
   $("#aTot").textContent=fmt(tot)+" kcal";
-  $("#aList").innerHTML=l.length?l.map((a,i)=>`<div class="row"><div class="name">${esc(a.label)}<small>${a.pas?fmt(a.pas)+" pas":a.minutes?a.minutes+" min":""}${a.intensite!=null&&a.type!=="autre"&&!a.pas?" · "+["légère","modérée","intense"][a.intensite]:""}</small></div><span class="v k">${fmt(+a.kcal||0)}</span><span class="v"></span><button class="del" data-ai="${i}" aria-label="Supprimer ${esc(a.label)}">×</button></div>`).join("")
+  $("#aList").innerHTML=l.length?l.map((a,i)=>`<div class="row"><div class="name">${esc(a.label)}<small>${a.pas?fmt(a.pas)+" pas":a.minutes?a.minutes+" min":""}${a.intensite!=null&&a.type!=="autre"&&!a.pas?" · "+["légère","modérée","intense"][a.intensite]:""}${a.auto?" · noté automatiquement":""}</small></div><span class="v k">${fmt(+a.kcal||0)}</span><span class="v"></span><button class="del" data-ai="${i}" aria-label="Supprimer ${esc(a.label)}">×</button></div>`).join("")
     :'<div class="hint">Aucune activité ce jour-là.</div>';
   const m=activiteMoyenne();
   $("#aAvg").textContent=m.aucune?"La moyenne de tes activités sert à calculer ta dépense dans ton profil.":`Moyenne : ${fmt(m.avg)} kcal par jour sur les ${m.jours} derniers jours, utilisée pour calculer ta dépense dans ton profil.`;
@@ -1773,6 +1793,7 @@ const actNom=t=>{const a=ACTS.find(x=>x[0]===t);return a?a[1].replace(/ \(.*\)$/
 const INT=["légère","modérée","intense"];
 function spKg(){const w=dernierPoids();return w?+w.poids:0}
 function renderSport(){
+  renderSemaines();
   const kg=spKg(); let tot=0;
   $("#spKg").textContent=kg?`pour ${n1(kg)} kg`:"";
   $("#spHint").textContent=!planActif()?"Touche un jour pour y mettre tes séances et tes pas habituels : ta dépense et tes objectifs en tiennent compte.":!kg?"Ajoute une pesée (Progrès) pour calculer la dépense.":"";
@@ -1830,10 +1851,94 @@ $("#spSave").onclick=()=>{
   const val={seances:d.seances,pas:d.pas};
   S.planSport=Object.assign({},S.planSport);
   for(const w of[d.w,...d.copie]){if(val.seances.length||val.pas)S.planSport[w]=JSON.parse(JSON.stringify(val));else delete S.planSport[w]}
+  syncSemaine(); autoRefaitAujourdhui();
   if(!persist()){toast("Pas enregistré : stockage plein ou bloqué.");return}
-  const n=d.copie.size; spClose(); renderProfil(); renderActivites();
+  const n=d.copie.size; spClose(); renderProfil(); renderActivites(); renderProgAct();
   toast(n?`Planning enregistré sur ${n+1} jours`:"Planning enregistré");
 };
+/* ---------- Semaines types ----------
+   S.semaines = [{id, nom, jours}] ; S.planSport est la copie de travail de la semaine active (utilisée partout). */
+const clonePlan=o=>JSON.parse(JSON.stringify(o||{}));
+function semainesInit(){
+  if(!Array.isArray(S.semaines))S.semaines=[];
+  if(!S.semaines.length)S.semaines=[{id:"s1",nom:"Normale",jours:clonePlan(S.planSport)}];
+  if(!S.semaines.some(w=>w.id===S.semaineActive))S.semaineActive=S.semaines[0].id;
+}
+function semActive(){return S.semaines.find(w=>w.id===S.semaineActive)}
+function syncSemaine(){semainesInit();semActive().jours=clonePlan(S.planSport)}
+let swMode=null;
+function renderSemaines(){
+  semainesInit();
+  setH("#spWeeks",S.semaines.map(w=>`<button type="button" data-sw="${w.id}" aria-pressed="${w.id===S.semaineActive}">${w.id===S.semaineActive?"✓ ":""}${esc(w.nom)}</button>`).join("")+`<button type="button" class="new" data-swnew="1">+ Nouvelle</button>`);
+  $("#spWAct [data-swa=\"del\"]").disabled=S.semaines.length<2;
+  $("#spWForm").hidden=!swMode; $("#spWAct").hidden=!!swMode;
+  $("#spAuto").checked=!!(S.planAuto&&S.planAuto.on);
+}
+function swEdit(mode){swMode=mode;renderSemaines();const a=semActive();$("#spWName").value=mode==="ren"?a.nom:"";$("#spWName").placeholder=mode==="new"?"Ex. : Semaine avec match":a.nom;$("#spWName").focus()}
+function swUid(){let id;do id="s"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);while(S.semaines.some(w=>w.id===id));return id}
+$("#spWeeks").addEventListener("click",e=>{
+  const n=e.target.closest("[data-swnew]"); if(n){swEdit("new");return}
+  const b=e.target.closest("[data-sw]"); if(!b||b.dataset.sw===S.semaineActive)return;
+  snapshot(); syncSemaine();
+  const w=S.semaines.find(x=>x.id===b.dataset.sw); S.semaineActive=w.id; S.planSport=clonePlan(w.jours);
+  autoRefaitAujourdhui(); persist(); swMode=null; renderProfil(); renderActivites(); renderProgAct(); toast(`Semaine « ${w.nom} » active`);
+});
+$("#spWAct").addEventListener("click",e=>{
+  const b=e.target.closest("[data-swa]"); if(!b||b.disabled)return;
+  const a=b.dataset.swa;
+  if(a==="ren"||a==="dup"){swEdit(a);return}
+  if(a==="del"&&S.semaines.length>1){
+    snapshot(); const old=semActive(); S.semaines=S.semaines.filter(w=>w.id!==old.id);
+    S.semaineActive=S.semaines[0].id; S.planSport=clonePlan(S.semaines[0].jours);
+    autoRefaitAujourdhui(); persist(); renderProfil(); renderActivites(); renderProgAct(); toast(`Semaine « ${old.nom} » supprimée`);
+  }
+});
+function swValider(){
+  const nom=$("#spWName").value.trim().slice(0,30), mode=swMode; if(!mode)return;
+  syncSemaine(); snapshot();
+  if(mode==="ren"){if(nom)semActive().nom=nom}
+  else{
+    const w={id:swUid(),nom:nom||(mode==="dup"?semActive().nom+" (copie)":"Semaine "+(S.semaines.length+1)),jours:mode==="dup"?clonePlan(S.planSport):{}};
+    S.semaines.push(w); S.semaineActive=w.id; S.planSport=clonePlan(w.jours); autoRefaitAujourdhui();
+  }
+  swMode=null; persist(); renderProfil(); renderActivites(); renderProgAct();
+  if(mode!=="ren")toast(mode==="dup"?"Semaine dupliquée":"Nouvelle semaine : touche un jour pour la remplir");
+}
+$("#spWOk").onclick=swValider;
+$("#spWName").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();swValider()}if(e.key==="Escape"){swMode=null;renderSemaines()}});
+/* ---------- Noter automatiquement : chaque jour (une seule fois), les séances et pas prévus vont dans le journal ---------- */
+function autoJour(date){
+  const p=planJour(parse(date).getDay()); if(!p)return false;
+  const w=dernierPoids(date), kg=w?+w.poids:0, l=(S.activites[date]||[]).slice(); let ch=false;
+  if(!l.some(a=>!estPas(a)))for(const x of p.seances||[]){l.push({type:x.type,label:actNom(x.type),intensite:x.intensite==null?1:+x.intensite,minutes:+x.minutes||0,kcal:seanceKcal(x,kg),auto:true});ch=true}
+  if(!l.some(estPas)&&+p.pas>0){l.push({type:"marche",label:"Marche",pas:+p.pas,minutes:0,kcal:kg?Math.round(pasKcal(+p.pas,kg).kcal):0,auto:true});ch=true}
+  if(ch)S.activites[date]=l;
+  return ch;
+}
+function autoRattrape(){
+  const a=S.planAuto; if(!a||!a.on)return false;
+  let d=a.fait?shift(a.fait,1):a.depuis||TODAY; if(a.depuis&&d<a.depuis)d=a.depuis;
+  let ch=false, n=0;
+  while(d<=TODAY&&n<62){if(autoJour(d))ch=true;d=shift(d,1);n++}
+  a.fait=TODAY; return ch;
+}
+/* Planning modifié ou semaine changée : les activités auto d'aujourd'hui suivent le nouveau prévu. */
+function autoRefaitAujourdhui(){
+  const a=S.planAuto; if(!a||!a.on)return;
+  const l=S.activites[TODAY]||[]; if(!l.some(x=>x.auto))return;
+  const reste=l.filter(x=>!x.auto); if(reste.length)S.activites[TODAY]=reste;else delete S.activites[TODAY];
+  autoJour(TODAY);
+}
+$("#spAuto").addEventListener("change",()=>{
+  snapshot();
+  if($("#spAuto").checked){S.planAuto={on:true,depuis:TODAY,fait:shift(TODAY,-1)};autoRattrape()}
+  else S.planAuto=Object.assign({},S.planAuto,{on:false});
+  persist(); renderProfil(); renderActivites(); renderProgAct();
+  toast($("#spAuto").checked?"Ajout automatique activé : le prévu d'aujourd'hui est noté":"Ajout automatique désactivé");
+});
+semainesInit();
+if(autoRattrape())persist(); else if(S.planAuto&&S.planAuto.on)persist();
+
 /* Ajouter : la séance prévue du jour affiché, notée en un appui. */
 function renderAPlan(){
   const box=$("#aPlan"), p=planJour(parse(cur).getDay()), l=S.activites[cur]||[];
@@ -1872,7 +1977,7 @@ function backupInfo(){
   else t+="Aucun export pour l'instant : pense à en faire un de temps en temps.";
   $("#bInfo").textContent=t;
 }
-function exportData(){return JSON.stringify({app:"prise-de-masse-seche",version:1,exporte:new Date().toISOString(),jours:S.jours,aliments:S.aliments,mesures:S.mesures,objectifs:S.objectifs,profil:S.profil,activites:S.activites,gouts:S.gouts,favoris:S.favoris,repasComposes:S.repasComposes,planSport:S.planSport},null,1)}
+function exportData(){return JSON.stringify({app:"prise-de-masse-seche",version:1,exporte:new Date().toISOString(),jours:S.jours,aliments:S.aliments,mesures:S.mesures,objectifs:S.objectifs,profil:S.profil,activites:S.activites,gouts:S.gouts,favoris:S.favoris,repasComposes:S.repasComposes,planSport:S.planSport,semaines:S.semaines,semaineActive:S.semaineActive,planAuto:S.planAuto},null,1)}
 $("#bExport").onclick=async()=>{
   const name="prise-de-masse-"+TODAY+".json", json=exportData();
   const file=new File([json],name,{type:"application/json"});
@@ -1920,6 +2025,9 @@ $("#bFile").addEventListener("change",async e=>{
     if(o.favoris&&typeof o.favoris==="object")Object.assign(S.favoris,o.favoris);
     if(o.repasComposes&&typeof o.repasComposes==="object")Object.assign(S.repasComposes,o.repasComposes);
     if(o.planSport&&typeof o.planSport==="object"&&Object.keys(o.planSport).length)S.planSport=JSON.parse(JSON.stringify(o.planSport));
+    if(Array.isArray(o.semaines)&&o.semaines.length){S.semaines=JSON.parse(JSON.stringify(o.semaines));S.semaineActive=o.semaineActive||S.semaines[0].id}
+    if(o.planAuto&&typeof o.planAuto==="object")S.planAuto=Object.assign({},o.planAuto);
+    semainesInit();
     S.onboarded=true; $("#onb").hidden=true;
     if(!persist())throw 1;
     fillDatalist(); render(); renderMesures(); backupInfo();
@@ -2229,7 +2337,7 @@ if(!S.onboarded){
 showTab("today");
 document.addEventListener("visibilitychange",()=>{
   if(document.visibilityState!=="visible")return;
-  const t=ds(new Date()); if(t!==TODAY){const wasToday=cur===TODAY;TODAY=t;if(wasToday)cur=t;$("#mDate").max=t;render();renderMesures()}
+  const t=ds(new Date()); if(t!==TODAY){const wasToday=cur===TODAY;TODAY=t;if(wasToday)cur=t;$("#mDate").max=t;if(autoRattrape())persist();render();renderMesures()}
 });
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
 </script>
