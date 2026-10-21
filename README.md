@@ -6,7 +6,7 @@ Web app installable (PWA) pour suivre une prise de masse sèche au quotidien.
 
 ## Fonctions
 
-L'app est organisée en 4 onglets : **Aujourd'hui** (cercles, compléments, repas par moment, idée pour le prochain repas), **Ajouter** (recherche, portions, récents, favoris, mes repas, copie de la veille, activité), **Progrès** (poids lissé, semaine, activité, mesures) et **Profil** (profil, objectifs, goûts, repas composés, sauvegarde).
+L'app est organisée en 4 onglets : **Aujourd'hui** (cercles, compléments, repas par moment, idées pour le prochain repas avec « Mes goûts »), **Ajouter** (recherche, portions, récents, favoris, mes repas, copie de la veille, activité), **Progrès** (poids lissé, semaine, activité, mesures) et **Profil** (profil, objectifs, repas composés, sauvegarde).
 
 - **Récents et favoris** : remettre un aliment déjà noté en un appui, ou copier un repas de la veille.
 - **Repas composés** : un repas enregistré une fois (« Mon bowl du midi ») s'ajoute d'un coup.

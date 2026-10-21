@@ -330,6 +330,14 @@ td .del{width:28px;height:28px;font-size:1.05rem}
 
   <section class="ideas" aria-label="Idées pour compléter">
     <h2>Idées pour compléter</h2>
+    <details class="more" id="gMore">
+      <summary id="gSum">Mes goûts</summary>
+      <div class="gouts">
+        <label class="chk"><input type="checkbox" id="gSeul"> <span>Proposer seulement des plats avec ce que j'aime</span></label>
+        <div class="hint" id="gHint"></div>
+        <div id="gChips"></div>
+      </div>
+    </details>
     <div id="ideas"><div class="hint">Règle tes objectifs pour avoir des idées de repas adaptées à ce qu'il te reste.</div></div>
   </section>
 </section>
@@ -466,17 +474,6 @@ td .del{width:28px;height:28px;font-size:1.05rem}
       <button class="ghost" type="button" id="gfCancel">Annuler</button>
       <button class="add" type="submit">Enregistrer</button>
     </form>
-  </section>
-
-  <section class="card" aria-label="Mes goûts">
-    <details class="more plain" id="gMore">
-      <summary id="gSum">Mes goûts</summary>
-      <div class="gouts">
-        <label class="chk"><input type="checkbox" id="gSeul"> <span>Proposer seulement des plats avec ce que j'aime</span></label>
-        <div class="hint" id="gHint"></div>
-        <div id="gChips"></div>
-      </div>
-    </details>
   </section>
 
   <section class="card" id="rcCard" aria-label="Mes repas composés">
