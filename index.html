@@ -287,6 +287,14 @@ td .del{width:28px;height:28px;font-size:1.05rem}
 .chk{flex-direction:row;align-items:center;gap:10px;font-size:.88rem;color:var(--ink);font-weight:500}
 .chk input{width:20px;height:20px;flex:none;-webkit-appearance:checkbox;appearance:auto;accent-color:var(--ok)}
 #gChips{display:flex;flex-direction:column;gap:14px}
+.gsearch input{background:var(--surface)}
+#gRes{max-height:320px;overflow-y:auto}
+#gRes .li .like{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:.8rem;font-weight:600;color:var(--ink)}
+#gRes .li .like[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.gmine{display:flex;flex-direction:column;gap:6px}
+.gmc{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--ok);background:var(--surface);border-radius:999px;padding:4px 4px 4px 12px;font-size:.82rem;max-width:100%}
+.gmc span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gmc button{border:0;background:none;color:var(--muted);width:26px;height:26px;border-radius:50%;flex:none}
 .ggrp{display:flex;flex-direction:column;gap:6px}
 .ggrp .eyebrow{font-size:.66rem}
 .gch{display:flex;flex-wrap:wrap;gap:6px}
@@ -335,7 +343,11 @@ td .del{width:28px;height:28px;font-size:1.05rem}
       <div class="gouts">
         <label class="chk"><input type="checkbox" id="gSeul"> <span>Proposer seulement des plats avec ce que j'aime</span></label>
         <div class="hint" id="gHint"></div>
+        <label class="gsearch">Ajouter un aliment ou un plat que tu aimes<input id="gQ" type="search" placeholder="Ex. : saumon, lasagnes, mangue…" autocomplete="off"></label>
+        <div class="card list" id="gRes" hidden></div>
+        <div id="gMine"></div>
         <div id="gChips"></div>
+        <button type="button" class="moreideas" id="gMoreBtn">Afficher plus d'aliments</button>
       </div>
     </details>
     <div id="ideas"><div class="hint">Règle tes objectifs pour avoir des idées de repas adaptées à ce qu'il te reste.</div></div>
@@ -995,14 +1007,44 @@ const DISH_RULES=[
 function dishTags(nom){const n=nom.toLowerCase();const t=new Set();for(const[re,tag]of DISH_RULES)if(re.test(n))t.add(tag);return t}
 function ideaTags(idea){
   if(idea.tags)return idea.tags;
-  const t=new Set();for(const x of idea.it){if(x.dish)dishTags(x.dish).forEach(v=>t.add(v));else if(FOOD_TAG[x.f])t.add(FOOD_TAG[x.f])}
+  const t=new Set();for(const x of idea.it){if(x.dish){dishTags(x.dish).forEach(v=>t.add(v));if(idea.aimeDirect)tagsDuNom(x.dish).forEach(v=>t.add(v))}else if(FOOD_TAG[x.f])t.add(FOOD_TAG[x.f])}
   if(/curry|épic/i.test(idea.nom))t.add("epice");
   return idea.tags=t;
 }
-function gouts(){const g=S.gouts||{};return{aime:new Set(g.aime||[]),seulement:!!g.seulement}}
+/* Aliments en plus, affichés avec « Afficher plus ». Le 3e élément rattache l'aliment à un goût déjà utilisé par les idées. */
+const GOUTS_PLUS=[
+ ["Autres viandes et poissons",[["veau","Veau","boeuf"],["canard","Canard","poulet"],["charcuterie","Charcuterie / chorizo","porc"],["merguez","Saucisses / merguez","porc"],["cabillaud","Cabillaud / colin","poisson"],["sardines","Sardines / maquereau","poisson"],["moules","Moules","crevettes"],["surimi","Surimi","poisson"],["steakveg","Steak végétal","tofu"]]],
+ ["Laitiers et fromages",[["yaourt","Yaourt","laitiers"],["fromageblanc","Fromage blanc","laitiers"],["mozzarella","Mozzarella","fromage"],["feta","Feta / chèvre","fromage"],["cottage","Cottage cheese","laitiers"]]],
+ ["Autres féculents",[["boulgour","Boulgour","semoule"],["lentillescorail","Lentilles corail","legumineuses"],["poischiches","Pois chiches","legumineuses"],["haricotsrouges","Haricots rouges","legumineuses"],["mais","Maïs","legumes"],["gnocchis","Gnocchis","pates"],["patesfraiches","Pâtes fraîches / raviolis","pates"],["tortillas","Tortillas / wraps","pain"],["muesli","Muesli / granola","avoine"]]],
+ ["Autres légumes",[["epinards","Épinards","legumes"],["carottes","Carottes","legumes"],["tomates","Tomates","legumes"],["poivrons","Poivrons","legumes"],["champignons","Champignons","legumes"],["aubergine","Aubergine","legumes"],["chou","Chou / chou-fleur","legumes"],["petitspois","Petits pois","legumes"],["salade","Salade verte","legumes"],["concombre","Concombre","legumes"],["avocat","Avocat","legumes"],["oignon","Oignon / ail","legumes"]]],
+ ["Fruits",[["pomme","Pomme / poire","banane"],["fraises","Fraises / fruits rouges","banane"],["orange","Orange / clémentine","banane"],["kiwi","Kiwi","banane"],["mangue","Mangue / ananas","banane"],["raisin","Raisin","banane"],["fruitssecs","Fruits secs (dattes, abricots)","noix"]]],
+ ["Divers",[["chocolat","Chocolat","cacahuete"],["miel","Miel / confiture","cacahuete"],["huileolive","Huile d'olive","legumes"],["sauces","Sauces (pesto, tomate…)","legumes"],["coco","Lait de coco","epice"]]]
+];
+const GOUT_PARENT=Object.fromEntries(GOUTS_PLUS.flatMap(g=>g[1].map(([k,,p])=>[k,p])));
+/* Reconnaît les goûts d'un aliment ou d'un plat d'après son nom. */
+const NAME_RULES=[
+ [/poulet|volaille|chicken/,"poulet"],[/dinde/,"dinde"],[/b(oe|œ)uf|steak|bavette|entrecote|rumsteck|kefta/,"boeuf"],[/agneau|mouton/,"agneau"],[/porc|jambon|lardon|chorizo|saucisse|bacon|merguez/,"porc"],
+ [/saumon/,"saumon"],[/thon/,"thon"],[/cabillaud|colin|merlu|lieu|poisson|sardine|maquereau|truite|bar |dorade|sole|surimi/,"poisson"],[/crevette|moule|calamar|fruits de mer|gambas/,"crevettes"],
+ [/oeuf|omelette/,"oeufs"],[/tofu|tempeh|seitan|vegetal/,"tofu"],[/lentille|pois chiche|haricot (rouge|blanc)|haricots (rouges|blancs)|feve|falafel|houmous/,"legumineuses"],
+ [/skyr|fromage blanc|yaourt|petit.suisse|cottage/,"laitiers"],[/fromage|emmental|comte|mozzarella|feta|chevre|parmesan|raclette|camembert|cheddar/,"fromage"],[/whey|proteine en poudre|caseine/,"whey"],
+ [/riz/,"riz"],[/pate|nouille|spaghetti|penne|tagliatelle|lasagne|ravioli|gnocchi|vermicelle/,"pates"],[/pomme de terre|frite|puree|potatoes/,"pdt"],[/patate douce/,"patate"],[/quinoa/,"quinoa"],
+ [/semoule|couscous|boulgour/,"semoule"],[/pain|baguette|wrap|tortilla|burger|sandwich|pita|bagel|brioche/,"pain"],[/avoine|muesli|granola|porridge/,"avoine"],
+ [/brocoli/,"brocoli"],[/haricot.? vert/,"haricotsverts"],[/courgette/,"courgette"],[/epinard|carotte|tomate|poivron|champignon|aubergine|chou|petit.? pois|salade|concombre|oignon|legume|ratatouille|soupe/,"legumes"],
+ [/banane|pomme(?! de terre)|poire|fraise|framboise|myrtille|orange|clementine|kiwi|mangue|ananas|raisin|fruit/,"banane"],[/lait(?! de coco)/,"lait"],[/cacahuete|chocolat|miel|confiture/,"cacahuete"],[/amande|noix|noisette|cajou|pistache|datte|abricot sec/,"noix"],
+ [/curry|piment|epice|chili|harissa|tandoori|tikka/,"epice"]
+];
+function tagsDuNom(nom){const n=norm(nom);const t=new Set();for(const[re,tag]of NAME_RULES)if(re.test(n))t.add(tag);return t}
+function gouts(){
+  const g=S.gouts||{}, aime=new Set(g.aime||[]);
+  /* Les aliments « en plus » comptent aussi pour leur goût parent, et chaque aliment ajouté par la recherche pour ses goûts reconnus. */
+  for(const k of[...aime])if(GOUT_PARENT[k])aime.add(GOUT_PARENT[k]);
+  const alim=(g.aliments||[]).slice();
+  for(const a of alim)tagsDuNom(a).forEach(t=>aime.add(t));
+  return{aime,seulement:!!g.seulement,choisis:new Set(g.aime||[]),aliments:alim};
+}
 /* Une idée passe si tous ses ingrédients reconnus sont cochés ; un plat épicé demande « Plats épicés ». */
 function aime(idea){
-  const g=gouts(); if(!g.seulement)return true;
+  const g=gouts(); if(!g.seulement||idea.aimeDirect)return true;
   const t=ideaTags(idea); if(!t.size)return false;
   for(const v of t)if(!g.aime.has(v))return false;
   return true;
@@ -1025,14 +1067,24 @@ function mondeIdeas(){
 }
 /* Petit hasard stable sur la journée : les idées changent d'un jour à l'autre, pas à chaque ajout. */
 function jitter(key){let h=2166136261;for(const c of TODAY+key){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return((h>>>0)%1000)/1000}
+/* Un plat ajouté depuis la recherche (assez protéiné pour faire un repas) devient une idée de repas. */
+function platsAimes(){
+  const out=[];
+  for(const nom of gouts().aliments){
+    const e=allEntries().find(o=>norm(o.nom)===norm(nom))||(S.aliments[slug(nom)]&&{nom,k:+S.aliments[slug(nom)].kcal100,p:+S.aliments[slug(nom)].prot100});
+    if(!e||!(e.p>=6&&e.k>=80&&e.k<=450))continue;
+    out.push({nom:e.nom,type:"repas",m:["midi","soir"],aimeDirect:true,monde:e.src==="monde",orig:e.orig,it:[{dish:e.nom,g:350,k100:e.k,p100:e.p}]});
+  }
+  return out;
+}
 function repasPour(slot,Tk,Tp,Rk){
   const g=gouts(), decouverte=!g.seulement;
-  const pool=[...IDEAS.filter(x=>x.type==="repas"&&x.m.includes(slot.m)),...(slot.m==="matin"?[]:mondeIdeas())].filter(aime);
+  const pool=[...IDEAS.filter(x=>x.type==="repas"&&x.m.includes(slot.m)),...(slot.m==="matin"?[]:[...mondeIdeas(),...platsAimes()])].filter(aime);
   return pool.map(x=>{const b=sized(x,Tk);let s=fit(b,Tk,Tp,Rk);
       /* Mode découverte : on met en avant les plats du monde et on varie davantage. */
       if(decouverte){s+=jitter(slot.m+x.nom)*.25+(x.monde?.08:0)}
       /* Goûts : on préfère les idées qui utilisent plusieurs aliments cochés. */
-      else s+=jitter(slot.m+x.nom)*.06+Math.min(4,ideaTags(x).size)*.05;
+      else s+=jitter(slot.m+x.nom)*.06+Math.min(4,ideaTags(x).size)*.05+(x.aimeDirect?.15:0);
       return{b,s}})
     .sort((a,b)=>b.s-a.s).slice(0,3).map(o=>o.b);
 }
@@ -1040,21 +1092,51 @@ function bestSnacks(Lk,Lp,n,exclude){
   return IDEAS.filter(x=>x.type==="collation"&&!(exclude&&exclude.has(x.nom))&&aime(x)).map(x=>{const b=build(x,1);return{b,s:fit(b,Math.max(0,Lk),Math.max(0,Lp),Lk)+jitter("c"+x.nom)*.05}})
     .sort((a,b)=>b.s-a.s).slice(0,n).map(o=>o.b);
 }
+let gPlus=false;
 function renderGouts(){
   const g=gouts();
   $("#gSeul").checked=g.seulement;
-  $("#gChips").innerHTML=GOUTS.map(([titre,items])=>`<div class="ggrp"><div class="eyebrow">${esc(titre)}</div><div class="gch">${items.map(([k,l])=>`<button type="button" class="gc" data-g="${k}" aria-pressed="${g.aime.has(k)}">${esc(l)}</button>`).join("")}</div></div>`).join("");
+  const grp=([titre,items])=>`<div class="ggrp"><div class="eyebrow">${esc(titre)}</div><div class="gch">${items.map(([k,l])=>`<button type="button" class="gc" data-g="${k}" aria-pressed="${g.choisis.has(k)}">${esc(l)}</button>`).join("")}</div></div>`;
+  $("#gChips").innerHTML=GOUTS.map(grp).join("")+(gPlus?GOUTS_PLUS.map(grp).join(""):"");
+  $("#gMoreBtn").textContent=gPlus?"Afficher moins":"Afficher plus d'aliments";
+  $("#gMine").innerHTML=g.aliments.length?`<div class="gmine"><div class="eyebrow">Ajoutés par la recherche</div><div class="gch">${g.aliments.map((a,i)=>`<span class="gmc"><span>${esc(a)}</span><button type="button" data-gx="${i}" aria-label="Retirer ${esc(a)}">×</button></span>`).join("")}</div></div>`:"";
   $("#gHint").textContent=g.seulement
     ?(g.aime.size?"Les idées n'utilisent que les aliments cochés.":"Coche les aliments que tu aimes pour avoir des idées.")
     :"Mode découverte : idées variées, dont des plats du monde, qui changent chaque jour. Coche la case pour ne voir que ce que tu aimes.";
-  $("#gSum").textContent=g.seulement?`Mes goûts · ${g.aime.size} aliment${g.aime.size>1?"s":""}`:"Mes goûts · mode découverte";
+  const nb=g.choisis.size+g.aliments.length;
+  $("#gSum").textContent=g.seulement?`Mes goûts · ${nb} aliment${nb>1?"s":""}`:"Mes goûts · mode découverte";
 }
 $("#gSeul").addEventListener("change",()=>{S.gouts=Object.assign({aime:[]},S.gouts,{seulement:$("#gSeul").checked});persist();renderGouts();renderIdeas(tot(day(cur)))});
 $("#gChips").addEventListener("click",e=>{
   const b=e.target.closest("[data-g]"); if(!b)return;
-  const set=gouts().aime, k=b.dataset.g; if(set.has(k))set.delete(k); else set.add(k);
+  const set=new Set((S.gouts||{}).aime||[]), k=b.dataset.g; if(set.has(k))set.delete(k); else set.add(k);
   S.gouts=Object.assign({},S.gouts,{aime:[...set]}); persist();
-  b.setAttribute("aria-pressed",set.has(k)); renderGouts(); renderIdeas(tot(day(cur)));
+  renderGouts(); renderIdeas(tot(day(cur)));
+});
+$("#gMoreBtn").onclick=()=>{gPlus=!gPlus;renderGouts()};
+/* Recherche dans toutes les bases d'aliments */
+let gRes=[];
+function renderGRes(){
+  const q=$("#gQ").value.trim(), box=$("#gRes");
+  if(!q){box.hidden=true;return}
+  gRes=candidates(q,12); box.hidden=false;
+  const mine=new Set(gouts().aliments.map(norm));
+  box.innerHTML=gRes.length?gRes.map((x,i)=>{const on=mine.has(norm(x.nom));return`<div class="li"><div class="nm">${esc(x.nom)}<small>${esc(SRC_LABEL[x.src]||"")}${x.orig?" · "+esc(x.orig):""} · <span class="mono">${fmt(x.k)} kcal · ${x.p} g / 100 g</span></small></div><button type="button" class="like" data-gl="${i}" aria-pressed="${on}">${on?"Aimé ✓":"J'aime"}</button></div>`}).join("")
+    :'<div class="li"><div class="hint">Rien trouvé. Essaie un autre mot.</div></div>';
+}
+$("#gQ").addEventListener("input",renderGRes);
+$("#gRes").addEventListener("click",e=>{
+  const b=e.target.closest("[data-gl]"); if(!b)return; const x=gRes[+b.dataset.gl]; if(!x)return;
+  const l=((S.gouts||{}).aliments||[]).slice(), i=l.findIndex(a=>norm(a)===norm(x.nom));
+  if(i>=0)l.splice(i,1); else l.push(x.nom);
+  S.gouts=Object.assign({aime:[]},S.gouts,{aliments:l}); persist();
+  renderGouts(); renderGRes(); renderIdeas(tot(day(cur)));
+});
+$("#gMine").addEventListener("click",e=>{
+  const b=e.target.closest("[data-gx]"); if(!b)return;
+  const l=((S.gouts||{}).aliments||[]).slice(); l.splice(+b.dataset.gx,1);
+  S.gouts=Object.assign({aime:[]},S.gouts,{aliments:l}); persist();
+  renderGouts(); renderGRes(); renderIdeas(tot(day(cur)));
 });
 let shown=[];
 const valsHtml=x=>`<span class="k">+${fmt(x.k)} kcal</span> · <span class="p">+${fmt(x.p)} g prot</span>`;
@@ -1432,7 +1514,7 @@ $("#bFile").addEventListener("change",async e=>{
     if(o.objectifs&&(o.objectifs.kcal||o.objectifs.prot))S.objectifs={kcal:+o.objectifs.kcal||0,prot:+o.objectifs.prot||0};
     if(o.profil&&typeof o.profil==="object"&&Object.keys(o.profil).length)S.profil=Object.assign({},S.profil,o.profil);
     if(o.activites&&typeof o.activites==="object")Object.assign(S.activites,o.activites);
-    if(o.gouts&&Array.isArray(o.gouts.aime))S.gouts={aime:o.gouts.aime.slice(),seulement:!!o.gouts.seulement};
+    if(o.gouts&&Array.isArray(o.gouts.aime))S.gouts={aime:o.gouts.aime.slice(),seulement:!!o.gouts.seulement,aliments:Array.isArray(o.gouts.aliments)?o.gouts.aliments.slice():[]};
     if(o.favoris&&typeof o.favoris==="object")Object.assign(S.favoris,o.favoris);
     if(o.repasComposes&&typeof o.repasComposes==="object")Object.assign(S.repasComposes,o.repasComposes);
     S.onboarded=true; $("#onb").hidden=true;

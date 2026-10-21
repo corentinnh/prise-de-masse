@@ -20,7 +20,7 @@ L'app est organisée en 4 onglets : **Aujourd'hui** (cercles, compléments, repa
 - **Profil** : âge, taille, sexe, objectif (perte de poids, maintien, prise de masse sèche) → IMC, dépense estimée et calories / protéines recommandées, applicables en un clic.
 - **Activité physique** : séances par jour (type, intensité, durée) avec dépense estimée ; la moyenne des 14 derniers jours sert au calcul de la dépense.
 - **Objectifs** : cercles de progression calories / protéines pour la journée.
-- **Idées pour compléter** : suggestions de repas selon ce qu'il reste à manger et l'heure, ajoutables en un clic. « Mes goûts » : soit seulement des plats avec les aliments cochés, soit un mode découverte avec des plats du monde qui changent chaque jour.
+- **Idées pour compléter** : suggestions de repas selon ce qu'il reste à manger et l'heure, ajoutables en un clic. « Mes goûts » : soit seulement des plats avec les aliments cochés, soit un mode découverte avec des plats du monde qui changent chaque jour. Recherche dans toute la base pour ajouter un aliment ou un plat aimé (un plat aimé devient une idée de repas) et « Afficher plus » pour une liste étendue.
 - **Compléments** : cases whey et créatine.
 - **Poids et mensurations** : pesées, tours de taille / bras / poitrine / cuisse, courbe et historique.
 - **Sauvegarde** : export / import JSON et résumé texte à copier.
