@@ -187,6 +187,16 @@ td .del{width:28px;height:28px;font-size:1.05rem}
 .idea .after{font-size:.78rem;color:var(--muted)}
 .idea .plus{flex:none;background:var(--ink);color:var(--bg);border:0;border-radius:10px;padding:9px 14px;font-weight:600;font-size:.85rem}
 .idea .plus.sm{background:none;color:var(--ink);border:1px solid var(--line);padding:7px 12px}
+.gouts{display:flex;flex-direction:column;gap:12px;padding-bottom:12px}
+.chk{flex-direction:row;align-items:center;gap:10px;font-size:.88rem;color:var(--ink);font-weight:500}
+.chk input{width:20px;height:20px;flex:none;-webkit-appearance:checkbox;appearance:auto;accent-color:var(--ok)}
+#gChips{display:flex;flex-direction:column;gap:14px}
+.ggrp{display:flex;flex-direction:column;gap:6px}
+.ggrp .eyebrow{font-size:.66rem}
+.gch{display:flex;flex-wrap:wrap;gap:6px}
+.gc{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:.82rem}
+.gc[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:var(--surface);font-weight:600}
+.tag{font-size:.68rem;font-weight:600;color:var(--prot);background:var(--prot-soft);border-radius:999px;padding:1px 8px;margin-left:6px;vertical-align:2px;white-space:nowrap}
 .slot{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600;margin-top:2px}
 @media (prefers-reduced-motion:no-preference){.bar .b{transition:height .25s ease}.ring .fill{transition:stroke-dashoffset .6s ease}}
 </style>
@@ -237,6 +247,14 @@ td .del{width:28px;height:28px;font-size:1.05rem}
 
   <section class="ideas" aria-label="Idées pour compléter">
     <h2>Idées pour compléter</h2>
+    <details class="more" id="gMore">
+      <summary id="gSum">Mes goûts</summary>
+      <div class="gouts">
+        <label class="chk"><input type="checkbox" id="gSeul"> <span>Proposer seulement des plats avec ce que j'aime</span></label>
+        <div class="hint" id="gHint"></div>
+        <div id="gChips"></div>
+      </div>
+    </details>
     <div id="ideas"><div class="hint">Règle tes objectifs pour avoir des idées de repas adaptées à ce qu'il te reste.</div></div>
   </section>
 
@@ -424,7 +442,7 @@ let TODAY=ds(new Date());
 let cur=TODAY;
 
 /* ---------- Stockage local ---------- */
-function emptyState(){return{jours:{},aliments:{},mesures:{},objectifs:{kcal:0,prot:0},profil:{},activites:{},dernierExport:null}}
+function emptyState(){return{jours:{},aliments:{},mesures:{},objectifs:{kcal:0,prot:0},profil:{},activites:{},gouts:{aime:[],seulement:false},dernierExport:null}}
 let S=emptyState();
 try{const raw=localStorage.getItem(KEY);if(raw){const o=JSON.parse(raw);S=Object.assign(emptyState(),o)}}catch(e){}
 function persist(){
@@ -443,7 +461,7 @@ let DB={ciqual:[],monde:[]}, DB_ALL=null;
 async function loadDB(){
   try{
     const [c,m]=await Promise.all(["data/ciqual-2025.json","data/plats-du-monde.json"].map(u=>fetch(u).then(r=>{if(!r.ok)throw 0;return r.json()})));
-    DB.ciqual=c.aliments||[]; DB.monde=m.aliments||[]; DB_ALL=null; recalc();
+    DB.ciqual=c.aliments||[]; DB.monde=m.aliments||[]; DB_ALL=null; recalc(); renderIdeas(tot(day(cur)));
   }catch(e){}
 }
 function allEntries(){
@@ -688,16 +706,20 @@ const IDEAS=[
 function build(idea,f){
   let k=0,p=0;
   const rows=idea.it.map(x=>{
+    const ff=x.fix?1:f;
+    if(x.dish){
+      const g=Math.max(150,Math.round(x.g*ff/10)*10), kk=x.k100*g/100, pp=x.p100*g/100; k+=kk; p+=pp;
+      return{n:x.dish,g,lab:g+" g",k:kk,p:pp};
+    }
     const F=FOODS.find(y=>y[0]===x.f);
     let g, lab;
-    const ff=x.fix?1:f;
     if(x.u){const n=Math.max(1,Math.round(x.g*ff/x.u[2]));g=n*x.u[2];lab=n+" "+(n>1?x.u[1]:x.u[0])}
     else if(x.cl){g=Math.max(50,Math.round(x.g*ff/50)*50);lab=Math.round(g/10)+" cl de "+x.cl}
     else{const step=x.g<=40?5:10;g=Math.max(step,Math.round(x.g*ff/step)*step);lab=g+" g "+(/^[aeiouyéèêœ]/i.test(x.n)?"d'":"de ")+x.n}
     const kk=F[1]*g/100, pp=F[2]*g/100; k+=kk; p+=pp;
     return{n:x.f,g,lab,k:kk,p:pp};
   });
-  return{nom:idea.nom,type:idea.type,rows,k,p};
+  return{nom:idea.nom,type:idea.type,rows,k,p,monde:idea.monde,orig:idea.orig};
 }
 function sized(idea,Tk){
   const base=build(idea,1); if(!(Tk>0))return base;
@@ -711,10 +733,102 @@ function fit(x,Tk,Tp,Rk){
   const dev=Tk>0?Math.abs(x.k-Tk)/Tk:0;
   return covP*.55+covK*.45-over*1.3-dev*.15;
 }
+/* ---------- Goûts ---------- */
+const GOUTS=[
+ ["Protéines",[["poulet","Poulet"],["dinde","Dinde"],["boeuf","Bœuf"],["agneau","Agneau"],["porc","Porc / jambon"],["saumon","Saumon"],["thon","Thon"],["poisson","Poisson blanc"],["crevettes","Crevettes / fruits de mer"],["oeufs","Œufs"],["tofu","Tofu"],["legumineuses","Lentilles / pois chiches / haricots"],["laitiers","Skyr / fromage blanc"],["fromage","Fromage"],["whey","Whey"]]],
+ ["Féculents",[["riz","Riz"],["pates","Pâtes / nouilles"],["pdt","Pommes de terre / frites"],["patate","Patate douce"],["quinoa","Quinoa"],["semoule","Semoule / couscous"],["pain","Pain / wraps / burgers"],["avoine","Flocons d'avoine"]]],
+ ["Légumes",[["brocoli","Brocoli"],["haricotsverts","Haricots verts"],["courgette","Courgette"],["legumes","Autres légumes"]]],
+ ["Fruits et autres",[["banane","Banane"],["lait","Lait"],["cacahuete","Beurre de cacahuète"],["noix","Amandes / noix"],["epice","Plats épicés"]]]
+];
+/* Ingrédients des idées → goûts */
+const FOOD_TAG={"Blanc de poulet cuit":"poulet","Escalope de dinde cuite":"dinde","Steak haché 5% cuit":"boeuf","Saumon cuit":"saumon","Cabillaud cuit":"poisson","Thon au naturel":"thon",
+ "Œuf entier":"oeufs","Lentilles cuites":"legumineuses","Skyr":"laitiers","Fromage blanc 0%":"laitiers","Whey (poudre)":"whey","Jambon blanc":"porc",
+ "Riz blanc cuit":"riz","Pâtes cuites":"pates","Patate douce cuite":"patate","Pomme de terre cuite":"pdt","Quinoa cuit":"quinoa","Pain complet":"pain","Flocons d'avoine":"avoine",
+ "Brocoli cuit":"brocoli","Haricots verts cuits":"haricotsverts","Courgette cuite":"courgette","Banane":"banane","Lait demi-écrémé":"lait","Beurre de cacahuète":"cacahuete","Amandes":"noix"};
+/* Mots des plats du monde → goûts */
+const DISH_RULES=[
+ [/poulet|chicken|yakitori|chich taouk|adobo/,"poulet"],[/b(œ|oe)uf|bulgogi|rendang|kefta|goulash|chili|bolognaise|köttbullar|burger|pho/,"boeuf"],[/agneau|mouton|gyros|souvlaki(?! poulet)/,"agneau"],
+ [/porc|char siu|chorizo|jambon|currywurst|carbonara|pulled pork|feijoada|pelmeni|banh mi/,"porc"],[/saumon|smørrebrød/,"saumon"],[/thon/,"thon"],
+ [/poisson|fish|thiéboudienne|attiéké|cabillaud|ceviche/,"poisson"],[/crevette|fruits de mer|laksa|tom yum/,"crevettes"],[/(œ|oe)uf|tortilla espagnole|chakchouka|bibimbap|english breakfast|galette complète/,"oeufs"],
+ [/tofu/,"tofu"],[/lentille|dal |chana|haricots rouges|pois chiche|feijoada|falafel|chili sin carne/,"legumineuses"],
+ [/fromage|cheese|raclette|fondue|quesadilla|khachapuri|börek|calzone|piadina|palak paneer|nachos|enchiladas|pizza/,"fromage"],
+ [/riz|biryani|paella|risotto|nasi|jollof|chirashi|poke|bibimbap|katsu|thiéboudienne|colombo|butter chicken|tikka|curry|bulgogi|adobo|rendang|chili/,"riz"],
+ [/pâtes|penne|nouilles|pad thaï|ramen|udon|chow mein|mie goreng|japchae|pelmeni|pierogi|laksa|pho|mac and cheese|bo bun/,"pates"],
+ [/frites|poutine|patatas|shepherd|fish and chips|pommes de terre|tortilla espagnole|moussaka/,"pdt"],[/couscous|semoule|taboulé/,"semoule"],
+ [/pain|burger|sandwich|bagel|pita|wrap|burrito|tacos|fajitas|banh mi|naan|arepa|empanadas|lahmacun|smørrebrød|club|gyros|shawarma|manakish|piadina|bretzel|khachapuri|quesadilla|calzone|börek|galette/,"pain"],
+ [/curry|chili|tikka|tandoori|kung pao|rendang|laksa|tom yum|harissa|vindaloo|tteokbokki|poulet frit coréen|chakchouka|arrabbiata|mafé|biryani|chana masala|dal |colombo/,"epice"],
+ [/quinoa/,"quinoa"],[/patate douce/,"patate"],[/attiéké/,"semoule"],[/mafé|satay|cacahuète/,"cacahuete"],
+ /* Ingrédients principaux que le nom du plat ne dit pas */
+ [/club sandwich|enchiladas|jollof|nasi goreng|mie goreng/,"poulet"],[/lahmacun|moussaka|osso buco|empanadas|kebab|bo bun|japchae|bibimbap/,"boeuf"],
+ [/schnitzel|gyros|okonomiyaki|ramen|banh mi|katsu|galette complète|calzone|piadina|club sandwich|feijoada/,"porc"],
+ [/okonomiyaki|ramen|nasi goreng|khachapuri|galette complète|bibimbap|pad thaï|riz sauté/,"oeufs"],[/poke|chirashi/,"saumon"],
+ [/poutine|khachapuri|galette complète|calzone|piadina|moussaka|lasagne/,"fromage"],[/feijoada|riz haricots rouges|burrito|chili/,"legumineuses"],
+ [/enchiladas|riz haricots rouges|feijoada|colombo|mafé|poulet yassa|butter chicken|tikka|bulgogi|adobo|rendang|kung pao|aigre-doux|bœuf aux oignons|porc au caramel|curry/,"riz"]
+];
+function dishTags(nom){const n=nom.toLowerCase();const t=new Set();for(const[re,tag]of DISH_RULES)if(re.test(n))t.add(tag);return t}
+function ideaTags(idea){
+  if(idea.tags)return idea.tags;
+  const t=new Set();for(const x of idea.it){if(x.dish)dishTags(x.dish).forEach(v=>t.add(v));else if(FOOD_TAG[x.f])t.add(FOOD_TAG[x.f])}
+  if(/curry|épic/i.test(idea.nom))t.add("epice");
+  return idea.tags=t;
+}
+function gouts(){const g=S.gouts||{};return{aime:new Set(g.aime||[]),seulement:!!g.seulement}}
+/* Une idée passe si tous ses ingrédients reconnus sont cochés ; un plat épicé demande « Plats épicés ». */
+function aime(idea){
+  const g=gouts(); if(!g.seulement)return true;
+  const t=ideaTags(idea); if(!t.size)return false;
+  for(const v of t)if(!g.aime.has(v))return false;
+  return true;
+}
+/* Plats du monde proposés comme repas complets (pas les desserts ni les accompagnements). */
+const MONDE_REPAS=["Paella aux fruits de mer","Paella poulet chorizo","Tortilla espagnole","Risotto aux champignons","Risotto au poulet","Gnocchis à la sauce tomate","Osso buco","Penne all'arrabbiata","Pâtes au pesto","Calzone","Piadina jambon fromage",
+ "Moussaka","Souvlaki poulet","Gyros pita","Goulash","Pierogi","Schnitzel (escalope viennoise)","Fish and chips","Shepherd's pie","Mac and cheese","Bagel saumon cream cheese","Pulled pork burger","Poke bowl saumon","Club sandwich",
+ "Burrito bœuf","Burrito poulet","Tacos mexicains bœuf","Fajitas poulet","Quesadilla fromage","Enchiladas","Feijoada","Empanadas viande","Ceviche","Riz haricots rouges","Colombo de poulet",
+ "Tajine poulet citron olives","Pastilla au poulet","Chakchouka","Kefta grillées","Mafé poulet","Poulet yassa","Thiéboudienne","Attiéké poisson","Poulet DG","Ndolé","Riz jollof",
+ "Shawarma poulet (sandwich)","Chich taouk","Kebab assiette (viande, riz, salade)","Lahmacun","Butter chicken","Poulet tikka masala","Poulet tandoori","Biryani au poulet","Dal de lentilles","Chana masala","Palak paneer",
+ "Pad thaï crevettes","Pad thaï poulet","Curry vert thaï poulet","Curry rouge thaï","Riz sauté thaï","Pho bœuf","Bo bun","Porc au caramel","Banh mi","Poulet aigre-doux","Bœuf aux oignons","Poulet kung pao","Chow mein poulet",
+ "Ramen","Udon sautés","Katsu curry","Yakitori","Okonomiyaki","Chirashi saumon","Bibimbap","Bulgogi","Japchae","Nasi goreng","Mie goreng","Rendang de bœuf","Satay de poulet sauce cacahuète","Laksa","Adobo de poulet",
+ "Bowl protéiné poulet quinoa","Wrap falafel","Galette complète (jambon, œuf, fromage)","Poutine","Köttbullar (boulettes suédoises)","Pelmeni","Khachapuri"];
+let MONDE_IDEAS=null;
+function mondeIdeas(){
+  if(MONDE_IDEAS&&MONDE_IDEAS.n===DB.monde.length)return MONDE_IDEAS.list;
+  const set=new Set(MONDE_REPAS);
+  const list=DB.monde.filter(d=>set.has(d[0])).map(d=>({nom:d[0],type:"repas",m:["midi","soir"],monde:true,orig:d[3],it:[{dish:d[0],g:350,k100:d[1],p100:d[2]}]}));
+  MONDE_IDEAS={n:DB.monde.length,list}; return list;
+}
+/* Petit hasard stable sur la journée : les idées changent d'un jour à l'autre, pas à chaque ajout. */
+function jitter(key){let h=2166136261;for(const c of TODAY+key){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return((h>>>0)%1000)/1000}
+function repasPour(slot,Tk,Tp,Rk){
+  const g=gouts(), decouverte=!g.seulement;
+  const pool=[...IDEAS.filter(x=>x.type==="repas"&&x.m.includes(slot.m)),...(slot.m==="matin"?[]:mondeIdeas())].filter(aime);
+  return pool.map(x=>{const b=sized(x,Tk);let s=fit(b,Tk,Tp,Rk);
+      /* Mode découverte : on met en avant les plats du monde et on varie davantage. */
+      if(decouverte){s+=jitter(slot.m+x.nom)*.25+(x.monde?.08:0)}
+      /* Goûts : on préfère les idées qui utilisent plusieurs aliments cochés. */
+      else s+=jitter(slot.m+x.nom)*.06+Math.min(4,ideaTags(x).size)*.05;
+      return{b,s}})
+    .sort((a,b)=>b.s-a.s).slice(0,3).map(o=>o.b);
+}
 function bestSnacks(Lk,Lp,n,exclude){
-  return IDEAS.filter(x=>x.type==="collation"&&!(exclude&&exclude.has(x.nom))).map(x=>{const b=build(x,1);return{b,s:fit(b,Math.max(0,Lk),Math.max(0,Lp),Lk)}})
+  return IDEAS.filter(x=>x.type==="collation"&&!(exclude&&exclude.has(x.nom))&&aime(x)).map(x=>{const b=build(x,1);return{b,s:fit(b,Math.max(0,Lk),Math.max(0,Lp),Lk)+jitter("c"+x.nom)*.05}})
     .sort((a,b)=>b.s-a.s).slice(0,n).map(o=>o.b);
 }
+function renderGouts(){
+  const g=gouts();
+  $("#gSeul").checked=g.seulement;
+  $("#gChips").innerHTML=GOUTS.map(([titre,items])=>`<div class="ggrp"><div class="eyebrow">${esc(titre)}</div><div class="gch">${items.map(([k,l])=>`<button type="button" class="gc" data-g="${k}" aria-pressed="${g.aime.has(k)}">${esc(l)}</button>`).join("")}</div></div>`).join("");
+  $("#gHint").textContent=g.seulement
+    ?(g.aime.size?"Les idées n'utilisent que les aliments cochés.":"Coche les aliments que tu aimes pour avoir des idées.")
+    :"Mode découverte : idées variées, dont des plats du monde, qui changent chaque jour. Coche la case pour ne voir que ce que tu aimes.";
+  $("#gSum").textContent=g.seulement?`Mes goûts · ${g.aime.size} aliment${g.aime.size>1?"s":""}`:"Mes goûts · mode découverte";
+}
+$("#gSeul").addEventListener("change",()=>{S.gouts=Object.assign({aime:[]},S.gouts,{seulement:$("#gSeul").checked});persist();renderGouts();renderIdeas(tot(day(cur)))});
+$("#gChips").addEventListener("click",e=>{
+  const b=e.target.closest("[data-g]"); if(!b)return;
+  const set=gouts().aime, k=b.dataset.g; if(set.has(k))set.delete(k); else set.add(k);
+  S.gouts=Object.assign({},S.gouts,{aime:[...set]}); persist();
+  b.setAttribute("aria-pressed",set.has(k)); renderGouts(); renderIdeas(tot(day(cur)));
+});
 let shown=[];
 const valsHtml=x=>`<span class="k">+${fmt(x.k)} kcal</span> · <span class="p">+${fmt(x.p)} g prot</span>`;
 function afterText(Rk,Rp,gk,gp,suffix){
@@ -743,8 +857,8 @@ function renderIdeas(t){
     const W={matin:.25,midi:.35,soir:.4}, share=W[slot.m]/mains.reduce((a,s)=>a+W[s.m],0);
     const Tk=last?Math.min(Rk,Math.max(500,Math.min(750,Rk*.75))):Rk*share*.85;
     const Tp=Rk>0?Rp*Tk/Rk:Rp*share;
-    const meals=IDEAS.filter(x=>x.type==="repas"&&x.m.includes(slot.m)).map(x=>{const b=sized(x,Tk);return{b,s:fit(b,Tk,Tp,Rk)}})
-      .sort((a,b)=>b.s-a.s).slice(0,3).map(o=>o.b);
+    const meals=repasPour(slot,Tk,Tp,Rk);
+    if(!meals.length){box.innerHTML=html+'<div class="empty">Aucune idée avec tes goûts pour ce repas. Coche d\'autres aliments dans « Mes goûts », ou décoche la case pour le mode découverte.</div>';return}
     const later=mains.slice(1).map(s=>s.nom.replace(/^ton |^ta /,"le ")).join(" et ");
     html+=`<div class="slot">Pour ${slot.nom}</div>`;
     const usedSnacks=new Set();
@@ -759,10 +873,11 @@ function renderIdeas(t){
           fin=afterText(Lk-s.k,Lp-s.p,g.kcal,g.prot);
         }
       }
-      return `<div class="idea"><div class="head"><div><div class="t">${esc(meal.nom)}</div><div class="items">${meal.rows.map(r=>esc(r.lab)).join(" · ")}</div><div class="vals">${valsHtml(meal)}</div></div><button class="plus" data-i="${mi}" aria-label="Ajouter ${esc(meal.nom)}">Ajouter</button></div>${snack}<div class="after">${fin}</div></div>`;
+      return `<div class="idea"><div class="head"><div><div class="t">${esc(meal.nom)}${meal.monde&&meal.orig?`<span class="tag">${esc(meal.orig)}</span>`:""}</div><div class="items">${meal.rows.map(r=>esc(r.lab)).join(" · ")}</div><div class="vals">${valsHtml(meal)}</div></div><button class="plus" data-i="${mi}" aria-label="Ajouter ${esc(meal.nom)}">Ajouter</button></div>${snack}<div class="after">${fin}</div></div>`;
     }).join("");
   }else{
     const snacks=bestSnacks(Rk,Rp,3);
+    if(!snacks.length){box.innerHTML=html+'<div class="empty">Aucune collation avec tes goûts. Coche d\'autres aliments dans « Mes goûts ».</div>';return}
     html+=`<div class="slot">${mains.length?"Une collation suffit":"Pour finir ta journée"}</div>`;
     html+=snacks.map(s=>{
       const si=shown.push({x:s,moment:"collation"})-1;
@@ -1033,7 +1148,7 @@ function backupInfo(){
   else t+="Aucun export pour l'instant : pense à en faire un de temps en temps.";
   $("#bInfo").textContent=t;
 }
-function exportData(){return JSON.stringify({app:"prise-de-masse-seche",version:1,exporte:new Date().toISOString(),jours:S.jours,aliments:S.aliments,mesures:S.mesures,objectifs:S.objectifs,profil:S.profil,activites:S.activites},null,1)}
+function exportData(){return JSON.stringify({app:"prise-de-masse-seche",version:1,exporte:new Date().toISOString(),jours:S.jours,aliments:S.aliments,mesures:S.mesures,objectifs:S.objectifs,profil:S.profil,activites:S.activites,gouts:S.gouts},null,1)}
 $("#bExport").onclick=async()=>{
   const name="prise-de-masse-"+TODAY+".json", json=exportData();
   const file=new File([json],name,{type:"application/json"});
@@ -1076,6 +1191,7 @@ $("#bFile").addEventListener("change",async e=>{
     if(o.objectifs&&(o.objectifs.kcal||o.objectifs.prot))S.objectifs={kcal:+o.objectifs.kcal||0,prot:+o.objectifs.prot||0};
     if(o.profil&&typeof o.profil==="object"&&Object.keys(o.profil).length)S.profil=Object.assign({},S.profil,o.profil);
     if(o.activites&&typeof o.activites==="object")Object.assign(S.activites,o.activites);
+    if(o.gouts&&Array.isArray(o.gouts.aime))S.gouts={aime:o.gouts.aime.slice(),seulement:!!o.gouts.seulement};
     if(!persist())throw 1;
     fillDatalist(); render(); renderMesures(); backupInfo();
     say("#bStatus",`Importé ✓ ${nj} jour${nj>1?"s":""} et ${nm} mesure${nm>1?"s":""}.`,"ok","status");
@@ -1083,7 +1199,7 @@ $("#bFile").addEventListener("change",async e=>{
 });
 
 /* ---------- Démarrage ---------- */
-fillDatalist(); render(); renderMesures(); backupInfo();
+renderGouts(); fillDatalist(); render(); renderMesures(); backupInfo();
 loadDB();
 document.addEventListener("visibilitychange",()=>{
   if(document.visibilityState!=="visible")return;

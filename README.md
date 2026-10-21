@@ -12,7 +12,7 @@ Web app installable (PWA) pour suivre une prise de masse sèche au quotidien.
 - **Profil** : âge, taille, sexe, objectif (perte de poids, maintien, prise de masse sèche) → IMC, dépense estimée et calories / protéines recommandées, applicables en un clic.
 - **Activité physique** : séances par jour (type, intensité, durée) avec dépense estimée ; la moyenne des 14 derniers jours sert au calcul de la dépense.
 - **Objectifs** : cercles de progression calories / protéines pour la journée.
-- **Idées pour compléter** : suggestions de repas selon ce qu'il reste à manger et l'heure, ajoutables en un clic.
+- **Idées pour compléter** : suggestions de repas selon ce qu'il reste à manger et l'heure, ajoutables en un clic. « Mes goûts » : soit seulement des plats avec les aliments cochés, soit un mode découverte avec des plats du monde qui changent chaque jour.
 - **Compléments** : cases whey et créatine.
 - **Poids et mensurations** : pesées, tours de taille / bras / poitrine / cuisse, courbe et historique.
 - **Sauvegarde** : export / import JSON et résumé texte à copier.
