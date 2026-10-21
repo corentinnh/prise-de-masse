@@ -6,7 +6,7 @@ Web app installable (PWA) pour suivre une prise de masse sèche au quotidien.
 
 ## Fonctions
 
-L'app est organisée en 4 onglets : **Aujourd'hui** (cercles, compléments, repas par moment, idées pour le prochain repas avec « Mes goûts »), **Ajouter** (recherche, portions, récents, favoris, mes repas, copie de la veille, activité), **Progrès** (poids lissé, semaine, activité, mesures) et **Profil** (profil, objectifs, repas composés, sauvegarde).
+L'app est organisée en 4 onglets : **Aujourd'hui** (cercles, compléments, repas par moment, idées pour le prochain repas avec « Mes goûts »), **Ajouter** (recherche, portions, récents, favoris, mes repas, copie de la veille, activité), **Progrès** (poids lissé, semaine, activité, mesures) et **Profil** (profil, planning sportif, objectifs, repas composés, sauvegarde).
 
 - **Récents et favoris** : remettre un aliment déjà noté en un appui, ou copier un repas de la veille.
 - **Repas composés** : un repas enregistré une fois (« Mon bowl du midi ») s'ajoute d'un coup.
@@ -23,7 +23,8 @@ L'app est organisée en 4 onglets : **Aujourd'hui** (cercles, compléments, repa
 - **Bases d'aliments hors connexion** : liste de l'app, table officielle **Ciqual 2025** (environ 3 200 aliments et plats) et environ 150 plats du monde. Recherche souple et choix parmi plusieurs résultats.
 - **Estimation en ligne** : pour un produit de marque absent des bases, recherche dans [Open Food Facts](https://world.openfoodfacts.org) (nécessite du réseau).
 - **Profil** : âge, taille, sexe, objectif (perte de poids, maintien, prise de masse sèche) → IMC, dépense estimée et calories / protéines recommandées, applicables en un clic.
-- **Activité physique** : séances par jour (type, intensité, durée) avec dépense estimée ; la moyenne des 14 derniers jours sert au calcul de la dépense.
+- **Activité physique** : séances par jour (une trentaine de sports, intensité, durée) avec dépense estimée ; la moyenne des 14 derniers jours sert au calcul de la dépense.
+- **Planning sportif** (Profil) : séances prévues et pas habituels pour chaque jour de la semaine, avec « Copier sur » d'autres jours. La dépense prévue compte pour les jours sans activité notée, une séance notée remplace le prévu. Dans Ajouter, la séance du jour se note en un appui (« Fait comme prévu » ou « Pas fait »). Un bandeau propose de mettre à jour les objectifs quand la recommandation change de plus de 100 kcal.
 - **Objectifs** : cercles de progression calories / protéines pour la journée.
 - **Idées pour compléter** : suggestions de repas selon ce qu'il reste à manger et l'heure, ajoutables en un clic. « Mes goûts » : soit seulement des plats avec les aliments cochés, soit un mode découverte avec des plats du monde qui changent chaque jour. Recherche dans toute la base pour ajouter un aliment ou un plat aimé (un plat aimé devient une idée de repas) et « Afficher plus » pour une liste étendue.
 - **Compléments** : cases whey et créatine.

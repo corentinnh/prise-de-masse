@@ -305,8 +305,8 @@ td .del{width:28px;height:28px;font-size:1.05rem}
 .scalelab span:first-child{transform:none}
 .scalelab span:last-child{transform:translateX(-100%)}
 .kv{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:.85rem}
-.kv span:nth-child(even){font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right}
-.kv .sub2{grid-column:1/-1;color:var(--muted);font-size:.78rem;margin-top:-2px}
+.kv span:nth-of-type(even){font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right}
+.kv .sub2{display:block;grid-column:1/-1;color:var(--muted);font-size:.78rem;margin-top:-2px}
 .reco{background:var(--bg);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px}
 .reco .t{font-weight:600}
 .reco .v{font-family:var(--f-mono);font-size:1rem}
@@ -395,6 +395,44 @@ input,select{border-radius:12px}
 .toast button{color:#ffb35b}
 .dots i.on{background:var(--g-brand)}
 .oopts button{border-radius:18px;background:var(--glass);border-color:var(--glass-line)}
+/* Planning sportif */
+.spday{display:flex;align-items:center;gap:12px;width:100%;padding:9px 0;border:0;border-top:1px solid var(--line);background:none;text-align:left;color:var(--ink)}
+.spday:first-child{border-top:0}
+.spday .c{width:36px;height:36px;flex:none;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.82rem;background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.spday.on .c{background:var(--ink);color:var(--bg)}
+.spday .t{flex:1;min-width:0}
+.spday .t small{display:block;color:var(--muted);font-size:.78rem}
+.spday .t.repos{color:var(--muted)}
+.spday .k{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
+.spday .k::after{content:" ›";color:var(--muted);font-weight:500}
+.sptot{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sptot:empty{display:none}
+.sptot div{background:color-mix(in srgb,var(--ink) 5%,transparent);border-radius:16px;padding:10px 12px;font-size:.78rem;color:var(--muted)}
+.sptot b{display:block;font-family:var(--f-display);font-size:1.05rem;color:var(--ink);letter-spacing:-.02em}
+.sped{display:flex;flex-direction:column;gap:12px}
+.sphead{display:flex;justify-content:space-between;align-items:center}
+.sped h3{font-family:var(--f-display);font-weight:700;font-size:1.25rem;letter-spacing:-.02em;margin:0}
+.spadd{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-top:4px}
+.spadd .full{grid-column:1/-1}
+.spcopy{display:flex;justify-content:space-between;gap:4px}
+.spcopy button{width:40px;height:40px;border-radius:50%;border:1px solid color-mix(in srgb,var(--ink) 14%,transparent);background:color-mix(in srgb,var(--ink) 5%,transparent);font-weight:700;font-size:.82rem;color:var(--ink)}
+.spcopy button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.spcopy button:disabled{opacity:1;background:var(--g-brand);color:#fff;border:0}
+.ban{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:22px;background:var(--ink);color:var(--bg)}
+.ban .t{font-weight:700}
+.ban p{margin:0;font-size:.86rem;opacity:.85}
+.ban .r{display:flex;gap:8px}
+.ban .r button{border-radius:999px;padding:10px 14px;font-weight:700;font-size:.85rem}
+.ban .ok{flex:1;border:0;background:var(--g-brand);color:#fff}
+.ban .later{border:1px solid color-mix(in srgb,var(--bg) 35%,transparent);background:none;color:var(--bg)}
+.aplan{display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-radius:22px;border:1px solid var(--glass-line);box-shadow:var(--shadow);
+  background:linear-gradient(135deg,color-mix(in srgb,#ff8a5b 16%,var(--glass)),color-mix(in srgb,#7b5cff 16%,var(--glass)));-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+.aplan .it{display:flex;justify-content:space-between;gap:10px}
+.aplan .it b+span{color:var(--muted)}
+.aplan .k{font-weight:700;color:var(--accent);white-space:nowrap}
+.aplan .r{display:flex;gap:8px;padding-top:4px}
+.aplan .r .add{flex:1;padding:11px}
+.aplan .r .ghost{padding:11px 14px}
 @supports not (backdrop-filter:blur(1px)) and not (-webkit-backdrop-filter:blur(1px)){:root{--glass:var(--surface)}}
 </style>
 </head>
@@ -523,6 +561,8 @@ input,select{border-radius:12px}
     <div class="card list" id="listBox"></div>
   </section>
 
+  <section class="aplan" id="aPlan" aria-label="Séance prévue" hidden></section>
+
   <details class="card actcard" id="actMore">
     <summary><span>Activité physique et pas</span><span class="sub mono" id="aTot">0 kcal</span></summary>
     <div id="aList"></div>
@@ -591,6 +631,7 @@ input,select{border-radius:12px}
 <!-- ================= Profil ================= -->
 <section class="view" id="v-profil" aria-label="Profil" hidden>
   <header class="vhead"><h1>Profil</h1></header>
+  <div class="ban" id="pBan" role="status" hidden></div>
 
   <section class="card" aria-label="Profil">
     <form id="pf">
@@ -601,6 +642,30 @@ input,select{border-radius:12px}
       <button class="add full" type="submit">Enregistrer le profil</button>
     </form>
     <div id="pRes" class="pres"></div>
+  </section>
+
+  <section class="card" id="spCard" aria-label="Planning sportif">
+    <div class="cardhead"><h2>Planning sportif</h2><span class="sub" id="spKg"></span></div>
+    <div id="spView">
+      <div class="hint" id="spHint"></div>
+      <div id="spList"></div>
+      <div class="sptot" id="spTot"></div>
+    </div>
+    <div id="spEd" class="sped" hidden>
+      <div class="sphead"><button type="button" class="lnk" id="spBack">‹ Planning</button><span class="sub" id="spEdK"></span></div>
+      <h3 id="spEdTitle"></h3>
+      <div class="block"><div class="eyebrow">Séances</div><div id="spSeances"></div></div>
+      <div class="spadd">
+        <label class="full">Ajouter une séance<select id="spType"></select></label>
+        <label>Durée (min)<input id="spMin" type="number" inputmode="numeric" min="1" placeholder="60"></label>
+        <label>Intensité<select id="spInt"><option value="0">Légère</option><option value="1" selected>Modérée</option><option value="2">Intense</option></select></label>
+        <button type="button" class="ghost full" id="spAddS">+ Ajouter la séance</button>
+      </div>
+      <label>Pas habituels ce jour-là<input id="spPas" type="number" inputmode="numeric" min="0" placeholder="8000"></label>
+      <div class="hint" id="spPasCalc"></div>
+      <div class="block"><div class="eyebrow">Copier ce jour sur</div><div class="spcopy" id="spCopy"></div></div>
+      <div class="btns2"><button type="button" class="ghost" id="spCancel">Annuler</button><button type="button" class="add" id="spSave">Enregistrer</button></div>
+    </div>
   </section>
 
   <section class="card" aria-label="Objectifs du jour">
@@ -783,7 +848,7 @@ let TODAY=ds(new Date());
 let cur=TODAY;
 
 /* ---------- Stockage local ---------- */
-function emptyState(){return{jours:{},aliments:{},mesures:{},objectifs:{kcal:0,prot:0},profil:{},activites:{},gouts:{aime:[],seulement:false},favoris:{},repasComposes:{},planning:null,onboarded:false,dernierExport:null}}
+function emptyState(){return{jours:{},aliments:{},mesures:{},objectifs:{kcal:0,prot:0},profil:{},activites:{},gouts:{aime:[],seulement:false},favoris:{},repasComposes:{},planning:null,planSport:{},recoVue:null,onboarded:false,dernierExport:null}}
 let S=emptyState();
 try{const raw=localStorage.getItem(KEY);if(raw){const o=JSON.parse(raw);S=Object.assign(emptyState(),o)}}catch(e){}
 function persist(){
@@ -1475,6 +1540,12 @@ function dernierPoids(avant){
 }
 /* Moyenne quotidienne des activités notées sur les 14 derniers jours (au moins 7 jours, pour qu'une seule séance ne gonfle pas le calcul). */
 function activiteMoyenne(){
+  if(typeof planActif==="function"&&planActif()){
+    /* Avec un planning : chaque jour des 14 derniers compte le prévu, remplacé par ce qui a été noté ce jour-là. */
+    const w=dernierPoids(), kg=w?+w.poids:0; let sum=0;
+    for(let i=0;i<14;i++)sum+=activiteJour(shift(TODAY,-i),kg);
+    return{avg:sum/14,jours:14,aucune:false,plan:true};
+  }
   const dates=Object.keys(S.activites).filter(d=>(S.activites[d]||[]).length).sort();
   if(!dates.length)return{avg:0,jours:0,aucune:true};
   const depuis=Math.round((parse(TODAY)-parse(dates[0]))/864e5)+1;
@@ -1523,6 +1594,7 @@ function renderProfil(){
     $("#pSexe").value=pr.sexe||"h"; $("#pAge").value=pr.age||""; $("#pTaille").value=pr.taille||""; $("#pObj").value=pr.objectif||"masse";
   }
   const b=besoins(), box=$("#pRes");
+  renderSport(); renderBan(b);
   if(!b){box.innerHTML='<div class="hint">Renseigne ton âge et ta taille, et ajoute une pesée plus bas : l\'app calcule ton IMC et tes besoins en calories et protéines.</div>';return}
   let h="";
   if(b.imc){
@@ -1540,11 +1612,11 @@ function renderProfil(){
       <span>Métabolisme de base</span><span>${fmt(b.mb)} kcal</span>
       <span>Vie quotidienne</span><span>${fmt(b.quot)} kcal</span>
       <span>Activité physique</span><span>${b.act.aucune?"–":"+"+fmt(b.act.avg)+" kcal"}</span>
-      <span class="sub2">${b.act.aucune?"Aucune activité notée : ajoute tes séances dans « Activité physique » pour affiner.":`Moyenne par jour sur les ${b.act.jours} derniers jours.`}</span>
+      <small class="sub2">${b.act.aucune?"Aucune activité notée : remplis ton planning sportif plus bas ou note tes séances dans Ajouter.":b.act.plan?`Moyenne par jour sur 14 jours : ton planning sportif, remplacé par tes séances notées les jours où tu en as noté.`:`Moyenne par jour sur les ${b.act.jours} derniers jours.`}</small>
       <span>Dépense estimée (formules)</span><span>${fmt(b.tdeeF)} kcal</span>
       <span>Dépense mesurée</span><span>${b.dr.ok?fmt(b.dr.tdee)+" kcal":"–"}</span>
-      <span class="sub2">${b.dr.ok?`Sur ${b.dr.jours} jours de repas notés et ${b.dr.span} jours de pesées : ${fmt(b.dr.avg)} kcal mangées en moyenne, poids ${sgn(b.dr.delta)} kg.${b.mesure?"":" Résultat hors des valeurs plausibles : l'app garde les formules (vérifie que tes repas sont bien tous notés)."}`
-        :`Pour la mesurer : au moins 10 jours de repas complets sur 4 semaines (${b.dr.jours} pour l'instant) et des pesées sur au moins 2 semaines (${Math.round(b.dr.span)} jours pour l'instant).`}</span>
+      <small class="sub2">${b.dr.ok?`Sur ${b.dr.jours} jours de repas notés et ${b.dr.span} jours de pesées : ${fmt(b.dr.avg)} kcal mangées en moyenne, poids ${sgn(b.dr.delta)} kg.${b.mesure?"":" Résultat hors des valeurs plausibles : l'app garde les formules (vérifie que tes repas sont bien tous notés)."}`
+        :`Pour la mesurer : au moins 10 jours de repas complets sur 4 semaines (${b.dr.jours} pour l'instant) et des pesées sur au moins 2 semaines (${Math.round(b.dr.span)} jours pour l'instant).`}</small>
       <span><b>Dépense utilisée</b></span><span><b>${fmt(b.tdee)} kcal/jour</b></span>
     </div>`;
   const txt={perte:"Déficit d'environ 20 % : vise une perte d'environ 0,5 kg par semaine.",
@@ -1575,6 +1647,22 @@ $("#pRes").addEventListener("click",e=>{
   if(!e.target.closest("#pApply"))return;
   const b=besoins(); if(!b||!b.kcal)return;
   S.objectifs={kcal:b.kcal,prot:b.prot}; persist(); render(); renderProfil();
+});
+/* Bandeau : la recommandation s'écarte des objectifs (planning ou poids qui change). « Plus tard » le cache jusqu'au prochain changement. */
+function renderBan(b){
+  const ban=$("#pBan"), g=S.objectifs||{};
+  const ecart=b&&!b.manque&&b.kcal&&g.kcal>0&&(Math.abs(g.kcal-b.kcal)>100||Math.abs((g.prot||0)-b.prot)>=10);
+  const cle=b&&b.kcal?b.kcal+"/"+b.prot:"";
+  if(!ecart||S.recoVue===cle){ban.hidden=true;ban.innerHTML="";return}
+  ban.hidden=false;
+  ban.innerHTML=`<div class="t">${planActif()?"Ton planning a changé tes besoins":"Tes besoins ont changé"}</div>
+    <p>Recommandé : <b>${fmt(b.kcal)} kcal · ${b.prot} g</b>. Tes objectifs actuels : ${fmt(g.kcal)} kcal · ${g.prot||0} g.</p>
+    <div class="r"><button type="button" class="ok" id="banOk">Mettre à jour</button><button type="button" class="later" id="banLater">Plus tard</button></div>`;
+}
+$("#pBan").addEventListener("click",e=>{
+  const b=besoins(); if(!b||!b.kcal)return;
+  if(e.target.closest("#banOk")){snapshot();S.objectifs={kcal:b.kcal,prot:b.prot};persist();render();renderProfil();toast(`Objectifs : ${fmt(b.kcal)} kcal · ${b.prot} g`)}
+  else if(e.target.closest("#banLater")){S.recoVue=b.kcal+"/"+b.prot;persist();renderBan(b)}
 });
 
 /* ---------- Activité physique ---------- */
@@ -1620,6 +1708,7 @@ function aCalc(){
 }
 function renderActivites(){
   const l=S.activites[cur]||[], tot=l.reduce((s,a)=>s+(+a.kcal||0),0);
+  renderAPlan();
   $("#aTot").textContent=fmt(tot)+" kcal";
   $("#aList").innerHTML=l.length?l.map((a,i)=>`<div class="row"><div class="name">${esc(a.label)}<small>${a.pas?fmt(a.pas)+" pas":a.minutes?a.minutes+" min":""}${a.intensite!=null&&a.type!=="autre"&&!a.pas?" · "+["légère","modérée","intense"][a.intensite]:""}</small></div><span class="v k">${fmt(+a.kcal||0)}</span><span class="v"></span><button class="del" data-ai="${i}" aria-label="Supprimer ${esc(a.label)}">×</button></div>`).join("")
     :'<div class="hint">Aucune activité ce jour-là.</div>';
@@ -1660,6 +1749,121 @@ $("#aList").addEventListener("click",e=>{
   persist(); renderActivites(); renderProfil(); renderProgAct(); toast(`${a?a.label:"Activité"} supprimée`);
 });
 
+/* ---------- Planning sportif ----------
+   S.planSport = { "1": {seances:[{type,minutes,intensite}], pas:8000}, … } avec la clé = jour de la semaine (0 = dimanche).
+   La dépense prévue sert pour les jours sans activité notée ; une séance notée remplace les séances prévues de ce jour,
+   des pas notés remplacent les pas prévus. */
+const JOURS=[[1,"Lundi"],[2,"Mardi"],[3,"Mercredi"],[4,"Jeudi"],[5,"Vendredi"],[6,"Samedi"],[0,"Dimanche"]];
+const SP_ACTS=()=>ACTS.filter(a=>a[2]&&a[0]!=="marche");
+function planJour(wd){const p=(S.planSport||{})[wd];return p&&(((p.seances||[]).length)||+p.pas>0)?p:null}
+function planActif(){return JOURS.some(([w])=>planJour(w))}
+function seanceKcal(x,kg){const a=ACTS.find(y=>y[0]===x.type);if(!a||!a[2]||!kg)return 0;return Math.round((a[2][x.intensite==null?1:+x.intensite]-1)*kg*(+x.minutes||0)/60)}
+function planKcal(p,kg){
+  if(!p||!kg)return{s:0,pas:0,tot:0};
+  const sk=(p.seances||[]).reduce((t,x)=>t+seanceKcal(x,kg),0), pk=+p.pas>0?Math.round(pasKcal(+p.pas,kg).kcal):0;
+  return{s:sk,pas:pk,tot:sk+pk};
+}
+const estPas=a=>a.type==="marche"&&a.pas;
+function activiteJour(date,kg){
+  const l=S.activites[date]||[], sports=l.filter(a=>!estPas(a)), pas=l.filter(estPas);
+  const pk=planKcal(planJour(parse(date).getDay()),kg), som=x=>x.reduce((t,a)=>t+(+a.kcal||0),0);
+  return(sports.length?som(sports):pk.s)+(pas.length?som(pas):pk.pas);
+}
+const actNom=t=>{const a=ACTS.find(x=>x[0]===t);return a?a[1].replace(/ \(.*\)$/,""):t};
+const INT=["légère","modérée","intense"];
+function spKg(){const w=dernierPoids();return w?+w.poids:0}
+function renderSport(){
+  const kg=spKg(); let tot=0;
+  $("#spKg").textContent=kg?`pour ${n1(kg)} kg`:"";
+  $("#spHint").textContent=!planActif()?"Touche un jour pour y mettre tes séances et tes pas habituels : ta dépense et tes objectifs en tiennent compte.":!kg?"Ajoute une pesée (Progrès) pour calculer la dépense.":"";
+  $("#spList").innerHTML=JOURS.map(([w,nom])=>{
+    const p=planJour(w), se=p?p.seances||[]:[], k=planKcal(p,kg); tot+=k.tot;
+    const titre=se.length?se.map(x=>`<b>${esc(actNom(x.type))}</b> ${+x.minutes||0} min`).join(" + "):(p?"Repos":"Rien de prévu");
+    const sous=[se.length===1?INT[se[0].intensite==null?1:se[0].intensite]:"",p&&+p.pas>0?fmt(p.pas)+" pas":""].filter(Boolean).join(" · ");
+    return`<button type="button" class="spday${se.length?" on":""}" data-spd="${w}" aria-label="Modifier le ${nom.toLowerCase()}"><span class="c">${nom[0]}</span><span class="t${se.length?"":" repos"}">${titre}${sous?`<small>${sous}</small>`:""}</span><span class="k">${p&&kg?fmt(k.tot):""}</span></button>`;
+  }).join("");
+  $("#spTot").innerHTML=planActif()&&kg?`<div>Semaine<b>${fmt(tot)} kcal</b></div><div>Moyenne par jour<b>+${fmt(tot/7)} kcal</b></div>`:"";
+}
+let spDraft=null;
+/* Réécrit seulement si le contenu change : sinon le « change » du champ pas (au moment du tap) remplacerait le bouton touché. */
+function setH(sel,h){const e=$(sel);if(e._h!==h){e._h=h;e.innerHTML=h}}
+function spOpen(w){
+  const p=(S.planSport||{})[w]||{};
+  spDraft={w,seances:(p.seances||[]).map(x=>({...x})),pas:+p.pas||0,copie:new Set()};
+  $("#spView").hidden=true; $("#spEd").hidden=false;
+  $("#spEdTitle").textContent=JOURS.find(j=>j[0]===w)[1];
+  $("#spPas").value=spDraft.pas||""; $("#spMin").value="";
+  renderSpEd(); $("#spCard").scrollIntoView({block:"start",behavior:"smooth"});
+}
+function spClose(){spDraft=null;$("#spEd").hidden=true;$("#spView").hidden=false;renderSport()}
+function renderSpEd(){
+  if(!spDraft)return;
+  const kg=spKg(), d=spDraft;
+  d.pas=Math.max(0,Math.round(+$("#spPas").value)||0);
+  setH("#spSeances",d.seances.length?d.seances.map((x,i)=>`<div class="row"><div class="name">${esc(actNom(x.type))}<small>${+x.minutes||0} min · ${INT[x.intensite==null?1:x.intensite]}</small></div><span class="v k">${kg?fmt(seanceKcal(x,kg)):""}</span><span class="v"></span><button type="button" class="del" data-spx="${i}" aria-label="Retirer ${esc(actNom(x.type))}">×</button></div>`).join("")
+    :'<div class="hint">Aucune séance : jour de repos.</div>');
+  const pk=d.pas>0&&kg?pasKcal(d.pas,kg):null;
+  $("#spPasCalc").innerHTML=d.pas>0?(kg?`≈ ${n1(pk.kmTot)} km · <b>${fmt(pk.kcal)} kcal</b> (les ${fmt(PAS_BASE)} premiers pas sont déjà comptés dans ta vie quotidienne)`:"Ajoute une pesée pour calculer la dépense."):"Ton total de pas habituel ce jour-là (app Santé de l'iPhone).";
+  const k=planKcal(d,kg);
+  $("#spEdK").innerHTML=kg?`Dépense prévue <b>${fmt(k.tot)} kcal</b>`:"";
+  const a=ACTS.find(y=>y[0]===$("#spType").value), m=+$("#spMin").value;
+  $("#spAddS").textContent="+ Ajouter la séance"+(a&&m>0&&kg?` ≈ ${fmt(seanceKcal({type:a[0],minutes:m,intensite:+$("#spInt").value},kg))} kcal`:"");
+  setH("#spCopy",JOURS.map(([w,nom])=>`<button type="button" data-spc="${w}" aria-label="${w===d.w?nom+" (ce jour)":"Copier sur "+nom.toLowerCase()}" aria-pressed="${d.copie.has(w)}" ${w===d.w?"disabled":""}>${nom[0]}</button>`).join(""));
+}
+$("#spType").innerHTML=SP_ACTS().map(a=>`<option value="${a[0]}">${esc(a[1])}</option>`).join("");
+$("#spList").addEventListener("click",e=>{const b=e.target.closest("[data-spd]");if(b)spOpen(+b.dataset.spd)});
+$("#spBack").onclick=spClose; $("#spCancel").onclick=spClose;
+for(const id of["#spType","#spMin","#spInt","#spPas"])for(const ev of["input","change"])$(id).addEventListener(ev,renderSpEd);
+$("#spAddS").onclick=()=>{
+  const m=Math.round(+$("#spMin").value)||0;
+  if(!m){$("#spMin").focus();return}
+  spDraft.seances.push({type:$("#spType").value,minutes:m,intensite:+$("#spInt").value});
+  $("#spMin").value=""; renderSpEd();
+};
+$("#spSeances").addEventListener("click",e=>{const b=e.target.closest("[data-spx]");if(!b)return;spDraft.seances.splice(+b.dataset.spx,1);renderSpEd()});
+$("#spCopy").addEventListener("click",e=>{const b=e.target.closest("[data-spc]");if(!b||b.disabled)return;const w=+b.dataset.spc;if(spDraft.copie.has(w))spDraft.copie.delete(w);else spDraft.copie.add(w);renderSpEd()});
+$("#spSave").onclick=()=>{
+  renderSpEd(); const d=spDraft; if(!d)return;
+  /* Une séance tapée sans appuyer sur « Ajouter la séance » est gardée aussi. */
+  const m=Math.round(+$("#spMin").value)||0; if(m)d.seances.push({type:$("#spType").value,minutes:m,intensite:+$("#spInt").value});
+  snapshot();
+  const val={seances:d.seances,pas:d.pas};
+  S.planSport=Object.assign({},S.planSport);
+  for(const w of[d.w,...d.copie]){if(val.seances.length||val.pas)S.planSport[w]=JSON.parse(JSON.stringify(val));else delete S.planSport[w]}
+  if(!persist()){toast("Pas enregistré : stockage plein ou bloqué.");return}
+  const n=d.copie.size; spClose(); renderProfil(); renderActivites();
+  toast(n?`Planning enregistré sur ${n+1} jours`:"Planning enregistré");
+};
+/* Ajouter : la séance prévue du jour affiché, notée en un appui. */
+function renderAPlan(){
+  const box=$("#aPlan"), p=planJour(parse(cur).getDay()), l=S.activites[cur]||[];
+  const sports=l.some(a=>!estPas(a)), pasNotes=l.some(estPas);
+  const se=p&&!sports?p.seances||[]:[], pas=p&&!pasNotes&&+p.pas>0?+p.pas:0;
+  if(!se.length&&!pas){box.hidden=true;box.innerHTML="";return}
+  const kg=aPoids();
+  box.hidden=false;
+  box.innerHTML=`<div class="eyebrow">${cur===TODAY?"Prévu aujourd'hui":"Prévu ce jour-là"}</div>
+    ${se.map(x=>`<div class="it"><span><b>${esc(actNom(x.type))}</b> <span>${+x.minutes||0} min · ${INT[x.intensite==null?1:x.intensite]}</span></span><span class="k">${kg?fmt(seanceKcal(x,kg)):""}</span></div>`).join("")}
+    ${pas?`<div class="it"><span><b>Pas</b> <span>${fmt(pas)}</span></span><span class="k">${kg?fmt(pasKcal(pas,kg).kcal):""}</span></div>`:""}
+    <div class="r"><button type="button" class="add" id="aPlanOk">✓ Fait comme prévu</button>${se.length?'<button type="button" class="ghost" id="aPlanNo">Pas fait</button>':""}</div>
+    ${se.length?'<div class="hint">Fait autre chose ? Note ta vraie séance plus bas : elle remplace le prévu.</div>':""}`;
+}
+$("#aPlan").addEventListener("click",e=>{
+  const ok=e.target.closest("#aPlanOk"), no=e.target.closest("#aPlanNo"); if(!ok&&!no)return;
+  const p=planJour(parse(cur).getDay()); if(!p)return;
+  const kg=aPoids(), l=(S.activites[cur]||[]).slice();
+  snapshot();
+  if(no){l.push({type:"repos",label:"Pas de séance",minutes:0,kcal:0})}
+  else{
+    if(!l.some(a=>!estPas(a)))for(const x of p.seances||[])l.push({type:x.type,label:actNom(x.type),intensite:x.intensite==null?1:+x.intensite,minutes:+x.minutes||0,kcal:seanceKcal(x,kg)});
+    if(!l.some(estPas)&&+p.pas>0)l.push({type:"marche",label:"Marche",pas:+p.pas,minutes:0,kcal:Math.round(pasKcal(+p.pas,kg).kcal)});
+  }
+  S.activites[cur]=l;
+  if(!persist()){toast("Pas enregistré : stockage plein ou bloqué.");return}
+  renderActivites(); renderProfil(); renderProgAct();
+  toast(no?"Noté : pas de séance":"Séance notée comme prévu");
+});
+
 /* ---------- Sauvegarde ---------- */
 function backupInfo(){
   const n=Object.keys(S.jours).length, m=Object.keys(S.mesures).length;
@@ -1668,7 +1872,7 @@ function backupInfo(){
   else t+="Aucun export pour l'instant : pense à en faire un de temps en temps.";
   $("#bInfo").textContent=t;
 }
-function exportData(){return JSON.stringify({app:"prise-de-masse-seche",version:1,exporte:new Date().toISOString(),jours:S.jours,aliments:S.aliments,mesures:S.mesures,objectifs:S.objectifs,profil:S.profil,activites:S.activites,gouts:S.gouts,favoris:S.favoris,repasComposes:S.repasComposes},null,1)}
+function exportData(){return JSON.stringify({app:"prise-de-masse-seche",version:1,exporte:new Date().toISOString(),jours:S.jours,aliments:S.aliments,mesures:S.mesures,objectifs:S.objectifs,profil:S.profil,activites:S.activites,gouts:S.gouts,favoris:S.favoris,repasComposes:S.repasComposes,planSport:S.planSport},null,1)}
 $("#bExport").onclick=async()=>{
   const name="prise-de-masse-"+TODAY+".json", json=exportData();
   const file=new File([json],name,{type:"application/json"});
@@ -1715,6 +1919,7 @@ $("#bFile").addEventListener("change",async e=>{
     if(o.gouts&&Array.isArray(o.gouts.aime))S.gouts={aime:o.gouts.aime.slice(),seulement:!!o.gouts.seulement,aliments:Array.isArray(o.gouts.aliments)?o.gouts.aliments.slice():[]};
     if(o.favoris&&typeof o.favoris==="object")Object.assign(S.favoris,o.favoris);
     if(o.repasComposes&&typeof o.repasComposes==="object")Object.assign(S.repasComposes,o.repasComposes);
+    if(o.planSport&&typeof o.planSport==="object"&&Object.keys(o.planSport).length)S.planSport=JSON.parse(JSON.stringify(o.planSport));
     S.onboarded=true; $("#onb").hidden=true;
     if(!persist())throw 1;
     fillDatalist(); render(); renderMesures(); backupInfo();
