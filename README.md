@@ -14,6 +14,11 @@ L'app est organisée en 4 onglets : **Aujourd'hui** (cercles, compléments, repa
 - **Annuler** : chaque suppression ou ajout peut être annulé pendant 6 secondes.
 - **Premier lancement** : 3 écrans (profil, objectif, premier repas) pour un nouvel utilisateur.
 - **Poids lissé** : moyenne des pesées sur 7 jours et rythme par mois comparé à l'objectif.
+- **Dépense mesurée** : après 2 à 3 semaines de repas notés et de pesées, l'app compare ce que tu manges à l'évolution réelle de ton poids pour calculer ta vraie dépense et ajuster les recommandations.
+- **Glucides et lipides** : barres avec repères (lipides ≈ 28 % des calories, glucides pour le reste), calculés aussi pour les anciens repas.
+- **Protéines par repas** : repère de 25 g minimum sur le petit-déj, le déjeuner et le dîner.
+- **Eau** : compteur avec liste dépliante (250 ml, 330 ml, 500 ml, 750 ml, 1 L) et objectif de 35 ml par kg.
+- **Planning du lendemain** : 4 repas générés selon les objectifs et les goûts, changeables un par un, ajoutés au journal le jour même, avec la liste de courses à cocher et à copier.
 - **Repas** : aliment + grammage → calories et protéines calculées automatiquement (liste d'aliments intégrée, et les aliments saisis à la main sont retenus).
 - **Bases d'aliments hors connexion** : liste de l'app, table officielle **Ciqual 2025** (environ 3 200 aliments et plats) et environ 150 plats du monde. Recherche souple et choix parmi plusieurs résultats.
 - **Estimation en ligne** : pour un produit de marque absent des bases, recherche dans [Open Food Facts](https://world.openfoodfacts.org) (nécessite du réseau).
@@ -55,6 +60,8 @@ Penser à faire un export régulier : supprimer l'app ou effacer les données du
 - **Plats du monde** : valeurs moyennes estimées, à prendre comme ordre de grandeur.
 - **Open Food Facts** : données sous licence ODbL.
 - **Métabolisme de base** : formule de Mifflin-St Jeor. Dépense = métabolisme × 1,2 (vie quotidienne) + moyenne des activités notées.
+- **Dépense mesurée** : apports moyens des jours complets − variation du poids lissé × 7 700 kcal/kg, sur 4 semaines (au moins 10 jours notés et 14 jours de pesées).
+- **Plats du monde, glucides / lipides** : seuls kcal et protéines sont estimés ; le reste des calories est réparti moitié glucides, moitié lipides.
 - **Activités** : valeurs MET du Compendium des activités physiques, dépense nette = (MET − 1) × poids × durée.
 - **Marche** : saisie au nombre de pas de la journée. Longueur de pas ≈ 41,4 % de la taille, coût net ≈ 0,5 kcal/kg/km (ACSM) ; les 3 000 premiers pas sont déjà comptés dans la vie quotidienne.
 - **Recommandations** : perte de poids −20 %, maintien, prise de masse sèche +10 % ; protéines 2 g/kg (1,6 g/kg en maintien).
