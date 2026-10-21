@@ -17,7 +17,7 @@ L'app est organisée en 4 onglets : **Aujourd'hui** (cercles, compléments, repa
 - **Dépense mesurée** : après 2 à 3 semaines de repas notés et de pesées, l'app compare ce que tu manges à l'évolution réelle de ton poids pour calculer ta vraie dépense et ajuster les recommandations.
 - **Glucides et lipides** : barres avec repères (lipides ≈ 28 % des calories, glucides pour le reste), calculés aussi pour les anciens repas.
 - **Protéines par repas** : repère de 25 g minimum sur le petit-déj, le déjeuner et le dîner.
-- **Eau** : compteur avec liste dépliante (250 ml, 330 ml, 500 ml, 750 ml, 1 L) et objectif de 35 ml par kg.
+- **Eau** : compteur avec liste dépliante (250 ml, 330 ml, 500 ml, 750 ml, 1 L), correction en cas d'erreur (−250 ml, −500 ml, remise à 0) et objectif de 35 ml par kg.
 - **Planning du lendemain** : 4 repas générés selon les objectifs et les goûts, changeables un par un, ajoutés au journal le jour même, avec la liste de courses à cocher et à copier.
 - **Repas** : aliment + grammage → calories et protéines calculées automatiquement (liste d'aliments intégrée, et les aliments saisis à la main sont retenus).
 - **Bases d'aliments hors connexion** : liste de l'app, table officielle **Ciqual 2025** (environ 3 200 aliments et plats) et environ 150 plats du monde. Recherche souple et choix parmi plusieurs résultats.
