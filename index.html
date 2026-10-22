@@ -441,6 +441,45 @@ input,select{border-radius:12px}
 .ban .r button{border-radius:999px;padding:10px 14px;font-weight:700;font-size:.85rem}
 .ban .ok{flex:1;border:0;background:var(--g-brand);color:#fff}
 .ban .later{border:1px solid color-mix(in srgb,var(--bg) 35%,transparent);background:none;color:var(--bg)}
+/* Ajout rapide */
+.addmode{margin-bottom:-4px}
+#fr .calc{min-height:0}
+/* Série */
+.streak{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:20px;background:var(--glass);border:1px solid var(--glass-line);box-shadow:var(--shadow);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+.streak .ic{width:40px;height:40px;flex:none;border-radius:50%;background:var(--g-brand);display:grid;place-items:center}
+.streak .t{flex:1;min-width:0}
+.streak .t b{font-family:var(--f-display);font-size:1rem;letter-spacing:-.02em}
+.streak .t small{display:block;color:var(--muted);font-size:.78rem}
+.streak .r{font-size:.78rem;color:var(--muted);text-align:right}
+.streak .r b{color:var(--prot)}
+/* Bilan */
+.btiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btiles div{border-radius:14px;padding:9px 11px;font-size:.74rem;background:color-mix(in srgb,var(--ink) 5%,transparent);color:var(--muted)}
+.btiles b{display:block;font-family:var(--f-display);font-size:.98rem;color:var(--ink);letter-spacing:-.02em}
+.btiles b small{font-family:var(--f-body);font-size:.72rem;font-weight:600;color:var(--muted)}
+.ban.bilan .btiles div{background:color-mix(in srgb,var(--bg) 10%,transparent);color:color-mix(in srgb,var(--bg) 75%,transparent)}
+.ban.bilan .btiles b{color:var(--bg)}
+.ban.bilan .btiles b small{color:color-mix(in srgb,var(--bg) 70%,transparent)}
+.ban .sub3{font-size:.82rem;opacity:.85}
+.up{color:var(--ok)!important}.dn{color:var(--accent)!important}
+/* Ajustement guidé, poids cible, mensurations */
+.ajust{display:flex;flex-direction:column;gap:8px;border-radius:18px;padding:12px 14px;background:linear-gradient(135deg,color-mix(in srgb,#ff8a5b 16%,transparent),color-mix(in srgb,#7b5cff 16%,transparent))}
+.ajust p{margin:0;font-size:.86rem}
+.ajust .r{display:flex;gap:8px}
+.ajust .r .add{flex:1;padding:11px}
+.ajust .r .ghost{padding:11px 14px}
+.pbar{height:10px;border-radius:999px;background:color-mix(in srgb,var(--ink) 8%,transparent);overflow:hidden}
+.pbar i{display:block;height:100%;border-radius:999px;background:var(--g-brand)}
+.pbl{display:flex;justify-content:space-between;font-size:.76rem;color:var(--muted);margin-top:-4px}
+.mensverdict{border-radius:14px;padding:10px 12px;font-size:.86rem;background:color-mix(in srgb,var(--ink) 5%,transparent)}
+.mensverdict.ok{background:color-mix(in srgb,var(--ok) 13%,transparent)}
+.mensverdict.warn{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.chart .cible{stroke:var(--ok);stroke-width:1.5;stroke-dasharray:5 4}
+.chart .ciblelab{fill:var(--ok);font-family:var(--f-body);font-size:10px;font-weight:700}
+.chart .proj{fill:none;stroke:var(--prot);stroke-width:2;stroke-dasharray:4 4;stroke-linecap:round;opacity:.8}
+.chart .mline{fill:none;stroke:var(--fat);stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round}
+.chart .marea{fill:var(--fat);fill-opacity:.12}
+.chart .mpt{fill:var(--surface);stroke:var(--fat);stroke-width:1.8}
 .bprev{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:18px;background:color-mix(in srgb,var(--ink) 6%,transparent)}
 .bprev ul{margin:0;padding-left:18px;font-size:.88rem;line-height:1.5}
 .bprev .warnbox{font-size:.8rem}
@@ -466,6 +505,7 @@ input,select{border-radius:12px}
     <button class="navbtn" id="next" aria-label="Jour suivant">›</button>
   </header>
   <div class="ban" id="saveBan" role="status" hidden></div>
+  <section class="ban bilan" id="bilanToday" aria-label="Bilan de la semaine" hidden></section>
 
   <section class="totals" aria-label="Totaux du jour">
     <div class="tot kcal">
@@ -479,6 +519,8 @@ input,select{border-radius:12px}
       <div class="tinfo"><div class="eyebrow">Protéines <span class="pct" id="pP"></span></div><div class="goal" id="gP">Pas d'objectif</div></div>
     </div>
   </section>
+
+  <section class="streak" id="streak" aria-label="Série" hidden></section>
 
   <section class="macros" aria-label="Glucides et lipides">
     <div class="mac"><div class="mtl"><span>Glucides</span><span class="mono" id="mgV">0 g</span></div><div class="mbar"><i id="mgB" style="background:var(--g-carb)"></i></div></div>
@@ -545,6 +587,19 @@ input,select{border-radius:12px}
     <label class="inline">au <select id="fM"><option value="matin">Matin</option><option value="midi">Midi</option><option value="collation">Collation</option><option value="soir">Soir</option></select></label>
   </header>
 
+  <div class="useg addmode" role="group" aria-label="Façon d'ajouter"><button type="button" id="modeS" aria-pressed="true">Chercher un aliment</button><button type="button" id="modeR" aria-pressed="false">Ajout rapide</button></div>
+
+  <form id="fr" hidden>
+    <label class="full">Nom (facultatif)<input id="frN" placeholder="Ex. : resto japonais" autocomplete="off" autocapitalize="sentences" maxlength="60"></label>
+    <label>Calories<input id="frK" type="number" inputmode="numeric" min="0" placeholder="650"></label>
+    <label>Protéines (g)<input id="frP" type="number" inputmode="decimal" min="0" step="0.1" placeholder="35"></label>
+    <label>Glucides (g), facultatif<input id="frG" type="number" inputmode="decimal" min="0" step="0.1" placeholder="—"></label>
+    <label>Lipides (g), facultatif<input id="frL" type="number" inputmode="decimal" min="0" step="0.1" placeholder="—"></label>
+    <div class="calc full" id="frCalc">Pratique au resto ou chez quelqu'un. Sans glucides ni lipides, l'app les estime avec le reste des calories.</div>
+    <button class="add full" type="submit" id="frSubmit">Ajouter</button>
+    <div class="status full" id="frStatus" role="status"></div>
+  </form>
+
   <form id="f">
     <label class="full">Aliment ou plat<input id="fAl" list="foods" required placeholder="Rechercher : poulet, riz, pad thaï…" autocomplete="off" autocapitalize="sentences"></label>
     <datalist id="foods"></datalist>
@@ -610,6 +665,23 @@ input,select{border-radius:12px}
     <div class="hint" id="wDate">Aucune pesée pour l'instant.</div>
     <div class="deltas" id="wDeltas"></div>
     <div class="chart" id="wChart"><div class="hint">Ajoute au moins deux pesées pour voir la courbe.</div></div>
+    <div class="ajust" id="ajust" hidden></div>
+  </section>
+
+  <section class="card" aria-label="Poids cible">
+    <div class="cardhead"><h2>Poids cible</h2><label class="inline">Cible <input id="cibleKg" type="number" inputmode="decimal" min="30" max="250" step="0.5" placeholder="75" style="width:84px;text-align:right"> kg</label></div>
+    <div id="cibleRes"><div class="hint">Mets un poids à atteindre : l'app affiche ta progression et estime la date à ton rythme.</div></div>
+  </section>
+
+  <section class="card" id="bilanCard" aria-label="Bilan de la semaine">
+    <div class="cardhead"><h2>Bilan de la semaine</h2><span class="sub" id="bilanDates"></span></div>
+    <div id="bilanBody"></div>
+  </section>
+
+  <section class="card" id="mensCard" aria-label="Mensurations" hidden>
+    <h2>Mensurations</h2>
+    <div class="spweeks" id="mensChips"></div>
+    <div id="mensBody"></div>
   </section>
 
   <section class="card">
@@ -877,7 +949,7 @@ let TODAY=ds(new Date());
 let cur=TODAY;
 
 /* ---------- Stockage local ---------- */
-function emptyState(){return{jours:{},aliments:{},mesures:{},objectifs:{kcal:0,prot:0},profil:{},activites:{},gouts:{aime:[],seulement:false},favoris:{},repasComposes:{},planning:null,planSport:{},semaines:[],semaineActive:null,planAuto:null,recoVue:null,rappelExport:null,onboarded:false,dernierExport:null}}
+function emptyState(){return{jours:{},aliments:{},mesures:{},objectifs:{kcal:0,prot:0},profil:{},activites:{},gouts:{aime:[],seulement:false},favoris:{},repasComposes:{},planning:null,planSport:{},semaines:[],semaineActive:null,planAuto:null,recoVue:null,rappelExport:null,cible:null,ajust:null,bilanVu:null,onboarded:false,dernierExport:null}}
 let S=emptyState();
 try{const raw=localStorage.getItem(KEY);if(raw){const o=JSON.parse(raw);S=Object.assign(emptyState(),o)}}catch(e){}
 function persist(){
@@ -1052,6 +1124,7 @@ function ring(val,goal,unit,rId,pId,gId){
   else g.innerHTML=`Reste <b>${fmt(goal-val)} ${unit}</b><br>sur ${fmt(goal)} ${unit}`;
 }
 function render(){
+  renderStreak(); renderBilan();
   const d=day(cur), t=tot(d), goals=S.objectifs||{};
   const dl=parse(cur).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"}); $("#dayLabel").textContent=dl.charAt(0).toUpperCase()+dl.slice(1);
   $("#dayRel").textContent=cur===TODAY?"Aujourd'hui":cur===shift(TODAY,-1)?"Hier":"";
@@ -1171,7 +1244,38 @@ $("#f").addEventListener("submit",e=>{
   if(g>0&&!findFood(al)&&(k||p))rememberFood(al,k*100/g,p*100/g);
   snapshot(); const d=clone(day(cur)); d.repas=d.repas||[];
   d.repas.push(Object.assign({moment:$("#fM").value,aliment:al,quantite:quantiteLabel(g),grammes:g,kcal:k,prot:p},manual?{}:glFor(al,g)));
-  if(save(d)){["#fAl","#fG","#fK","#fP"].forEach(s=>$(s).value="");manual=false;uReset();recalc();toast(`${al} ajouté au ${(MOMENTS.find(m=>m[0]===$("#fM").value)||["",""])[1].toLowerCase()}`)}
+  if(save(d)){["#fAl","#fG","#fK","#fP"].forEach(s=>$(s).value="");manual=false;uReset();recalc();toast(`${al} ajouté ${AU_MOMENT[$("#fM").value]||""}`)}
+});
+/* ---------- Ajout rapide : calories et protéines sans chercher l'aliment ---------- */
+const AU_MOMENT={matin:"au matin",midi:"au midi",collation:"à la collation",soir:"au soir"};
+const numIn=sel=>{const v=parseFloat(String($(sel).value).replace(",","."));return v>0?v:0};
+function setAddMode(r){
+  $("#modeS").setAttribute("aria-pressed",String(!r)); $("#modeR").setAttribute("aria-pressed",String(r));
+  $("#f").hidden=r; $("#fr").hidden=!r; frCalc();
+}
+function frCalc(){
+  $("#frSubmit").textContent="Ajouter "+(AU_MOMENT[$("#fM").value]||"");
+  const k=numIn("#frK"), p=numIn("#frP"), g=numIn("#frG"), l=numIn("#frL"), c=$("#frCalc");
+  if(!k){c.textContent="Pratique au resto ou chez quelqu'un. Sans glucides ni lipides, l'app les estime avec le reste des calories.";return}
+  const somme=4*p+4*g+9*l;
+  if(somme>k*1.15){c.innerHTML="<b>Les macros dépassent les calories</b> : vérifie les chiffres.";return}
+  if(!g&&!l){const sp=splitGL(k,p);c.innerHTML=`Estimé : <b>${fmt(sp.g)} g</b> de glucides et <b>${fmt(sp.l)} g</b> de lipides.`;return}
+  const gg=g||Math.max(0,(k-4*p-9*l)/4), ll=l||Math.max(0,(k-4*p-4*g)/9);
+  c.innerHTML=`<b>${fmt(gg)} g</b> de glucides et <b>${fmt(ll)} g</b> de lipides${g&&l?"":" (le reste est estimé)"}.`;
+}
+$("#modeS").onclick=()=>setAddMode(false);
+$("#modeR").onclick=()=>{setAddMode(true);$("#frK").focus()};
+$("#fM").addEventListener("change",frCalc);
+for(const id of["#frK","#frP","#frG","#frL"])$(id).addEventListener("input",frCalc);
+$("#fr").addEventListener("submit",e=>{
+  e.preventDefault();
+  const k=Math.round(numIn("#frK")), p=Math.round(numIn("#frP")*10)/10, g=numIn("#frG"), l=numIn("#frL");
+  if(!k){say("#frStatus","Tape au moins les calories.","err");$("#frK").focus();return}
+  const nom=$("#frN").value.trim().slice(0,60)||"Ajout rapide";
+  const line={moment:$("#fM").value,aliment:nom,quantite:"ajout rapide",grammes:0,kcal:k,prot:p,rapide:true};
+  if(g||l){line.gluc=Math.round((g||Math.max(0,(k-4*p-9*l)/4))*10)/10;line.lip=Math.round((l||Math.max(0,(k-4*p-4*g)/9))*10)/10}
+  snapshot(); const d=clone(day(cur)); d.repas=d.repas||[]; d.repas.push(line);
+  if(save(d)){["#frN","#frK","#frP","#frG","#frL"].forEach(x=>$(x).value="");frCalc();say("#frStatus","","");toast(`${nom} ajouté ${AU_MOMENT[line.moment]||""}`)}
 });
 
 /* ---------- Idées pour compléter ---------- */
@@ -1510,11 +1614,15 @@ function renderMesures(){
     $("#wDeltas").innerHTML=sm.length>2?`<span class="delta"><b>${sgn(last.v-first.v)} kg</b> depuis le début (${dShort(first.date)})</span>`:"";
   }else{$("#wNow").textContent="—";$("#wDate").textContent="Aucune pesée pour l'instant.";$("#wDeltas").innerHTML=""}
   const pts=sm.slice(-30);
+  const ry=rythme(sm), cib=S.cible&&+S.cible.kg>0?+S.cible.kg:0;
   if(pts.length<2){$("#wChart").innerHTML='<div class="hint">Ajoute au moins deux pesées pour voir la courbe.</div>'}
   else{
     const W=360,H=170,L=34,R=40,T=14,B=24;
-    const t0=parse(pts[0].date).getTime(), t1=parse(pts[pts.length-1].date).getTime();
-    const vs=pts.flatMap(p=>[p.v,p.raw]); let lo=Math.min(...vs), hi=Math.max(...vs);
+    /* Tendance : la moyenne lissée prolongée d'un mois au rythme des 4 dernières semaines. */
+    const lastP=pts[pts.length-1], proj=ry&&ry.j>=14?{date:shift(lastP.date,30),v:lastP.v+ry.rate}:null;
+    const t0=parse(pts[0].date).getTime(), t1=parse((proj||lastP).date).getTime();
+    const vs=pts.flatMap(p=>[p.v,p.raw]); if(proj)vs.push(proj.v); const cibOk=cib&&Math.abs(cib-lastP.v)<=5; if(cibOk)vs.push(cib);
+    let lo=Math.min(...vs), hi=Math.max(...vs);
     const pad=Math.max(.5,(hi-lo)*.15); lo=Math.floor((lo-pad)*2)/2; hi=Math.ceil((hi+pad)*2)/2;
     const x=d=>L+(t1>t0?(parse(d).getTime()-t0)/(t1-t0):.5)*(W-L-R);
     const y=v=>T+(hi-v)/(hi-lo)*(H-T-B);
@@ -1526,10 +1634,13 @@ function renderMesures(){
     if(pts.length<=20)pts.forEach(p=>{s+=`<circle cx="${x(p.date)}" cy="${y(p.raw)}" r="2.2" fill="var(--muted)" fill-opacity=".6"/>`});
     s+=`<path class="area" d="${path} L${x(pts[pts.length-1].date).toFixed(1)} ${H-B} L${x(pts[0].date).toFixed(1)} ${H-B} Z"/><path class="line" d="${path}"/>`;
     const e=pts[pts.length-1];
-    s+=`<circle class="end" cx="${x(e.date)}" cy="${y(e.v)}" r="4.5"/><text class="endlab" x="${x(e.date)+7}" y="${y(e.v)+4}">${n1(e.v)}</text>`;
-    s+=`<text class="axis" x="${L}" y="${H-6}">${dShort(pts[0].date)}</text><text class="axis" x="${W-R}" y="${H-6}" text-anchor="end">${dShort(e.date)}</text></svg>`;
-    $("#wChart").innerHTML=s+'<div class="hint">Pointillés : tes pesées. Trait plein : la moyenne sur 7 jours, plus fiable pour suivre ta tendance.</div>';
+    if(cibOk)s+=`<line class="cible" x1="${L}" x2="${W-R}" y1="${y(cib)}" y2="${y(cib)}"/><text class="ciblelab" x="${L+4}" y="${y(cib)-4}">cible ${n1(cib)}</text>`;
+    if(proj)s+=`<path class="proj" d="M${x(e.date).toFixed(1)} ${y(e.v).toFixed(1)} L${x(proj.date).toFixed(1)} ${y(proj.v).toFixed(1)}"/><text class="endlab" x="${x(proj.date)}" y="${y(proj.v)+(proj.v>=e.v?-8:14)}" text-anchor="end">≈ ${n1(proj.v)}</text>`;
+    s+=`<circle class="end" cx="${x(e.date)}" cy="${y(e.v)}" r="4.5"/><text class="endlab" x="${proj?x(e.date):x(e.date)+7}" y="${proj?y(e.v)+(proj.v>=e.v?16:-9):y(e.v)+4}" ${proj?'text-anchor="middle"':""}>${n1(e.v)}</text>`;
+    s+=`<text class="axis" x="${L}" y="${H-6}">${dShort(pts[0].date)}</text><text class="axis" x="${W-R}" y="${H-6}" text-anchor="end">${proj?"dans 1 mois":dShort(e.date)}</text></svg>`;
+    $("#wChart").innerHTML=s+`<div class="hint">Pointillés : tes pesées. Trait plein : la moyenne sur 7 jours.${proj?" Tirets : ta tendance si tu gardes ce rythme un mois de plus.":""}${cibOk?" Ligne verte : ta cible.":""}</div>`;
   }
+  renderAjust(sm); renderCible(sm); renderMens();
   if(!all.length){$("#mHist").innerHTML='<div class="hint">Tes mesures apparaîtront ici, de la plus récente à la plus ancienne.</div>';return}
   /* Les colonnes de mensurations n'apparaissent que si au moins une a été notée. */
   const tours=[["taille","Taille"],["bras","Bras"],["poitrine","Poitrine"],["cuisse","Cuisse"]].filter(([k])=>all.some(m=>+m[k]>0));
@@ -1978,6 +2089,186 @@ $("#aPlan").addEventListener("click",e=>{
   toast(no?"Noté : pas de séance":"Séance notée comme prévu");
 });
 
+/* ---------- Série : jours d'affilée avec les protéines atteintes ---------- */
+const estDate=k=>/^\d{4}-\d{2}-\d{2}$/.test(k);
+function serie(){
+  const gp=+(S.objectifs||{}).prot||0; if(!gp)return null;
+  const ok=d=>tot(day(d)).p>=gp, auj=ok(TODAY);
+  let n=0, d=auj?TODAY:shift(TODAY,-1);
+  while(n<3660&&ok(d)){n++;d=shift(d,-1)}
+  let best=0, run=0, prev=null;
+  for(const k of Object.keys(S.jours).filter(estDate).sort()){
+    if(ok(k)){run=prev&&shift(prev,1)===k?run+1:1;prev=k;if(run>best)best=run}else{run=0;prev=null}
+  }
+  return{n,best:Math.max(best,n),auj,reste:Math.max(0,gp-tot(day(TODAY)).p)};
+}
+const FLAMME='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-4 2.5-5 .3 1.6 1 2.5 2 3 0-3 0-5.5.5-8z"/></svg>';
+function renderStreak(){
+  const box=$("#streak"), r=cur===TODAY?serie():null;
+  if(!r||(!r.n&&!r.best)){box.hidden=true;return}
+  const j=v=>v+" jour"+(v>1?"s":"");
+  box.hidden=false;
+  box.innerHTML=`<span class="ic">${FLAMME}</span>
+    <div class="t">${r.n?`<b>${j(r.n)}</b> d'affilée`:"<b>Nouvelle série</b>"}<small>${r.n?"avec tes protéines atteintes":"atteins tes protéines aujourd'hui pour la lancer"} · record : ${j(r.best)}</small></div>
+    <div class="r">${r.auj?"Aujourd'hui<br><b>✓</b>":`Encore<br><b>${fmt(r.reste)} g</b>`}</div>`;
+}
+/* ---------- Bilan de la semaine (lundi → dimanche) ---------- */
+function finBilan(){const wd=parse(TODAY).getDay();return wd===0?TODAY:shift(TODAY,-wd)}
+function bilanSemaine(fin){
+  const jours=[...Array(7)].map((_,i)=>shift(fin,i-6)), g=S.objectifs||{}, gk=+g.kcal||0, gp=+g.prot||0;
+  const notes=jours.filter(d=>(day(d).repas||[]).length), t=notes.map(d=>tot(day(d)));
+  const moy=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
+  const cible=t.filter(x=>(!gp||x.p>=gp)&&(!gk||Math.abs(x.k-gk)<=gk*.1)).length;
+  const ws=Object.values(S.mesures).filter(m=>m&&+m.poids>0);
+  const pm=(a,b)=>{const l=ws.filter(m=>m.date>=a&&m.date<=b).map(m=>+m.poids);return l.length?moy(l):null};
+  let faites=0, prevues=0;
+  for(const d of jours){faites+=(S.activites[d]||[]).filter(a=>!estPas(a)&&a.type!=="repos").length;const p=planJour(parse(d).getDay());prevues+=p?(p.seances||[]).length:0}
+  const eaux=jours.map(d=>+day(d).eau||0).filter(v=>v>0);
+  return{debut:jours[0],fin,n:notes.length,k:moy(t.map(x=>x.k)),p:moy(t.map(x=>x.p)),gk,gp,cible,pw:pm(jours[0],fin),pw0:pm(shift(jours[0],-7),shift(fin,-7)),faites,prevues,eau:moy(eaux)};
+}
+function bilanHTML(b){
+  const dw=b.pw!=null&&b.pw0!=null?b.pw-b.pw0:null;
+  const lignes=[];
+  if(b.prevues||b.faites)lignes.push(`Séances : <b>${b.prevues?`${b.faites} sur ${b.prevues} prévue${b.prevues>1?"s":""}`:b.faites}</b>`);
+  if(b.eau)lignes.push(`eau : ${litres(b.eau)} L par jour`);
+  return`<div class="btiles">
+    <div>Calories par jour<b>${fmt(b.k)}${b.gk?` <small>/ ${fmt(b.gk)}</small>`:""}</b></div>
+    <div>Protéines par jour<b>${fmt(b.p)} g${b.gp?` <small>/ ${b.gp}</small>`:""}</b></div>
+    <div>Jours dans la cible<b>${b.cible} <small>/ 7</small></b></div>
+    <div>Poids moyen<b>${b.pw!=null?n1(b.pw)+" kg":"–"}${dw!=null?` <small class="${Math.abs(dw)<.05?"":(dw>0)===(((S.profil||{}).objectif||"masse")!=="perte")?"up":"dn"}">${sgn(dw)}</small>`:""}</b></div>
+  </div>${lignes.length?`<div class="sub3">${lignes.join(" · ")}</div>`:""}${b.n<7?`<div class="sub3">${b.n} jour${b.n>1?"s":""} sur 7 avec des repas notés : les moyennes portent sur ceux-là.</div>`:""}`;
+}
+function renderBilan(){
+  const fin=finBilan(), b=bilanSemaine(fin), dates=`${dShort(b.debut)} – ${dShort(fin)}`;
+  $("#bilanDates").textContent=dates;
+  $("#bilanBody").innerHTML=b.n?bilanHTML(b):`<div class="hint">Rien de noté du ${dShort(b.debut)} au ${dShort(fin)}.</div>`;
+  const wd=parse(TODAY).getDay(), box=$("#bilanToday");
+  if(cur!==TODAY||(wd!==0&&wd!==1)||!b.n||S.bilanVu===fin){box.hidden=true;box.innerHTML="";return}
+  box.hidden=false;
+  box.innerHTML=`<div class="t" style="display:flex;justify-content:space-between;gap:10px"><span>Bilan de la semaine</span><span class="sub3">${dates}</span></div>${bilanHTML(b)}<div class="r"><button type="button" class="later" id="bilanHide">Masquer</button></div>`;
+}
+$("#bilanToday").addEventListener("click",e=>{if(e.target.closest("#bilanHide")){S.bilanVu=finBilan();persist();renderBilan()}});
+/* ---------- Rythme, ajustement guidé et poids cible ---------- */
+function rythme(sm){
+  if(!sm||sm.length<2)return null;
+  const last=sm[sm.length-1], ref=sm.find(x=>x.date>=shift(last.date,-28))||sm[0], j=(parse(last.date)-parse(ref.date))/864e5;
+  return j>=7?{rate:(last.v-ref.v)/j*30,j,last}:null;
+}
+function renderAjust(sm){
+  const box=$("#ajust"), g=S.objectifs||{}; box.hidden=true; box.innerHTML="";
+  if(!(+g.kcal>0)||sm.length<4)return;
+  const last=sm[sm.length-1]; if(last.date<shift(TODAY,-10))return;
+  if((parse(last.date)-parse(sm[0].date))/864e5<21)return;
+  const ry=rythme(sm); if(!ry||ry.j<14)return;
+  const r21=sm.find(x=>x.date>=shift(last.date,-21)), j21=r21?(parse(last.date)-parse(r21.date))/864e5:0, ch21=r21?last.v-r21.v:0;
+  const obj=(S.profil||{}).objectif||"masse", sem=v=>Math.round(v/7)+" semaines";
+  let delta=0, titre="", txt="";
+  if(obj==="masse"){
+    if(ry.rate>.5){delta=-150;titre="Tu prends un peu trop vite";txt=`Sur ${sem(ry.j)} : <b>${sgn(ry.rate)} kg par mois</b>. Pour une prise de masse sèche, vise <b>+0,25 à +0,5 kg</b> : au-delà, c'est surtout du gras.`}
+    else if(j21>=18&&ch21<.1){delta=150;titre="Ton poids stagne";txt=`Sur ${sem(j21)} : <b>${sgn(ch21)} kg</b>. Pour construire du muscle, il faut un léger surplus : vise +0,25 à +0,5 kg par mois.`}
+  }else if(obj==="perte"){
+    if(ry.rate<-4){delta=150;titre="Tu perds trop vite";txt=`Sur ${sem(ry.j)} : <b>${sgn(ry.rate)} kg par mois</b>. Vise −1 à −3 kg par mois pour garder ton muscle.`}
+    else if(j21>=18&&ch21>-.2){delta=-150;titre="Ta perte de poids stagne";txt=`Sur ${sem(j21)} : <b>${sgn(ch21)} kg</b>. Vise −1 à −3 kg par mois.`}
+  }else if(Math.abs(ry.rate)>.75){delta=ry.rate>0?-150:150;titre=ry.rate>0?"Ton poids monte":"Ton poids baisse";txt=`Sur ${sem(ry.j)} : <b>${sgn(ry.rate)} kg par mois</b> alors que tu veux le garder stable.`}
+  if(!delta)return;
+  const a=S.ajust||{};
+  if(a.fait&&a.fait>shift(TODAY,-14))return;
+  if(a.vu&&a.vu>shift(TODAY,-7)&&a.sens===delta)return;
+  const nk=Math.max(1200,Math.round((+g.kcal+delta)/50)*50);
+  box.hidden=false;
+  box.innerHTML=`<b>${titre}</b><p>${txt}</p><p>Proposition : <b class="${delta<0?"dn":"up"}">${delta>0?"+":"−"}150 kcal</b> → ${fmt(nk)} kcal par jour (protéines inchangées).</p>
+    <div class="r"><button type="button" class="add" id="ajOk" data-k="${nk}">Passer à ${fmt(nk)} kcal</button><button type="button" class="ghost" id="ajNo" data-s="${delta}">Pas maintenant</button></div>`;
+}
+$("#ajust").addEventListener("click",e=>{
+  const ok=e.target.closest("#ajOk"), no=e.target.closest("#ajNo");
+  if(ok){
+    snapshot(); const k=+ok.dataset.k;
+    S.objectifs=Object.assign({},S.objectifs,{kcal:k}); S.ajust={fait:TODAY};
+    const b=besoins(); if(b&&b.kcal)S.recoVue=b.kcal+"/"+b.prot;
+    persist(); render(); renderMesures(); toast(`Objectif : ${fmt(k)} kcal par jour`);
+  }else if(no){S.ajust=Object.assign({},S.ajust,{vu:TODAY,sens:+no.dataset.s});persist();renderMesures()}
+});
+function vers(d){const x=parse(d),j=x.getDate();return`${j<=10?"début":j<=20?"mi-":"fin"}${j>10&&j<=20?"":" "}${x.toLocaleDateString("fr-FR",{month:"long",year:"numeric"})}`}
+function duree(mois){
+  if(mois<1.75)return`≈ ${Math.max(1,Math.round(mois*4.35))} semaine${Math.round(mois*4.35)>1?"s":""}`;
+  if(mois>24)return"plus de 2 ans";
+  const m=Math.round(mois*2)/2;return`≈ ${Math.floor(m)} mois${m%1?" et demi":""}`;
+}
+function renderCible(sm){
+  const box=$("#cibleRes"), c=S.cible;
+  if(document.activeElement!==$("#cibleKg"))$("#cibleKg").value=c&&+c.kg>0?c.kg:"";
+  if(!c||!(+c.kg>0)){box.innerHTML='<div class="hint">Mets un poids à atteindre : l\'app affiche ta progression et estime la date à ton rythme.</div>';return}
+  if(!sm.length){box.innerHTML='<div class="hint">Ajoute une pesée pour suivre ta progression.</div>';return}
+  const last=sm[sm.length-1], dep=+c.depart>0?+c.depart:last.v, reste=c.kg-last.v, total=c.kg-dep;
+  if(Math.abs(reste)<.15){box.innerHTML=`<div class="mensverdict ok"><b>Cible atteinte ✓</b> ${n1(last.v)} kg en moyenne. Mets une nouvelle cible quand tu veux.</div>`;return}
+  const pct=total?Math.min(100,Math.max(0,(last.v-dep)/total*100)):0;
+  const ry=rythme(sm), obj=(S.profil||{}).objectif||"masse";
+  let est;
+  if(!ry||ry.j<14)est="Il faut environ 2 semaines de pesées pour estimer une date.";
+  else if(Math.sign(ry.rate)===Math.sign(reste)&&Math.abs(ry.rate)>=.05){const m=reste/ry.rate;est=`À ton rythme actuel (${sgn(ry.rate)} kg par mois) : <b>vers ${vers(shift(TODAY,Math.round(m*30.4)))}</b> (${duree(m)}).`}
+  else est=`À ton rythme actuel (${sgn(ry.rate)} kg par mois), tu ne te rapproches pas de ta cible.`;
+  const cons=reste>0?(obj==="perte"?0:.4):(obj==="masse"?0:-2);
+  const conseil=cons?`<div class="hint">Au rythme conseillé (${sgn(cons)} kg par mois) : vers ${vers(shift(TODAY,Math.round(reste/cons*30.4)))}.</div>`:"";
+  box.innerHTML=`<div class="pbar" role="img" aria-label="Progression : ${Math.round(pct)} %"><i style="width:${pct}%"></i></div>
+    <div class="pbl"><span>Départ ${n1(dep)} kg</span><span>encore ${n1(Math.abs(reste))} kg</span></div>
+    <div>${est}</div>${conseil}`;
+}
+$("#cibleKg").addEventListener("change",()=>{
+  const v=parseFloat(String($("#cibleKg").value).replace(",","."));
+  snapshot();
+  if(v>=30&&v<=250){const l=lisse(),dep=l.length?Math.round(l[l.length-1].v*10)/10:null;if(!S.cible||+S.cible.kg!==Math.round(v*10)/10)S.cible={kg:Math.round(v*10)/10,depart:dep,date:TODAY}}
+  else S.cible=null;
+  persist(); renderMesures(); toast(S.cible?`Cible : ${n1(S.cible.kg)} kg`:"Cible retirée");
+});
+/* ---------- Courbes des mensurations ---------- */
+const MENS=[["bras","Bras"],["taille","Tour de taille"],["poitrine","Poitrine"],["cuisse","Cuisse"]];
+let mensSel=null;
+function serieMens(k){return Object.values(S.mesures).filter(m=>m&&m.date&&+m[k]>0).sort((a,b)=>a.date<b.date?-1:1).map(m=>({date:m.date,v:+m[k]}))}
+function ecart4(l){
+  if(l.length<2)return null;
+  const e=l[l.length-1]; let r=l.find(x=>x.date>=shift(e.date,-28))||l[0]; if(r===e)r=l[l.length-2];
+  return{d:e.v-r.v,j:(parse(e.date)-parse(r.date))/864e5};
+}
+function mensChart(l,nom){
+  const W=360,H=150,L=34,R=40,T=14,B=24, t0=parse(l[0].date).getTime(), t1=parse(l[l.length-1].date).getTime();
+  let lo=Math.min(...l.map(p=>p.v)), hi=Math.max(...l.map(p=>p.v)); const pad=Math.max(.5,(hi-lo)*.2); lo=Math.floor(lo-pad); hi=Math.ceil(hi+pad);
+  const x=d=>L+(t1>t0?(parse(d).getTime()-t0)/(t1-t0):.5)*(W-L-R), y=v=>T+(hi-v)/(hi-lo)*(H-T-B);
+  const path=l.map((p,i)=>(i?"L":"M")+x(p.date).toFixed(1)+" "+y(p.v).toFixed(1)).join(" "), e=l[l.length-1];
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(nom)} : de ${n1(l[0].v)} à ${n1(e.v)} cm">`;
+  for(const tv of[lo,(lo+hi)/2,hi])s+=`<line class="grid" x1="${L}" x2="${W-R}" y1="${y(tv)}" y2="${y(tv)}"/><text class="axis" x="${L-6}" y="${y(tv)+3}" text-anchor="end">${n1(tv)}</text>`;
+  s+=`<path class="marea" d="${path} L${x(e.date).toFixed(1)} ${H-B} L${x(l[0].date).toFixed(1)} ${H-B} Z"/><path class="mline" d="${path}"/>`;
+  if(l.length<=24)l.forEach(p=>{s+=`<circle class="mpt" cx="${x(p.date)}" cy="${y(p.v)}" r="3"/>`});
+  s+=`<text class="endlab" x="${x(e.date)+7}" y="${y(e.v)+4}">${n1(e.v)}</text><text class="axis" x="${L}" y="${H-6}">${dShort(l[0].date)}</text><text class="axis" x="${W-R}" y="${H-6}" text-anchor="end">${dShort(e.date)}</text></svg>`;
+  return s;
+}
+function verdictMens(){
+  const b=ecart4(serieMens("bras")), t=ecart4(serieMens("taille")), obj=(S.profil||{}).objectif||"masse";
+  if(!b||!t)return'<div class="hint">Note ton tour de bras et ton tour de taille toutes les 2 semaines : l\'app te dira si tu prends plutôt du muscle ou du gras.</div>';
+  const sem=Math.max(1,Math.round(Math.max(b.j,t.j)/7)), info=`bras ${sgn(b.d)} cm, taille ${sgn(t.d)} cm en ${sem} semaine${sem>1?"s":""}`;
+  if(obj==="perte"){
+    if(t.d<=-.5&&b.d>=-.3)return`<div class="mensverdict ok"><b>Tu perds du ventre en gardant tes bras</b> (${info}). Parfait.</div>`;
+    if(b.d<-.5)return`<div class="mensverdict warn"><b>Le bras baisse</b> (${info}) : garde tes protéines et ta muscu pour garder ton muscle.</div>`;
+    return`<div class="mensverdict">Pas encore assez de changement pour conclure (${info}).</div>`;
+  }
+  if(b.d>=.3&&t.d<=.5)return`<div class="mensverdict ok"><b>Plutôt du muscle</b> : le bras monte et la taille reste stable (${info}). Continue comme ça.</div>`;
+  if(t.d>.5&&b.d<.3)return`<div class="mensverdict warn"><b>La taille monte plus vite que le bras</b> (${info}) : le surplus est peut-être trop grand, plutôt du gras. Regarde le rythme de ton poids plus haut.</div>`;
+  if(t.d>.5)return`<div class="mensverdict"><b>Le bras et la taille montent</b> (${info}) : normal en prise de masse, garde un œil sur la taille.</div>`;
+  return`<div class="mensverdict">Pas encore assez de changement pour conclure (${info}). Continue à mesurer toutes les 2 semaines.</div>`;
+}
+function renderMens(){
+  const dispo=MENS.filter(([k])=>serieMens(k).length);
+  $("#mensCard").hidden=!dispo.length; if(!dispo.length)return;
+  if(!mensSel||!dispo.some(([k])=>k===mensSel))mensSel=(dispo.find(([k])=>serieMens(k).length>1)||dispo[0])[0];
+  $("#mensChips").innerHTML=dispo.map(([k,n])=>`<button type="button" data-mk="${k}" aria-pressed="${k===mensSel}">${n}</button>`).join("");
+  const nom=MENS.find(m=>m[0]===mensSel)[1], l=serieMens(mensSel), e=l[l.length-1], d=ecart4(l);
+  const bon=d?(mensSel==="taille"?d.d<=.3:d.d>=0):true;
+  let h=`<div class="wnow"><span class="big">${n1(e.v)}</span><span class="u">cm</span>${d?`<span class="trend ${Math.abs(d.d)<.05?"":bon?"ok":"warn"}">${sgn(d.d)} cm en ${Math.max(1,Math.round(d.j/7))} sem.</span>`:""}</div>`;
+  h+=l.length>1?`<div class="chart">${mensChart(l,nom)}</div>`:'<div class="hint">Encore une mesure pour voir la courbe.</div>';
+  h+=verdictMens()+'<div class="hint">Mesure toujours au même moment (le matin, avant de manger) pour pouvoir comparer.</div>';
+  $("#mensBody").innerHTML=h;
+}
+$("#mensChips").addEventListener("click",e=>{const b=e.target.closest("[data-mk]");if(b){mensSel=b.dataset.mk;renderMens()}});
+
 /* ---------- Sauvegarde ---------- */
 function backupInfo(){
   const n=Object.keys(S.jours).length, m=Object.keys(S.mesures).length;
@@ -1987,7 +2278,7 @@ function backupInfo(){
   $("#bInfo").textContent=t;
   renderSaveBan(); renderRestore();
 }
-function exportData(){return JSON.stringify({app:"prise-de-masse-seche",version:1,exporte:new Date().toISOString(),jours:S.jours,aliments:S.aliments,mesures:S.mesures,objectifs:S.objectifs,profil:S.profil,activites:S.activites,gouts:S.gouts,favoris:S.favoris,repasComposes:S.repasComposes,planSport:S.planSport,semaines:S.semaines,semaineActive:S.semaineActive,planAuto:S.planAuto},null,1)}
+function exportData(){return JSON.stringify({app:"prise-de-masse-seche",version:1,exporte:new Date().toISOString(),jours:S.jours,aliments:S.aliments,mesures:S.mesures,objectifs:S.objectifs,profil:S.profil,activites:S.activites,gouts:S.gouts,favoris:S.favoris,repasComposes:S.repasComposes,planSport:S.planSport,semaines:S.semaines,semaineActive:S.semaineActive,planAuto:S.planAuto,cible:S.cible},null,1)}
 $("#bExport").onclick=async()=>{
   const name="prise-de-masse-"+TODAY+".json", json=exportData();
   const file=new File([json],name,{type:"application/json"});
@@ -2076,6 +2367,7 @@ $("#bPrev").addEventListener("click",e=>{
   if(isObj(o.planSport)&&Object.keys(o.planSport).length)S.planSport=JSON.parse(JSON.stringify(o.planSport));
   if(Array.isArray(o.semaines)&&o.semaines.length){S.semaines=JSON.parse(JSON.stringify(o.semaines.filter(isObj)));S.semaineActive=o.semaineActive||(S.semaines[0]||{}).id}
   if(isObj(o.planAuto))S.planAuto=Object.assign({},o.planAuto);
+  if(isObj(o.cible)&&+o.cible.kg>0)S.cible=Object.assign({},o.cible);
   semainesInit();
   S.onboarded=true; $("#onb").hidden=true; importEnAttente=null; $("#bPrev").hidden=true;
   if(!persist()){try{S=Object.assign(emptyState(),JSON.parse(undoSnap))}catch(err){}say("#bStatus","Import impossible : stockage plein ou bloqué.","err","status");return}

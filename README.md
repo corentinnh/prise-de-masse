@@ -8,6 +8,12 @@ Web app installable (PWA) pour suivre une prise de masse sèche au quotidien.
 
 L'app est organisée en 4 onglets : **Aujourd'hui** (cercles, compléments, repas par moment, idées pour le prochain repas avec « Mes goûts »), **Ajouter** (recherche, portions, récents, favoris, mes repas, copie de la veille, activité), **Progrès** (poids lissé, semaine, activité, mesures) et **Profil** (profil, planning sportif, objectifs, repas composés, sauvegarde).
 
+- **Ajout rapide** : calories et protéines (glucides et lipides facultatifs) sans chercher l'aliment, pour le resto ou chez quelqu'un.
+- **Série** : nombre de jours d'affilée avec l'objectif de protéines atteint, et le record.
+- **Bilan de la semaine** : moyennes calories / protéines, jours dans la cible, poids moyen, séances faites par rapport au planning, eau. Affiché sur Aujourd'hui le dimanche et le lundi, et toujours dans Progrès.
+- **Ajustement guidé** : après 3 semaines de pesées, si le poids lissé monte de plus de 0,5 kg par mois ou stagne 3 semaines, l'app propose −150 ou +150 kcal en un appui.
+- **Poids cible** : progression, date estimée au rythme actuel et au rythme conseillé ; la courbe du poids montre la cible et la tendance sur le mois suivant.
+- **Courbes des mensurations** : une courbe par tour (bras, taille, poitrine, cuisse) et une phrase qui compare bras et taille sur 4 semaines (plutôt du muscle ou du gras).
 - **Récents et favoris** : remettre un aliment déjà noté en un appui, ou copier un repas de la veille.
 - **Repas composés** : un repas enregistré une fois (« Mon bowl du midi ») s'ajoute d'un coup.
 - **Portions en unités** : œuf, tranche, pot, dose, pièce, cuillère… avec conversion en grammes.
