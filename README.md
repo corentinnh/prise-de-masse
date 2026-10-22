@@ -31,7 +31,7 @@ L'app est organisée en 4 onglets : **Aujourd'hui** (cercles, compléments, repa
 - **Idées pour compléter** : suggestions de repas selon ce qu'il reste à manger et l'heure, ajoutables en un clic. « Mes goûts » : soit seulement des plats avec les aliments cochés, soit un mode découverte avec des plats du monde qui changent chaque jour. Recherche dans toute la base pour ajouter un aliment ou un plat aimé (un plat aimé devient une idée de repas) et « Afficher plus » pour une liste étendue.
 - **Compléments** : cases whey et créatine.
 - **Poids et mensurations** : pesées, tours de taille / bras / poitrine / cuisse, courbe et historique.
-- **Sauvegarde** : export / import JSON et résumé texte à copier.
+- **Sauvegarde** : export / import JSON et résumé texte à copier. Avant un import, l'app montre ce que contient le fichier et garde une copie du journal pour pouvoir revenir en arrière. Un bandeau rappelle d'exporter quand le dernier export date de plus de 7 jours.
 - **Hors connexion** : fonctionne sans réseau une fois installée.
 
 ## Installation
@@ -42,6 +42,8 @@ L'app est organisée en 4 onglets : **Aujourd'hui** (cercles, compléments, repa
 ## Données
 
 Toutes les données restent **sur l'appareil** (stockage local du navigateur). Rien n'est envoyé sur un serveur ni dans ce repo. Seul le nom d'un aliment recherché est envoyé à Open Food Facts quand on utilise la recherche. Chaque personne qui utilise l'app a son propre journal, séparé.
+
+La page n'autorise que ses propres fichiers et Open Food Facts (règle `Content-Security-Policy`), et n'envoie pas d'adresse d'origine aux recherches. Les fichiers d'export sont exclus du repo par `.gitignore`.
 
 Penser à faire un export régulier : supprimer l'app ou effacer les données du navigateur efface le journal.
 

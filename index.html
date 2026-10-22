@@ -2,6 +2,9 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
+<!-- Sécurité : seuls les fichiers de l'app sont chargés ; seule la recherche Open Food Facts sort sur le réseau. Nouveau domaine = l'ajouter ici. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://*.openfoodfacts.org; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Prise de masse sèche</title>
 <meta name="description" content="Journal des repas, calories, protéines, poids et mensurations.">
@@ -438,6 +441,9 @@ input,select{border-radius:12px}
 .ban .r button{border-radius:999px;padding:10px 14px;font-weight:700;font-size:.85rem}
 .ban .ok{flex:1;border:0;background:var(--g-brand);color:#fff}
 .ban .later{border:1px solid color-mix(in srgb,var(--bg) 35%,transparent);background:none;color:var(--bg)}
+.bprev{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:18px;background:color-mix(in srgb,var(--ink) 6%,transparent)}
+.bprev ul{margin:0;padding-left:18px;font-size:.88rem;line-height:1.5}
+.bprev .warnbox{font-size:.8rem}
 .aplan{display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-radius:22px;border:1px solid var(--glass-line);box-shadow:var(--shadow);
   background:linear-gradient(135deg,color-mix(in srgb,#ff8a5b 16%,var(--glass)),color-mix(in srgb,#7b5cff 16%,var(--glass)));-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
 .aplan .it{display:flex;justify-content:space-between;gap:10px}
@@ -459,6 +465,7 @@ input,select{border-radius:12px}
     <div class="center"><h1 id="dayLabel">—</h1><div class="eyebrow" id="dayRel"></div></div>
     <button class="navbtn" id="next" aria-label="Jour suivant">›</button>
   </header>
+  <div class="ban" id="saveBan" role="status" hidden></div>
 
   <section class="totals" aria-label="Totaux du jour">
     <div class="tot kcal">
@@ -725,6 +732,8 @@ input,select{border-radius:12px}
       <button class="ghost" type="button" id="bImport">Importer un fichier</button>
       <input type="file" id="bFile" accept="application/json,.json" hidden>
     </div>
+    <div class="bprev" id="bPrev" hidden></div>
+    <button class="linkbtn" type="button" id="bRestore" hidden></button>
     <div class="status" id="bStatus" role="status"></div>
   </section>
 
@@ -868,7 +877,7 @@ let TODAY=ds(new Date());
 let cur=TODAY;
 
 /* ---------- Stockage local ---------- */
-function emptyState(){return{jours:{},aliments:{},mesures:{},objectifs:{kcal:0,prot:0},profil:{},activites:{},gouts:{aime:[],seulement:false},favoris:{},repasComposes:{},planning:null,planSport:{},semaines:[],semaineActive:null,planAuto:null,recoVue:null,onboarded:false,dernierExport:null}}
+function emptyState(){return{jours:{},aliments:{},mesures:{},objectifs:{kcal:0,prot:0},profil:{},activites:{},gouts:{aime:[],seulement:false},favoris:{},repasComposes:{},planning:null,planSport:{},semaines:[],semaineActive:null,planAuto:null,recoVue:null,rappelExport:null,onboarded:false,dernierExport:null}}
 let S=emptyState();
 try{const raw=localStorage.getItem(KEY);if(raw){const o=JSON.parse(raw);S=Object.assign(emptyState(),o)}}catch(e){}
 function persist(){
@@ -1976,6 +1985,7 @@ function backupInfo(){
   if(S.dernierExport){const j=Math.floor((Date.now()-new Date(S.dernierExport).getTime())/864e5);t+=j<1?"Dernier export : aujourd'hui.":`Dernier export : il y a ${j} jour${j>1?"s":""}.`}
   else t+="Aucun export pour l'instant : pense à en faire un de temps en temps.";
   $("#bInfo").textContent=t;
+  renderSaveBan(); renderRestore();
 }
 function exportData(){return JSON.stringify({app:"prise-de-masse-seche",version:1,exporte:new Date().toISOString(),jours:S.jours,aliments:S.aliments,mesures:S.mesures,objectifs:S.objectifs,profil:S.profil,activites:S.activites,gouts:S.gouts,favoris:S.favoris,repasComposes:S.repasComposes,planSport:S.planSport,semaines:S.semaines,semaineActive:S.semaineActive,planAuto:S.planAuto},null,1)}
 $("#bExport").onclick=async()=>{
@@ -2011,28 +2021,97 @@ $("#bCopy").onclick=async()=>{
   catch(e){say("#bStatus","Copie impossible ici, utilise plutôt Exporter.","err","status")}
 };
 $("#bImport").onclick=()=>$("#bFile").click();
+/* Import : lecture et contrôle du fichier, aperçu, puis fusion. Une copie du journal d'avant est gardée pour revenir en arrière. */
+const KEY_AVANT=KEY+"-avant-import";
+const isDate=k=>/^\d{4}-\d{2}-\d{2}$/.test(k);
+const isObj=v=>!!v&&typeof v==="object"&&!Array.isArray(v);
+function nettoieImport(o){
+  if(!isObj(o)||!(isObj(o.jours)||isObj(o.mesures)||isObj(o.aliments)))return null;
+  const c=Object.assign({},o), garde=(src,ok)=>{const r={};if(isObj(src))for(const[k,v]of Object.entries(src))if(ok(k,v))r[k]=v;return r};
+  c.jours=garde(o.jours,(k,v)=>isDate(k)&&isObj(v)&&(v.repas==null||Array.isArray(v.repas)));
+  c.mesures=garde(o.mesures,(k,v)=>isDate(k)&&isObj(v));
+  c.activites=garde(o.activites,(k,v)=>isDate(k)&&Array.isArray(v));
+  c.aliments=garde(o.aliments,(k,v)=>isObj(v));
+  return c;
+}
+let importEnAttente=null;
 $("#bFile").addEventListener("change",async e=>{
   const f=e.target.files&&e.target.files[0]; e.target.value=""; if(!f)return;
+  $("#bPrev").hidden=true; importEnAttente=null;
   try{
-    const o=JSON.parse(await f.text());
-    if(!o||typeof o!=="object"||!(o.jours||o.mesures||o.aliments))throw 0;
-    const nj=Object.keys(o.jours||{}).length, nm=Object.keys(o.mesures||{}).length;
-    Object.assign(S.jours,o.jours||{}); Object.assign(S.aliments,o.aliments||{}); Object.assign(S.mesures,o.mesures||{});
-    if(o.objectifs&&(o.objectifs.kcal||o.objectifs.prot))S.objectifs={kcal:+o.objectifs.kcal||0,prot:+o.objectifs.prot||0};
-    if(o.profil&&typeof o.profil==="object"&&Object.keys(o.profil).length)S.profil=Object.assign({},S.profil,o.profil);
-    if(o.activites&&typeof o.activites==="object")Object.assign(S.activites,o.activites);
-    if(o.gouts&&Array.isArray(o.gouts.aime))S.gouts={aime:o.gouts.aime.slice(),seulement:!!o.gouts.seulement,aliments:Array.isArray(o.gouts.aliments)?o.gouts.aliments.slice():[]};
-    if(o.favoris&&typeof o.favoris==="object")Object.assign(S.favoris,o.favoris);
-    if(o.repasComposes&&typeof o.repasComposes==="object")Object.assign(S.repasComposes,o.repasComposes);
-    if(o.planSport&&typeof o.planSport==="object"&&Object.keys(o.planSport).length)S.planSport=JSON.parse(JSON.stringify(o.planSport));
-    if(Array.isArray(o.semaines)&&o.semaines.length){S.semaines=JSON.parse(JSON.stringify(o.semaines));S.semaineActive=o.semaineActive||S.semaines[0].id}
-    if(o.planAuto&&typeof o.planAuto==="object")S.planAuto=Object.assign({},o.planAuto);
-    semainesInit();
-    S.onboarded=true; $("#onb").hidden=true;
-    if(!persist())throw 1;
-    fillDatalist(); render(); renderMesures(); backupInfo();
-    say("#bStatus",`Importé ✓ ${nj} jour${nj>1?"s":""} et ${nm} mesure${nm>1?"s":""}.`,"ok","status");
-  }catch(err){say("#bStatus",err===1?"Import impossible : stockage plein ou bloqué.":"Ce fichier n'est pas un export de l'app.","err","status")}
+    if(f.size>10*1024*1024)throw 0;
+    const o=nettoieImport(JSON.parse(await f.text())); if(!o)throw 0;
+    const dj=Object.keys(o.jours).sort(), nj=dj.length, nm=Object.values(o.mesures).filter(m=>+m.poids>0).length, nmes=Object.keys(o.mesures).length;
+    const na=Object.keys(o.activites).length, nal=Object.keys(o.aliments).length;
+    const communs=dj.filter(d=>S.jours[d]&&(S.jours[d].repas||[]).length).length;
+    if(!nj&&!nmes&&!nal)throw 0;
+    const li=[];
+    if(nj)li.push(`${nj} jour${nj>1?"s":""} de repas (du ${dShort(dj[0])} au ${dShort(dj[nj-1])})`);
+    if(nmes)li.push(`${nmes} mesure${nmes>1?"s":""} dont ${nm} pesée${nm>1?"s":""}`);
+    if(na)li.push(`${na} jour${na>1?"s":""} d'activité`);
+    if(nal)li.push(`${nal} aliment${nal>1?"s":""} retenu${nal>1?"s":""}`);
+    if(isObj(o.objectifs)&&(o.objectifs.kcal||o.objectifs.prot))li.push(`objectifs : ${fmt(+o.objectifs.kcal||0)} kcal · ${+o.objectifs.prot||0} g`);
+    if(Array.isArray(o.semaines)&&o.semaines.length)li.push(`${o.semaines.length} semaine${o.semaines.length>1?"s":""} type`);
+    importEnAttente=o;
+    $("#bPrev").innerHTML=`<b>Ce fichier contient :</b><ul>${li.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+      ${communs?`<div class="warnbox">${communs} jour${communs>1?"s":""} déjà noté${communs>1?"s":""} ici ser${communs>1?"ont":"a"} remplacé${communs>1?"s par ceux":" par celui"} du fichier.</div>`:""}
+      <div class="hint">Une copie de ton journal actuel est gardée : tu pourras revenir en arrière.</div>
+      <div class="btns2"><button type="button" class="ghost" id="bPrevNo">Annuler</button><button type="button" class="add" id="bPrevOk">Importer</button></div>`;
+    $("#bPrev").hidden=false; say("#bStatus","","","status");
+  }catch(err){say("#bStatus","Ce fichier n'est pas un export de l'app (ou il est abîmé).","err","status")}
+});
+$("#bPrev").addEventListener("click",e=>{
+  if(e.target.closest("#bPrevNo")){importEnAttente=null;$("#bPrev").hidden=true;return}
+  if(!e.target.closest("#bPrevOk")||!importEnAttente)return;
+  const o=importEnAttente;
+  let copie=true; try{localStorage.setItem(KEY_AVANT,JSON.stringify({date:new Date().toISOString(),etat:S}))}catch(err){copie=false}
+  snapshot();
+  Object.assign(S.jours,o.jours); Object.assign(S.aliments,o.aliments); Object.assign(S.mesures,o.mesures);
+  if(isObj(o.objectifs)&&(o.objectifs.kcal||o.objectifs.prot))S.objectifs={kcal:+o.objectifs.kcal||0,prot:+o.objectifs.prot||0};
+  if(isObj(o.profil)&&Object.keys(o.profil).length)S.profil=Object.assign({},S.profil,o.profil);
+  Object.assign(S.activites,o.activites);
+  if(isObj(o.gouts)&&Array.isArray(o.gouts.aime))S.gouts={aime:o.gouts.aime.slice(),seulement:!!o.gouts.seulement,aliments:Array.isArray(o.gouts.aliments)?o.gouts.aliments.slice():[]};
+  if(isObj(o.favoris))Object.assign(S.favoris,o.favoris);
+  if(isObj(o.repasComposes))Object.assign(S.repasComposes,o.repasComposes);
+  if(isObj(o.planSport)&&Object.keys(o.planSport).length)S.planSport=JSON.parse(JSON.stringify(o.planSport));
+  if(Array.isArray(o.semaines)&&o.semaines.length){S.semaines=JSON.parse(JSON.stringify(o.semaines.filter(isObj)));S.semaineActive=o.semaineActive||(S.semaines[0]||{}).id}
+  if(isObj(o.planAuto))S.planAuto=Object.assign({},o.planAuto);
+  semainesInit();
+  S.onboarded=true; $("#onb").hidden=true; importEnAttente=null; $("#bPrev").hidden=true;
+  if(!persist()){try{S=Object.assign(emptyState(),JSON.parse(undoSnap))}catch(err){}say("#bStatus","Import impossible : stockage plein ou bloqué.","err","status");return}
+  renderAll();
+  const nj=Object.keys(o.jours).length;
+  say("#bStatus",`Importé ✓ ${nj} jour${nj>1?"s":""} de repas.${copie?"":" (Pas de place pour garder la copie d'avant.)"}`,"ok","status");
+  toast("Import terminé");
+});
+function renderRestore(){
+  let a=null; try{a=JSON.parse(localStorage.getItem(KEY_AVANT)||"null")}catch(e){}
+  const b=$("#bRestore"); b.hidden=!(a&&a.etat);
+  if(a&&a.date)b.textContent=`Revenir au journal d'avant l'import du ${new Date(a.date).toLocaleDateString("fr-FR",{day:"numeric",month:"long"})}`;
+}
+$("#bRestore").onclick=()=>{
+  let a=null; try{a=JSON.parse(localStorage.getItem(KEY_AVANT)||"null")}catch(e){}
+  if(!a||!a.etat)return;
+  snapshot(); S=Object.assign(emptyState(),a.etat); semainesInit();
+  if(!persist()){say("#bStatus","Impossible : stockage plein ou bloqué.","err","status");return}
+  try{localStorage.removeItem(KEY_AVANT)}catch(e){}
+  renderAll(); say("#bStatus","Journal d'avant l'import remis ✓","ok","status"); toast("Journal d'avant l'import remis");
+};
+/* Rappel de sauvegarde sur Aujourd'hui : dernier export de plus de 7 jours (ou jamais, avec plus de 7 jours de journal). */
+function renderSaveBan(){
+  const ban=$("#saveBan"), dates=Object.keys(S.jours).sort();
+  const jours=d=>Math.floor((parse(TODAY)-parse(d))/864e5);
+  const depuis=S.dernierExport?jours(ds(new Date(S.dernierExport))):(dates.length?jours(dates[0]):0);
+  const vu=S.rappelExport&&jours(S.rappelExport)<3;
+  if(dates.length<3||depuis<=7||vu){ban.hidden=true;return}
+  ban.hidden=false;
+  ban.innerHTML=`<div class="t">Pense à sauvegarder ton journal</div>
+    <p>${S.dernierExport?`Ton dernier export date de ${depuis} jours.`:"Tu n'as encore jamais exporté ton journal."} Supprimer l'app de l'écran d'accueil efface tout.</p>
+    <div class="r"><button type="button" class="ok" id="saveOk">Exporter maintenant</button><button type="button" class="later" id="saveLater">Plus tard</button></div>`;
+}
+$("#saveBan").addEventListener("click",e=>{
+  if(e.target.closest("#saveOk"))$("#bExport").onclick();
+  else if(e.target.closest("#saveLater")){S.rappelExport=TODAY;persist();renderSaveBan()}
 });
 
 /* ---------- Planning du lendemain et liste de courses ---------- */
