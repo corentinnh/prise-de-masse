@@ -65,7 +65,7 @@ Penser à faire un export régulier : supprimer l'app ou effacer les données du
 | `sw.js` | Service worker : cache hors connexion et mises à jour |
 | `manifest.webmanifest` | Nom, icônes et affichage de l'app installée |
 | `icons/` | Icônes de l'app |
-| `fonts/` | Polices hébergées en local (Unbounded, Manrope) |
+| `fonts/` | Polices hébergées en local (Outfit, Inter) |
 | `data/ciqual-2025.json` | Table Ciqual 2025 réduite (nom, kcal, protéines, glucides, lipides pour 100 g) |
 | `data/plats-du-monde.json` | Plats du monde absents de Ciqual, valeurs moyennes estimées |
 

@@ -1,19 +1,19 @@
 /* Service worker : garde l'app disponible hors connexion.
    Change VERSION à chaque mise à jour pour que les téléphones récupèrent la nouvelle version. */
-const VERSION = "pdms-2026-11-03-5";
+const VERSION = "pdms-2026-11-03-6";
 const ASSETS = [
   "./",
   "index.html",
   "manifest.webmanifest",
   "data/ciqual-2025.json",
   "data/plats-du-monde.json",
-  "fonts/manrope-latin-400-normal.woff2",
-  "fonts/manrope-latin-500-normal.woff2",
-  "fonts/manrope-latin-600-normal.woff2",
-  "fonts/manrope-latin-700-normal.woff2",
-  "fonts/unbounded-latin-500-normal.woff2",
-  "fonts/unbounded-latin-600-normal.woff2",
-  "fonts/unbounded-latin-700-normal.woff2",
+  "fonts/inter-latin-400-normal.woff2",
+  "fonts/inter-latin-500-normal.woff2",
+  "fonts/inter-latin-600-normal.woff2",
+  "fonts/inter-latin-700-normal.woff2",
+  "fonts/outfit-latin-500-normal.woff2",
+  "fonts/outfit-latin-600-normal.woff2",
+  "fonts/outfit-latin-700-normal.woff2",
   "icons/apple-touch-icon.png",
   "icons/icon-192.png",
   "icons/icon-512.png",
