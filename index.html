@@ -441,6 +441,35 @@ input,select{border-radius:12px}
 .ban .r button{border-radius:999px;padding:10px 14px;font-weight:700;font-size:.85rem}
 .ban .ok{flex:1;border:0;background:var(--g-brand);color:#fff}
 .ban .later{border:1px solid color-mix(in srgb,var(--bg) 35%,transparent);background:none;color:var(--bg)}
+/* Accueil : tuiles et panneaux */
+#v-today [data-panel]:not(.on){display:none!important}
+#v-today.detail .homeonly{display:none!important}
+#v-today:not(.detail) .phead{display:none}
+.phead{display:flex;align-items:center;gap:12px;margin-bottom:-4px}
+.phead h2{font-size:1.3rem;letter-spacing:-.02em}
+.pback{font-weight:700;font-size:.85rem;padding:9px 14px;flex:none;text-decoration:none;border-radius:999px;background:var(--glass);border:1px solid var(--glass-line);box-shadow:var(--shadow);color:var(--ink)}
+#v-today .ring{width:min(108px,100%)}
+.dep{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:20px;text-decoration:none;color:var(--ink);background:var(--glass);border:1px solid var(--glass-line);box-shadow:var(--shadow);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+.dep .ic{width:34px;height:34px;flex:none;border-radius:50%;background:var(--g-brand);display:grid;place-items:center}
+.dep .t{flex:1;min-width:0;font-size:.9rem}
+.dep .t small{display:block;color:var(--muted);font-size:.76rem}
+.dep .r{text-align:right;font-size:.74rem;color:var(--muted);white-space:nowrap}
+.dep .r b{display:block;font-family:var(--f-display);font-size:.95rem;color:var(--prot);letter-spacing:-.02em}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tiles>:last-child:nth-child(odd){grid-column:1/-1}
+.tile{display:flex;flex-direction:column;align-items:stretch;gap:4px;min-height:82px;padding:12px 14px;border-radius:20px;text-align:left;color:var(--ink);background:var(--glass);border:1px solid var(--glass-line);box-shadow:var(--shadow);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+.tile .h{display:flex;justify-content:space-between;gap:6px;font-size:.76rem;font-weight:700;color:var(--muted)}
+.tile b{font-family:var(--f-display);font-size:1.02rem;letter-spacing:-.02em;line-height:1.2;overflow-wrap:anywhere}
+.tile b.sm{font-size:.84rem}
+.tile small{color:var(--muted);font-size:.76rem;line-height:1.3}
+.tile .mbar{height:6px;margin-top:2px}
+.bigadd{border-radius:999px;padding:14px;font-size:1rem;background:var(--g-brand);color:#fff}
+.compladd{display:flex;gap:8px}
+.compladd input{flex:1}
+#complList .chk{padding:9px 0;border-top:1px solid var(--line)}
+#complList .chk:first-child{border-top:0}
+#complList .chk span{flex:1}
+#complList .x{border:0;background:none;color:var(--muted);width:32px;height:32px;font-size:1.1rem}
 /* Ajout rapide */
 .addmode{margin-bottom:-4px}
 #fr .calc{min-height:0}
@@ -498,16 +527,17 @@ input,select{border-radius:12px}
 <main class="views">
 
 <!-- ================= Aujourd'hui ================= -->
-<section class="view" id="v-today" aria-label="Aujourd'hui">
+<section class="view" id="v-today" aria-label="Accueil">
   <header class="daynav">
     <button class="navbtn" id="prev" aria-label="Jour précédent">‹</button>
     <div class="center"><h1 id="dayLabel">—</h1><div class="eyebrow" id="dayRel"></div></div>
     <button class="navbtn" id="next" aria-label="Jour suivant">›</button>
   </header>
-  <div class="ban" id="saveBan" role="status" hidden></div>
-  <section class="ban bilan" id="bilanToday" aria-label="Bilan de la semaine" hidden></section>
+  <div class="phead" id="pHead"><button type="button" class="lnk pback" id="pBack">‹ Accueil</button><h2 id="pTitle"></h2></div>
+  <div class="ban homeonly" id="saveBan" role="status" hidden></div>
+  <section class="ban bilan homeonly" id="bilanToday" aria-label="Bilan de la semaine" hidden></section>
 
-  <section class="totals" aria-label="Totaux du jour">
+  <section class="totals homeonly" aria-label="Totaux du jour">
     <div class="tot kcal">
       <div class="ring"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="grK" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#ffb35b"/><stop offset="1" stop-color="#ff4f7b"/></linearGradient></defs><circle class="track" cx="60" cy="60" r="52"/><circle class="fill" id="rK" cx="60" cy="60" r="52" stroke-dasharray="326.73" stroke-dashoffset="326.73"/></svg>
         <div class="mid"><div class="num" id="tK">0</div><div class="unit">kcal</div></div></div>
@@ -515,25 +545,28 @@ input,select{border-radius:12px}
     </div>
     <div class="tot prot">
       <div class="ring"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="grP" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#4fd8ff"/><stop offset="1" stop-color="#5b3df5"/></linearGradient></defs><circle class="track" cx="60" cy="60" r="52"/><circle class="fill" id="rP" cx="60" cy="60" r="52" stroke-dasharray="326.73" stroke-dashoffset="326.73"/></svg>
-        <div class="mid"><div class="num" id="tP">0</div><div class="unit">g de protéines</div></div></div>
+        <div class="mid"><div class="num" id="tP">0</div><div class="unit">g prot.</div></div></div>
       <div class="tinfo"><div class="eyebrow">Protéines <span class="pct" id="pP"></span></div><div class="goal" id="gP">Pas d'objectif</div></div>
     </div>
   </section>
 
-  <section class="streak" id="streak" aria-label="Série" hidden></section>
+  <a href="#" class="dep homeonly" id="dep"></a>
+  <section class="tiles homeonly" id="tiles" aria-label="Raccourcis"></section>
+  <section class="streak homeonly" id="streak" aria-label="Série" hidden></section>
+  <button type="button" class="add bigadd homeonly" id="homeAdd">+ Ajouter un repas</button>
 
-  <section class="macros" aria-label="Glucides et lipides">
+  <section class="macros" data-panel="macros" aria-label="Glucides et lipides">
     <div class="mac"><div class="mtl"><span>Glucides</span><span class="mono" id="mgV">0 g</span></div><div class="mbar"><i id="mgB" style="background:var(--g-carb)"></i></div></div>
     <div class="mac"><div class="mtl"><span>Lipides</span><span class="mono" id="mlV">0 g</span></div><div class="mbar"><i id="mlB" style="background:var(--g-fat)"></i></div></div>
     <div class="hint full" id="macHint"></div>
   </section>
 
-  <section class="supps" aria-label="Compléments">
-    <button class="chip" id="whey" aria-pressed="false"><span class="dot">✓</span>Whey</button>
-    <button class="chip" id="creatine" aria-pressed="false"><span class="dot">✓</span>Créatine</button>
+  <section class="block" data-panel="compl" aria-label="Compléments">
+    <div class="supps" id="supps"></div>
+    <div class="hint" id="suppsHint"></div>
   </section>
 
-  <section class="card eau" aria-label="Eau">
+  <section class="card eau" data-panel="eau" aria-label="Eau">
     <div class="cardhead"><h2>Eau</h2><span class="mono sub" id="eauV">0 L</span></div>
     <div class="mbar"><i id="eauB" style="background:var(--g-eau)"></i></div>
     <details class="more" id="eauMore">
@@ -555,9 +588,9 @@ input,select{border-radius:12px}
     <div class="hint" id="eauHint"></div>
   </section>
 
-  <section id="meals" class="meals" aria-label="Repas"></section>
+  <section id="meals" class="meals" data-panel="repas" aria-label="Repas"></section>
 
-  <section class="ideas" aria-label="Idées pour compléter">
+  <section class="ideas" data-panel="idees" aria-label="Idées pour compléter">
     <h2>Idées pour compléter</h2>
     <details class="more" id="gMore">
       <summary id="gSum">Mes goûts</summary>
@@ -574,7 +607,7 @@ input,select{border-radius:12px}
     <div id="ideas"><div class="hint">Règle tes objectifs pour avoir des idées de repas adaptées à ce qu'il te reste.</div></div>
   </section>
 
-  <section class="card" id="planCard" aria-label="Planning">
+  <section class="card" id="planCard" data-panel="demain" aria-label="Planning">
     <div class="cardhead"><h2 id="planTitle">Planning de demain</h2></div>
     <div id="plan"></div>
   </section>
@@ -778,6 +811,13 @@ input,select{border-radius:12px}
     </form>
   </section>
 
+  <section class="card" id="complCard" aria-label="Mes compléments alimentaires">
+    <h2>Mes compléments alimentaires</h2>
+    <div class="hint">Coche ce que tu prends : seuls ceux-là s'affichent dans ta journée.</div>
+    <div id="complList"></div>
+    <div class="compladd"><input id="complNew" maxlength="30" placeholder="Autre : collagène, zinc…" autocomplete="off" aria-label="Autre complément"><button type="button" class="pill" id="complAdd">Ajouter</button></div>
+  </section>
+
   <section class="card" id="rcCard" aria-label="Mes repas composés">
     <div class="cardhead"><h2>Mes repas composés</h2><button type="button" class="pill" id="rcNew">+ Nouveau</button></div>
     <div id="rcList"></div>
@@ -819,7 +859,7 @@ input,select{border-radius:12px}
 </main>
 
 <nav class="tabbar" aria-label="Navigation">
-  <button type="button" class="tabb" data-tab="today" aria-current="page"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Aujourd'hui</button>
+  <button type="button" class="tabb" data-tab="today" aria-current="page"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg>Accueil</button>
   <button type="button" class="tabb" data-tab="add"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M8 12h8"/></svg>Ajouter</button>
   <button type="button" class="tabb" data-tab="prog"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19h16"/><path d="M5 15l4-4 3 3 6-7"/></svg>Progrès</button>
   <button type="button" class="tabb" data-tab="profil"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c1.2-3.6 4-5.5 7-5.5s5.8 1.9 7 5.5"/></svg>Profil</button>
@@ -949,7 +989,7 @@ let TODAY=ds(new Date());
 let cur=TODAY;
 
 /* ---------- Stockage local ---------- */
-function emptyState(){return{jours:{},aliments:{},mesures:{},objectifs:{kcal:0,prot:0},profil:{},activites:{},gouts:{aime:[],seulement:false},favoris:{},repasComposes:{},planning:null,planSport:{},semaines:[],semaineActive:null,planAuto:null,recoVue:null,rappelExport:null,cible:null,ajust:null,bilanVu:null,onboarded:false,dernierExport:null}}
+function emptyState(){return{jours:{},aliments:{},mesures:{},objectifs:{kcal:0,prot:0},profil:{},activites:{},gouts:{aime:[],seulement:false},favoris:{},repasComposes:{},planning:null,planSport:{},semaines:[],semaineActive:null,planAuto:null,recoVue:null,rappelExport:null,cible:null,ajust:null,bilanVu:null,complements:null,onboarded:false,dernierExport:null}}
 let S=emptyState();
 try{const raw=localStorage.getItem(KEY);if(raw){const o=JSON.parse(raw);S=Object.assign(emptyState(),o)}}catch(e){}
 function persist(){
@@ -981,7 +1021,7 @@ let DB={ciqual:[],monde:[]}, DB_ALL=null;
 async function loadDB(){
   try{
     const [c,m]=await Promise.all(["data/ciqual-2025.json","data/plats-du-monde.json"].map(u=>fetch(u).then(r=>{if(!r.ok)throw 0;return r.json()})));
-    DB.ciqual=c.aliments||[]; DB.monde=m.aliments||[]; DB_ALL=null; recalc(); renderIdeas(tot(day(cur)));
+    DB.ciqual=c.aliments||[]; DB.monde=m.aliments||[]; DB_ALL=null; recalc(); renderIdeas(tot(day(cur)));renderHome();
   }catch(e){}
 }
 /* Plats du monde : seuls kcal et protéines sont connus. Le reste des calories est partagé moitié glucides, moitié lipides (estimation). */
@@ -1135,9 +1175,9 @@ function render(){
   ring(t.p,+goals.prot||0,"g","#rP","#pP","#gP");
   renderMacros(d,goals); renderEau(d);
   $("#editGoals").textContent=(goals.kcal>0||goals.prot>0)?"Modifier mes objectifs":"Régler mes objectifs";
-  $("#whey").setAttribute("aria-pressed",!!d.whey);
-  $("#creatine").setAttribute("aria-pressed",!!d.creatine);
+  renderSupps(d);
   if(typeof renderIdeas==="function")renderIdeas(t);
+  renderHome();
   renderActivites();
   $("#goalNow").textContent=(goals.kcal>0||goals.prot>0)?`${fmt(goals.kcal||0)} kcal · ${goals.prot||0} g`:"";
   $("#addDay").textContent=cur===TODAY?"Pour aujourd'hui":"Pour "+parse(cur).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
@@ -1223,7 +1263,10 @@ $("#eauMore").addEventListener("click",e=>{
 });
 $("#prev").onclick=()=>{cur=shift(cur,-1);render()};
 $("#next").onclick=()=>{if(cur<TODAY){cur=shift(cur,1);render()}};
-for(const id of["whey","creatine"]){$("#"+id).onclick=()=>{const d=clone(day(cur));d[id]=!d[id];save(d)}}
+$("#supps").addEventListener("click",e=>{
+  const b=e.target.closest("[data-sup]"); if(!b)return;
+  const id=b.dataset.sup, d=clone(day(cur)); setPris(d,id,!pris(d,id)); save(d);
+});
 $("#meals").addEventListener("click",e=>{
   const del=e.target.closest(".del");
   if(del){const d=clone(day(cur)),r=d.repas[+del.dataset.i];snapshot();d.repas.splice(+del.dataset.i,1);if(save(d))toast(`${r?r.aliment:"Aliment"} supprimé`);return}
@@ -1482,7 +1525,7 @@ $("#gChips").addEventListener("click",e=>{
   const b=e.target.closest("[data-g]"); if(!b)return;
   const set=new Set((S.gouts||{}).aime||[]), k=b.dataset.g; if(set.has(k))set.delete(k); else set.add(k);
   S.gouts=Object.assign({},S.gouts,{aime:[...set]}); persist();
-  renderGouts(); renderIdeas(tot(day(cur)));
+  renderGouts(); renderIdeas(tot(day(cur)));renderHome();
 });
 $("#gMoreBtn").onclick=()=>{gPlus=!gPlus;renderGouts()};
 /* Recherche dans toutes les bases d'aliments */
@@ -1501,13 +1544,13 @@ $("#gRes").addEventListener("click",e=>{
   const l=((S.gouts||{}).aliments||[]).slice(), i=l.findIndex(a=>norm(a)===norm(x.nom));
   if(i>=0)l.splice(i,1); else l.push(x.nom);
   S.gouts=Object.assign({aime:[]},S.gouts,{aliments:l}); persist();
-  renderGouts(); renderGRes(); renderIdeas(tot(day(cur)));
+  renderGouts(); renderGRes(); renderIdeas(tot(day(cur)));renderHome();
 });
 $("#gMine").addEventListener("click",e=>{
   const b=e.target.closest("[data-gx]"); if(!b)return;
   const l=((S.gouts||{}).aliments||[]).slice(); l.splice(+b.dataset.gx,1);
   S.gouts=Object.assign({aime:[]},S.gouts,{aliments:l}); persist();
-  renderGouts(); renderGRes(); renderIdeas(tot(day(cur)));
+  renderGouts(); renderGRes(); renderIdeas(tot(day(cur)));renderHome();
 });
 let shown=[];
 const valsHtml=x=>`<span class="k">+${fmt(x.k)} kcal</span> · <span class="p">+${fmt(x.p)} g prot</span>`;
@@ -1577,7 +1620,7 @@ $("#ideas").addEventListener("click",e=>{
   save(d);
 });
 /* Recalcule les idées quand l'heure change de créneau, même sans rien toucher. */
-setInterval(()=>{if(document.visibilityState==="visible"&&cur===TODAY)renderIdeas(tot(day(cur)))},5*60*1000);
+setInterval(()=>{if(document.visibilityState==="visible"&&cur===TODAY){renderIdeas(tot(day(cur)));renderHome()}},5*60*1000);
 
 /* ---------- Objectifs ---------- */
 $("#editGoals").onclick=()=>{$("#gfK").value=S.objectifs.kcal||"";$("#gfP").value=S.objectifs.prot||"";$("#gf").hidden=false;$("#editGoals").hidden=true;$("#gfK").focus()};
@@ -1734,7 +1777,7 @@ function renderProfil(){
     $("#pSexe").value=pr.sexe||"h"; $("#pAge").value=pr.age||""; $("#pTaille").value=pr.taille||""; $("#pObj").value=pr.objectif||"masse";
   }
   const b=besoins(), box=$("#pRes");
-  renderSport(); renderBan(b);
+  renderSport(); renderBan(b); renderComplProfil();
   if(!b){box.innerHTML='<div class="hint">Renseigne ton âge et ta taille, et ajoute une pesée plus bas : l\'app calcule ton IMC et tes besoins en calories et protéines.</div>';return}
   let h="";
   if(b.imc){
@@ -2089,6 +2132,104 @@ $("#aPlan").addEventListener("click",e=>{
   toast(no?"Noté : pas de séance":"Séance notée comme prévu");
 });
 
+/* ---------- Compléments alimentaires : chacun choisit ce qu'il suit ----------
+   S.complements = {actifs:[ids], perso:{id:nom}}. Par jour : whey et créatine restent dans d.whey / d.creatine (anciens journaux), les autres dans d.compl. */
+const COMPL=[["whey","Whey"],["creatine","Créatine"],["omega3","Oméga-3"],["vitd","Vitamine D"],["magnesium","Magnésium"],["multivit","Multivitamines"],["prewo","Pré-workout / caféine"]];
+function complInit(){
+  if(isObj(S.complements)&&Array.isArray(S.complements.actifs)){if(!isObj(S.complements.perso))S.complements.perso={};return}
+  /* Migration : ceux qui cochaient déjà whey ou créatine les gardent. */
+  const j=Object.values(S.jours||{}), actifs=[];
+  if(j.some(d=>d&&d.whey))actifs.push("whey"); if(j.some(d=>d&&d.creatine))actifs.push("creatine");
+  S.complements={actifs,perso:{}};
+}
+const complNom=id=>{const c=COMPL.find(x=>x[0]===id);return c?c[1]:(S.complements.perso||{})[id]||id};
+const complActifs=()=>{complInit();return S.complements.actifs.filter(id=>COMPL.some(c=>c[0]===id)||(S.complements.perso||{})[id]).map(id=>({id,nom:complNom(id)}))};
+const pris=(d,id)=>id==="whey"||id==="creatine"?!!d[id]:!!(d.compl||{})[id];
+function setPris(d,id,v){if(id==="whey"||id==="creatine"){d[id]=v;return}d.compl=Object.assign({},d.compl);if(v)d.compl[id]=true;else delete d.compl[id]}
+function complsPris(d){complInit();const ids=new Set([...COMPL.map(c=>c[0]),...Object.keys(S.complements.perso||{})]);return[...ids].filter(id=>pris(d,id)).map(id=>({id,nom:complNom(id)}))}
+function renderSupps(d){
+  const l=complActifs();
+  $("#supps").innerHTML=l.map(c=>`<button class="chip" type="button" data-sup="${esc(c.id)}" aria-pressed="${pris(d,c.id)}"><span class="dot">✓</span>${esc(c.nom)}</button>`).join("");
+  $("#suppsHint").textContent=l.length?"Touche un complément quand tu l'as pris.":"Aucun complément suivi. Choisis-les dans Profil › Mes compléments alimentaires.";
+}
+function renderComplProfil(){
+  complInit(); const a=new Set(S.complements.actifs);
+  const all=[...COMPL,...Object.entries(S.complements.perso).map(([id,n])=>[id,n,true])];
+  $("#complList").innerHTML=all.map(([id,n,perso])=>`<label class="chk"><input type="checkbox" data-cid="${esc(id)}" ${a.has(id)?"checked":""}><span>${esc(n)}</span>${perso?`<button type="button" class="x" data-cdel="${esc(id)}" aria-label="Retirer ${esc(n)}">×</button>`:""}</label>`).join("");
+}
+$("#complList").addEventListener("change",e=>{
+  const i=e.target.closest("[data-cid]"); if(!i)return;
+  complInit(); const a=S.complements.actifs.filter(x=>x!==i.dataset.cid); if(i.checked)a.push(i.dataset.cid);
+  const ordre=[...COMPL.map(c=>c[0]),...Object.keys(S.complements.perso)];
+  S.complements.actifs=ordre.filter(id=>a.includes(id)); persist(); render();
+});
+$("#complList").addEventListener("click",e=>{
+  const b=e.target.closest("[data-cdel]"); if(!b)return; e.preventDefault();
+  snapshot(); const id=b.dataset.cdel, nom=complNom(id);
+  delete S.complements.perso[id]; S.complements.actifs=S.complements.actifs.filter(x=>x!==id);
+  persist(); renderComplProfil(); render(); toast(`${nom} retiré`);
+});
+function complAjoute(){
+  const nom=$("#complNew").value.trim().slice(0,30); if(!nom){$("#complNew").focus();return}
+  complInit();
+  const ex=COMPL.find(c=>norm(c[1])===norm(nom))||Object.entries(S.complements.perso).find(([,n])=>norm(n)===norm(nom));
+  const id=ex?ex[0]:"c"+Date.now().toString(36);
+  if(!ex)S.complements.perso[id]=nom;
+  if(!S.complements.actifs.includes(id))S.complements.actifs.push(id);
+  $("#complNew").value=""; persist(); renderComplProfil(); render(); toast(`${complNom(id)} ajouté à tes compléments`);
+}
+$("#complAdd").onclick=complAjoute;
+$("#complNew").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();complAjoute()}});
+
+/* ---------- Accueil : cercles, dépense du jour, tuiles qui ouvrent chaque partie ---------- */
+const PANELS={repas:"Repas",eau:"Eau",idees:"Idées repas",compl:"Compléments",macros:"Glucides et lipides",demain:"Planning de demain"};
+let panel=null;
+function openPanel(p){
+  panel=p; const v=$("#v-today"); v.classList.add("detail");
+  v.querySelectorAll("[data-panel]").forEach(x=>x.classList.toggle("on",x.dataset.panel===p));
+  $("#pTitle").textContent=p==="demain"&&$("#planTitle").textContent?$("#planTitle").textContent:PANELS[p];
+  window.scrollTo(0,0);
+}
+function closePanel(top){
+  panel=null; const v=$("#v-today"); v.classList.remove("detail");
+  v.querySelectorAll("[data-panel].on").forEach(x=>x.classList.remove("on"));
+  if(top)window.scrollTo(0,0);
+}
+$("#pBack").onclick=()=>closePanel(true);
+$("#tiles").addEventListener("click",e=>{const b=e.target.closest("[data-open]");if(b)openPanel(b.dataset.open)});
+$("#homeAdd").onclick=()=>{
+  if(cur===TODAY){const h=new Date().getHours(),l=new Set((day(cur).repas||[]).map(r=>r.moment));$("#fM").value=h<11?"matin":h<15?"midi":h<18&&!l.has("collation")?"collation":"soir"}
+  showTab("add"); setTimeout(()=>$("#fAl").focus(),50);
+};
+$("#dep").onclick=e=>{e.preventDefault();showTab("profil")};
+const FEU='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-4 2.5-5 .3 1.6 1 2.5 2 3 0-3 0-5.5.5-8z"/></svg>';
+function renderHome(){
+  const d=day(cur), t=tot(d), g=S.objectifs||{};
+  /* Dépense du jour : vie quotidienne du profil + activités notées (ou prévues par le planning). */
+  const b=besoins(), dep=$("#dep");
+  if(b&&!b.manque&&b.quot){
+    const w=dernierPoids(cur), kg=w?+w.poids:b.kg, act=Math.round(activiteJour(cur,kg)), tdep=b.quot+act;
+    const l=S.activites[cur]||[], noms=l.filter(a=>!estPas(a)&&a.type!=="repos").map(a=>a.label);
+    const prevu=!l.length&&act>0;
+    dep.innerHTML=`<span class="ic">${FEU}</span><span class="t"><b>Dépensé ≈ ${fmt(tdep)} kcal</b><small>vie quotidienne ${fmt(b.quot)}${act?` + ${noms.length?esc(noms.join(", ")):prevu?"sport prévu":"activité"} ${fmt(act)}`:" · aucune activité notée"}</small></span><span class="r">mangé − dépensé<b>${t.k-tdep>0?"+":"−"}${fmt(Math.abs(t.k-tdep))}</b></span>`;
+  }else dep.innerHTML=`<span class="ic">${FEU}</span><span class="t"><b>Ta dépense du jour</b><small>Renseigne ton âge, ta taille et une pesée dans Profil pour la voir.</small></span><span class="r">›</span>`;
+  /* Tuiles */
+  const M=[["matin","matin"],["midi","midi"],["collation","collation"],["soir","soir"]], has=new Set((d.repas||[]).map(r=>r.moment||"midi"));
+  const manque=M.filter(([m])=>!has.has(m)&&m!=="collation").map(x=>x[1]);
+  const eauMl=+d.eau||0, eauObj=eauObjectif(), gl=totGL(d), cl=complActifs(), idea=cur===TODAY&&typeof shown!=="undefined"&&shown[0]?shown[0]:null;
+  const lT=g.kcal?Math.round(g.kcal*.28/9):0, gT=g.kcal?Math.max(0,Math.round((g.kcal-(g.prot||0)*4-lT*9)/4)):0;
+  const demain=S.planning&&S.planning.date>TODAY, planDuJour=S.planning&&S.planning.date===TODAY;
+  const tile=(p,h,b2,small,cls)=>`<button type="button" class="tile" data-open="${p}"><span class="h">${h}<span aria-hidden="true">›</span></span><b class="${cls||""}">${b2}</b>${small}</button>`;
+  let h=tile("repas","Repas",`${M.filter(([m])=>has.has(m)).length} / 4`,`<small>${!has.size?"rien de noté":manque.length?"reste : "+manque.join(", "):"tout est noté ✓"}</small>`);
+  h+=tile("eau","Eau",`${litres(eauMl)} L`,`<div class="mbar"><i style="width:${Math.min(100,eauMl/eauObj*100)}%;background:var(--g-eau)"></i></div><small>sur ${litres(eauObj)} L</small>`);
+  h+=tile("idees",idea?(idea.moment==="collation"?"Idée collation":"Idée repas"):"Idées repas",idea?esc(idea.x.nom):"Selon ton reste",`<small>${idea?`+${fmt(idea.x.k)} kcal · +${fmt(idea.x.p)} g`:"et tes goûts"}</small>`,"sm");
+  if(cl.length){const n=cl.filter(c=>pris(d,c.id)).length;h+=tile("compl","Compléments",`${n} / ${cl.length}`,`<small>${cl.slice(0,3).map(c=>esc(c.nom.split(" ")[0].toLowerCase())+(pris(d,c.id)?" ✓":"")).join(" · ")}${cl.length>3?"…":""}</small>`)}
+  h+=tile("macros","Glucides · lipides",gT?`${fmt(gl.g)}/${gT} · ${fmt(gl.l)}/${lT} g`:`${fmt(gl.g)} · ${fmt(gl.l)} g`,"<small>macros du jour</small>","sm");
+  h+=tile("demain",planDuJour?"Planning du jour":"Demain",demain||planDuJour?"Planning prêt ✓":"Planning repas","<small>+ liste de courses</small>","sm");
+  $("#tiles").innerHTML=h;
+  if(panel)$("#pTitle").textContent=panel==="demain"&&$("#planTitle").textContent?$("#planTitle").textContent:PANELS[panel];
+}
+
 /* ---------- Série : jours d'affilée avec les protéines atteintes ---------- */
 const estDate=k=>/^\d{4}-\d{2}-\d{2}$/.test(k);
 function serie(){
@@ -2278,7 +2419,7 @@ function backupInfo(){
   $("#bInfo").textContent=t;
   renderSaveBan(); renderRestore();
 }
-function exportData(){return JSON.stringify({app:"prise-de-masse-seche",version:1,exporte:new Date().toISOString(),jours:S.jours,aliments:S.aliments,mesures:S.mesures,objectifs:S.objectifs,profil:S.profil,activites:S.activites,gouts:S.gouts,favoris:S.favoris,repasComposes:S.repasComposes,planSport:S.planSport,semaines:S.semaines,semaineActive:S.semaineActive,planAuto:S.planAuto,cible:S.cible},null,1)}
+function exportData(){return JSON.stringify({app:"prise-de-masse-seche",version:1,exporte:new Date().toISOString(),jours:S.jours,aliments:S.aliments,mesures:S.mesures,objectifs:S.objectifs,profil:S.profil,activites:S.activites,gouts:S.gouts,favoris:S.favoris,repasComposes:S.repasComposes,planSport:S.planSport,semaines:S.semaines,semaineActive:S.semaineActive,planAuto:S.planAuto,cible:S.cible,complements:S.complements},null,1)}
 $("#bExport").onclick=async()=>{
   const name="prise-de-masse-"+TODAY+".json", json=exportData();
   const file=new File([json],name,{type:"application/json"});
@@ -2294,7 +2435,7 @@ function summary(){
   let t=`Récap Prise de masse sèche (export du ${TODAY})\nObjectifs : ${g.kcal||"?"} kcal, ${g.prot||"?"} g de protéines par jour\n\nRepas, 14 derniers jours :\n`;
   for(let i=13;i>=0;i--){const s=shift(TODAY,-i),d=S.jours[s];if(!d||!(d.repas||[]).length)continue;const x=tot(d);
     const gl=totGL(d);
-    t+=`- ${s} : ${fmt(x.k)} kcal, ${fmt(x.p)} g prot, ${fmt(gl.g)} g glucides, ${fmt(gl.l)} g lipides${d.eau?`, eau ${litres(d.eau)} L`:""}${d.whey?", whey":""}${d.creatine?", créatine":""}\n`}
+    t+=`- ${s} : ${fmt(x.k)} kcal, ${fmt(x.p)} g prot, ${fmt(gl.g)} g glucides, ${fmt(gl.l)} g lipides${d.eau?`, eau ${litres(d.eau)} L`:""}${complsPris(d).map(c=>", "+c.nom.toLowerCase()).join("")}\n`}
   const all=Object.values(S.mesures).filter(m=>m&&m.date).sort((a,b)=>a.date<b.date?-1:1);
   const pr=S.profil||{}, b=besoins();
   if(pr.age||pr.taille)t+=`\nProfil : ${pr.sexe==="f"?"femme":"homme"}, ${pr.age||"?"} ans, ${pr.taille||"?"} cm, objectif ${OBJ_LABEL[pr.objectif]||"?"}${b&&b.imc?`, IMC ${n1(b.imc)}`:""}\n`;
@@ -2368,6 +2509,7 @@ $("#bPrev").addEventListener("click",e=>{
   if(Array.isArray(o.semaines)&&o.semaines.length){S.semaines=JSON.parse(JSON.stringify(o.semaines.filter(isObj)));S.semaineActive=o.semaineActive||(S.semaines[0]||{}).id}
   if(isObj(o.planAuto))S.planAuto=Object.assign({},o.planAuto);
   if(isObj(o.cible)&&+o.cible.kg>0)S.cible=Object.assign({},o.cible);
+  if(isObj(o.complements)&&Array.isArray(o.complements.actifs))S.complements={actifs:o.complements.actifs.slice(),perso:isObj(o.complements.perso)?Object.assign({},o.complements.perso):{}};
   semainesInit();
   S.onboarded=true; $("#onb").hidden=true; importEnAttente=null; $("#bPrev").hidden=true;
   if(!persist()){try{S=Object.assign(emptyState(),JSON.parse(undoSnap))}catch(err){}say("#bStatus","Import impossible : stockage plein ou bloqué.","err","status");return}
@@ -2479,7 +2621,7 @@ function showTab(t){
   document.querySelectorAll(".tabb").forEach(b=>{if(b.dataset.tab===t)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
   window.scrollTo(0,0);
 }
-document.querySelector(".tabbar").addEventListener("click",e=>{const b=e.target.closest(".tabb");if(b)showTab(b.dataset.tab)});
+document.querySelector(".tabbar").addEventListener("click",e=>{const b=e.target.closest(".tabb");if(!b)return;if(b.dataset.tab==="today")closePanel(true);showTab(b.dataset.tab)});
 
 /* ---------- Annuler : photo de l'état juste avant une action, restaurée par le bandeau ---------- */
 let undoSnap=null, toastTimer=0;

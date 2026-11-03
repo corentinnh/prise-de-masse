@@ -6,7 +6,7 @@ Web app installable (PWA) pour suivre une prise de masse sèche au quotidien.
 
 ## Fonctions
 
-L'app est organisée en 4 onglets : **Aujourd'hui** (cercles, compléments, repas par moment, idées pour le prochain repas avec « Mes goûts »), **Ajouter** (recherche, portions, récents, favoris, mes repas, copie de la veille, activité), **Progrès** (poids lissé, semaine, activité, mesures) et **Profil** (profil, planning sportif, objectifs, repas composés, sauvegarde).
+L'app est organisée en 4 onglets : **Accueil** (cercles calories / protéines, dépense du jour, et des tuiles Repas, Eau, Idées, Compléments, Glucides · lipides et Demain qui ouvrent chaque partie en plein écran), **Ajouter** (recherche, portions, récents, favoris, mes repas, copie de la veille, activité), **Progrès** (poids lissé, semaine, activité, mesures) et **Profil** (profil, planning sportif, objectifs, compléments, repas composés, sauvegarde).
 
 - **Ajout rapide** : calories et protéines (glucides et lipides facultatifs) sans chercher l'aliment, pour le resto ou chez quelqu'un.
 - **Série** : nombre de jours d'affilée avec l'objectif de protéines atteint, et le record.
@@ -35,7 +35,7 @@ L'app est organisée en 4 onglets : **Aujourd'hui** (cercles, compléments, repa
 - **Noter automatiquement** : case à cocher qui ajoute toute seule au journal, une fois par jour, les séances et les pas prévus (y compris les jours où l'app n'a pas été ouverte). Une séance ratée se retire avec ×.
 - **Objectifs** : cercles de progression calories / protéines pour la journée.
 - **Idées pour compléter** : suggestions de repas selon ce qu'il reste à manger et l'heure, ajoutables en un clic. « Mes goûts » : soit seulement des plats avec les aliments cochés, soit un mode découverte avec des plats du monde qui changent chaque jour. Recherche dans toute la base pour ajouter un aliment ou un plat aimé (un plat aimé devient une idée de repas) et « Afficher plus » pour une liste étendue.
-- **Compléments** : cases whey et créatine.
+- **Compléments alimentaires** : chacun choisit dans Profil ce qu'il suit (whey, créatine, oméga-3, vitamine D, magnésium, multivitamines, pré-workout, ou le sien) ; seuls ceux-là s'affichent.
 - **Poids et mensurations** : pesées, tours de taille / bras / poitrine / cuisse, courbe et historique.
 - **Sauvegarde** : export / import JSON et résumé texte à copier. Avant un import, l'app montre ce que contient le fichier et garde une copie du journal pour pouvoir revenir en arrière. Un bandeau rappelle d'exporter quand le dernier export date de plus de 7 jours.
 - **Hors connexion** : fonctionne sans réseau une fois installée.
