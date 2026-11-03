@@ -1,15 +1,17 @@
 # Règles du projet
 
+App « Carbu » (ex « Prise de masse sèche »). Le champ `app:"prise-de-masse-seche"` des exports reste tel quel pour la compatibilité.
+
 PWA statique servie par GitHub Pages depuis `main` (racine). Pas de build, pas de framework, pas de dépendances.
 
 ## À respecter à chaque modification
 
 - **Toujours changer `VERSION` dans `sw.js`** quand un fichier de l'app change (format `pdms-AAAA-MM-JJ-N`), sinon les téléphones gardent l'ancienne version en cache.
 - Un nouveau fichier statique (icône, police…) doit être ajouté à la liste `ASSETS` de `sw.js`.
-- **Aucune donnée personnelle dans le repo** : le repo est public. Jamais de fichier d'export (`prise-de-masse-*.json`) ni de vraies valeurs de repas, poids ou mensurations.
+- **Aucune donnée personnelle dans le repo** : le repo est public. Jamais de fichier d'export (`carbu-*.json`, anciennement `prise-de-masse-*.json`) ni de vraies valeurs de repas, poids ou mensurations.
 - L'app doit marcher **hors connexion** : pas de CDN, tout est local (polices dans `fonts/`). Seule exception : la recherche Open Food Facts (bouton « Estimer en ligne »), qui reste facultative. Sans réseau, l'app doit fonctionner normalement.
 - La page a une règle de sécurité (`Content-Security-Policy` en haut de `index.html`) : seuls les fichiers de l'app et `*.openfoodfacts.org` sont autorisés. Tout nouveau domaine doit y être ajouté, sinon il est bloqué.
-- Les exports (`prise-de-masse-*.json`) sont bloqués par `.gitignore` : ne jamais forcer leur ajout.
+- Les exports (`carbu-*.json` et anciens `prise-de-masse-*.json`) sont bloqués par `.gitignore` : ne jamais forcer leur ajout.
 - Open Food Facts limite la recherche à 10 requêtes par minute et par IP : jamais de recherche automatique pendant la frappe, uniquement au clic.
 - Les données sont dans `localStorage`, clé `pdms-v1`. Ne pas changer la clé ni casser la forme des données (`jours`, `aliments`, `mesures`, `objectifs`) : ça effacerait le journal des utilisateurs. Si la forme doit évoluer, écrire une migration au chargement.
 - Garder le format d'export / import compatible avec les exports existants.

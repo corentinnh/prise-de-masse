@@ -6,13 +6,13 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://*.openfoodfacts.org; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Prise de masse sèche</title>
+<title>Carbu</title>
 <meta name="description" content="Journal des repas, calories, protéines, poids et mensurations.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Masse sèche">
+<meta name="apple-mobile-web-app-title" content="Carbu">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#f6f4fb" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0d0a1d" media="(prefers-color-scheme: dark)">
@@ -974,8 +974,8 @@ h1.big{font-size:1.9rem;line-height:1.1}
     <div class="onbtop"><div class="dots" id="onbDots"><i></i><i></i><i></i><i></i></div><button type="button" class="lnk2" id="onbSkip">Passer</button></div>
     <div class="onbstep welcome" data-step="w" hidden>
       <div class="logo" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 120 120"><circle cx="60" cy="60" r="44" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="12"/><circle cx="60" cy="60" r="44" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-dasharray="276" stroke-dashoffset="80" transform="rotate(-90 60 60)"/></svg></div>
-      <h1 class="big">Prise de masse sèche</h1>
-      <p class="hint">Tes repas, tes protéines, ton sport et ton poids, au même endroit.</p>
+      <h1 class="big">Carbu</h1>
+      <p class="hint">Ta prise de masse sèche, simplement. Tes repas, tes protéines, ton sport et ton poids, au même endroit.</p>
       <div class="grow"></div>
       <button type="button" class="add big grad" id="wCreate">Créer un compte</button>
       <button type="button" class="add big" id="wLogin">J'ai déjà un compte</button>
@@ -2741,10 +2741,10 @@ function backupInfo(){
 }
 function exportData(){return JSON.stringify({app:"prise-de-masse-seche",version:1,exporte:new Date().toISOString(),jours:S.jours,aliments:S.aliments,mesures:S.mesures,objectifs:S.objectifs,profil:S.profil,activites:S.activites,gouts:S.gouts,favoris:S.favoris,repasComposes:S.repasComposes,planSport:S.planSport,semaines:S.semaines,semaineActive:S.semaineActive,planAuto:S.planAuto,cible:S.cible,complements:S.complements,niveau:S.niveau,fonctions:S.fonctions,compte:S.compte?{prenom:S.compte.prenom,email:S.compte.email,cree:S.compte.cree}:null},null,1)}
 $("#bExport").onclick=async()=>{
-  const name="prise-de-masse-"+TODAY+".json", json=exportData();
+  const name="carbu-"+TODAY+".json", json=exportData();
   const file=new File([json],name,{type:"application/json"});
   try{
-    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"Prise de masse sèche"})}
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"Carbu"})}
     else{const a=document.createElement("a");a.href=URL.createObjectURL(file);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
     S.dernierExport=new Date().toISOString(); persist(); backupInfo();
     say("#bStatus","Export prêt ✓","ok","status");
@@ -2752,7 +2752,7 @@ $("#bExport").onclick=async()=>{
 };
 function summary(){
   const g=S.objectifs||{};
-  let t=`Récap Prise de masse sèche (export du ${TODAY})\nObjectifs : ${g.kcal||"?"} kcal, ${g.prot||"?"} g de protéines par jour\n\nRepas, 14 derniers jours :\n`;
+  let t=`Récap Carbu (export du ${TODAY})\nObjectifs : ${g.kcal||"?"} kcal, ${g.prot||"?"} g de protéines par jour\n\nRepas, 14 derniers jours :\n`;
   for(let i=13;i>=0;i--){const s=shift(TODAY,-i),d=S.jours[s];if(!d||!(d.repas||[]).length)continue;const x=tot(d);
     const gl=totGL(d);
     t+=`- ${s} : ${fmt(x.k)} kcal, ${fmt(x.p)} g prot, ${fmt(gl.g)} g glucides, ${fmt(gl.l)} g lipides${d.eau?`, eau ${litres(d.eau)} L`:""}${complsPris(d).map(c=>", "+c.nom.toLowerCase()).join("")}\n`}

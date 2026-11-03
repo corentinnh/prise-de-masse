@@ -1,7 +1,7 @@
 {
-  "name": "Prise de masse sèche",
-  "short_name": "Masse sèche",
-  "description": "Journal des repas, calories, protéines, poids et mensurations.",
+  "name": "Carbu",
+  "short_name": "Carbu",
+  "description": "Prise de masse sèche : journal des repas, calories, protéines, poids et mensurations.",
   "lang": "fr",
   "start_url": "./",
   "scope": "./",

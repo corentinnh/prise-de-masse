@@ -1,8 +1,8 @@
-# Prise de masse sèche
+# Carbu
 
 Web app installable (PWA) pour suivre une prise de masse sèche au quotidien.
 
-**App en ligne :** https://corentinnh.github.io/prise-de-masse/
+**App en ligne :** https://corentinnh.github.io/carbu/
 
 ## Fonctions
 
