@@ -454,6 +454,7 @@ input,select{border-radius:12px}
 .dep .t{flex:1;min-width:0;font-size:.9rem}
 .dep .t small{display:block;color:var(--muted);font-size:.76rem}
 .dep .r{text-align:right;font-size:.74rem;color:var(--muted);white-space:nowrap}
+.dep .r{max-width:40%;white-space:normal;line-height:1.25}
 .dep .r b{display:block;font-family:var(--f-display);font-size:.95rem;color:var(--prot);letter-spacing:-.02em}
 .tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .tiles>:last-child:nth-child(odd){grid-column:1/-1}
@@ -475,6 +476,7 @@ body:not(.f-macros) [data-f="macros"],body:not(.f-eau) [data-f="eau"],body:not(.
 body:not(.f-demain) [data-f="demain"],body:not(.f-depense) [data-f="depense"],body:not(.f-serie) [data-f="serie"],body:not(.f-sport) [data-f="sport"],
 body:not(.f-bilan) [data-f="bilan"],body:not(.f-cible) [data-f="cible"],body:not(.f-ajust) [data-f="ajust"],body:not(.f-mens) [data-f="mens"]{display:none!important}
 body.simple .tot .pct{display:none}
+body.simple #pRes .kv,body.simple #pRes .scale,body.simple #pRes .scalelab,body.simple #pRes>.hint:last-child{display:none}
 .nivs{display:flex;flex-direction:column;gap:8px}
 .nivs button{display:flex;align-items:flex-start;gap:12px;text-align:left;padding:12px 14px;border-radius:18px;border:1px solid color-mix(in srgb,var(--ink) 12%,transparent);background:color-mix(in srgb,var(--ink) 3%,transparent);color:var(--ink)}
 .nivs button .r{width:20px;height:20px;flex:none;border-radius:50%;border:2px solid var(--muted);margin-top:1px}
@@ -734,7 +736,7 @@ h1.big{font-size:1.9rem;line-height:1.1}
       </div>
       <div class="uquick" id="uQuick"></div>
     </div>
-    <label class="full" id="fGL">Grammes<input id="fG" type="number" inputmode="decimal" min="0" placeholder="150"></label>
+    <label class="full" id="fGL">Grammes<input id="fG" type="number" inputmode="decimal" min="0" placeholder="ex. 150"></label>
     <label>Calories<input id="fK" type="number" inputmode="numeric" min="0" placeholder="0"></label>
     <label>Protéines (g)<input id="fP" type="number" inputmode="decimal" min="0" step="0.1" placeholder="0"></label>
     <button class="add full" type="submit" id="fSubmit">Ajouter</button>
@@ -1253,12 +1255,16 @@ function allEntries(){
 }
 /* Recherche souple : tous les mots tapés doivent se retrouver (au début d'un mot) dans le nom.
    Classement : nom qui commence par le premier mot tapé, puis tes aliments > liste de l'app > plats du monde > Ciqual, puis noms les plus courts. */
+/* Mot courant tapé seul : l'aliment de base passe en premier (« poulet » → blanc de poulet, pas poulet au curry). */
+const BASE={poulet:"Blanc de poulet cuit",riz:"Riz blanc cuit",pates:"Pâtes cuites",pate:"Pâtes cuites",steak:"Steak haché 5% cuit","steak hache":"Steak haché 5% cuit",thon:"Thon au naturel",oeuf:"Œuf entier",oeufs:"Œuf entier",saumon:"Saumon cuit",dinde:"Escalope de dinde cuite",boeuf:"Bœuf rumsteck cuit",lait:"Lait demi-écrémé",yaourt:"Yaourt nature","fromage blanc":"Fromage blanc 0%",pain:"Pain complet","patate douce":"Patate douce cuite","pomme de terre":"Pomme de terre cuite",patate:"Pomme de terre cuite",lentilles:"Lentilles cuites",brocoli:"Brocoli cuit",whey:"Whey (poudre)",avoine:"Flocons d'avoine",flocons:"Flocons d'avoine",jambon:"Jambon blanc",quinoa:"Quinoa cuit",cabillaud:"Cabillaud cuit",poisson:"Cabillaud cuit",huile:"Huile d'olive",fromage:"Emmental"};
 function candidates(name,n){
   const q=toks(name); if(!q.length)return[];
+  const pref=BASE[norm(name)]||BASE[norm(name).replace(/s$/,"")]||null, prefN=pref?norm(pref):null;
   const hit=t=>q.every(w=>t.some(x=>x.startsWith(w)||(w.length>=4&&w.startsWith(x)&&x.length>=4)));
   const mine=Object.values(S.aliments).filter(a=>a&&a.nom).map(a=>({nom:a.nom,k:+a.kcal100||0,p:+a.prot100||0,g:a.gluc100,l:a.lip100,src:"mine",pr:0,t:toks(a.nom)}));
   const first=o=>(o.t[0]||"").startsWith(q[0])?0:1;
-  const list=[...mine,...allEntries()].filter(o=>hit(o.t)).sort((x,y)=>first(x)-first(y)||x.pr-y.pr||x.t.length-y.t.length||x.nom.length-y.nom.length);
+  const isPref=o=>prefN&&norm(o.nom)===prefN?0:1;
+  const list=[...mine,...allEntries()].filter(o=>hit(o.t)||isPref(o)===0).sort((x,y)=>isPref(x)-isPref(y)||first(x)-first(y)||x.pr-y.pr||x.t.length-y.t.length||x.nom.length-y.nom.length);
   const seen=new Set(), out=[];
   for(const o of list){const k=norm(o.nom);if(seen.has(k))continue;seen.add(k);out.push(o);if(out.length>=n)break}
   return out;
@@ -1279,17 +1285,23 @@ let manual=false, lastName="";
 /* N'écrit la zone de calcul que si son contenu change : la réécrire pendant un appui ferait rater le bouton « Autres choix ». */
 let calcHtml="";
 function setCalc(h){if(h!==calcHtml){calcHtml=h;$("#calc").innerHTML=h}}
+/* gTouche = la personne a tapé elle-même les grammes : sinon, un aliment reconnu part sur 100 g (ou 1 portion, voir uSync). */
+let gTouche=false;
 function recalcCore(){
-  const name=$("#fAl").value, g=+$("#fG").value, f=findFood(name);
+  const name=$("#fAl").value, f=findFood(name);
+  if(f&&!gTouche&&!(+$("#fG").value>0)&&!unitFor(f.nom)&&!unitFor(name))$("#fG").value=100;
+  if(!name.trim()&&!gTouche)$("#fG").value="";
+  const g=+$("#fG").value;
   if(norm(name)!==lastName){lastName=norm(name);manual=false}
   $("#est").hidden=!(name.trim()&&!f);
   if(norm(name)!==offFor)$("#offRes").innerHTML="";
   if(!name.trim()){setCalc("Tape un aliment et un grammage : le calcul se fait tout seul.");return}
   if(!f&&!manual){$("#fK").value="";$("#fP").value=""}
   if(!f){setCalc("Pas dans la liste : estime-le en ligne ou tape les valeurs.");return}
-  setCalc(`<b>${f.kcal100}</b> kcal · <b>${f.prot100}</b> g prot pour 100 g`
+  setCalc(`<b>${fmt(f.kcal100)}</b> kcal · <b>${String(Math.round(f.prot100*10)/10).replace(".",",")}</b> g prot pour 100 g`
     +(f.approx||norm(f.nom)!==norm(name)?`<br>d'après « ${esc(f.nom)} » (${SRC_LABEL[f.src]||""})`:f.src!=="liste"?` (${SRC_LABEL[f.src]||""})`:"")
-    +` <button type="button" class="lnk" id="altBtn">Autres choix</button>`);
+    +` <button type="button" class="lnk" id="altBtn">Autres choix</button>`
+    +(g>0?"":`<br><b>Indique les grammes</b> pour calculer.`));
   if(manual)return;
   if(g>0){$("#fK").value=Math.round(f.kcal100*g/100);$("#fP").value=Math.round(f.prot100*g/10)/10}
   else{$("#fK").value="";$("#fP").value=""}
@@ -1453,7 +1465,7 @@ function renderWeek(){
   const okP=gp>0?pleins.filter(o=>o.t.p>=gp*.95).length:null, okK=gk>0?pleins.filter(o=>Math.abs(o.t.k-gk)<=gk*.1).length:null;
   const parts=[];
   if(okP!=null)parts.push(`Protéines atteintes ${okP} jour${okP>1?"s":""} sur ${pleins.length}`);
-  if(okK!=null)parts.push(`calories dans la cible (±10 %) ${okK} jour${okK>1?"s":""} sur ${pleins.length}`);
+  if(okK!=null)parts.push(`calories proches de ton objectif (à 10 % près) ${okK} jour${okK>1?"s":""} sur ${pleins.length}`);
   $("#weekStats").textContent=(parts.length?parts.join(" · "):"Règle tes objectifs pour suivre ta régularité.")+(gk>0?". Ligne pointillée : ton objectif.":"");
 }
 function say(sel,t,kind,base){const s=$(sel);s.textContent=t;s.className=(base||"status full")+(kind?" "+kind:"")}
@@ -1496,6 +1508,7 @@ $("#meals").addEventListener("click",e=>{
   if(sv){const items=(day(cur).repas||[]).filter(r=>(r.moment||"midi")===sv.dataset.m);openRc(null,items,{matin:"Mon petit-déj",midi:"Mon déjeuner",collation:"Ma collation",soir:"Mon dîner"}[sv.dataset.m]||"Mon repas");showTab("profil");setTimeout(()=>{$("#rcCard").scrollIntoView({block:"start"});$("#rcName").focus()},60)}
 });
 /* "change" en plus de "input" : sur iPhone, choisir une suggestion du clavier ne déclenche pas toujours "input". */
+$("#fG").addEventListener("input",e=>{if(e.isTrusted)gTouche=$("#fG").value!==""});
 for(const ev of["input","change"]){$("#fAl").addEventListener(ev,recalc);$("#fG").addEventListener(ev,recalc)}
 for(const id of["#fK","#fP"])$(id).addEventListener("input",()=>{manual=true});
 $("#fM").value=new Date().getHours()<11?"matin":new Date().getHours()<16?"midi":"soir";
@@ -1507,7 +1520,7 @@ $("#f").addEventListener("submit",e=>{
   if(g>0&&!findFood(al)&&(k||p))rememberFood(al,k*100/g,p*100/g);
   snapshot(); const d=clone(day(cur)); d.repas=d.repas||[];
   d.repas.push(Object.assign({moment:$("#fM").value,aliment:al,quantite:quantiteLabel(g),grammes:g,kcal:k,prot:p},manual?{}:glFor(al,g)));
-  if(save(d)){["#fAl","#fG","#fK","#fP"].forEach(s=>$(s).value="");manual=false;uReset();recalc();toast(`${al} ajouté ${AU_MOMENT[$("#fM").value]||""}`)}
+  if(save(d)){["#fAl","#fG","#fK","#fP"].forEach(s=>$(s).value="");manual=false;gTouche=false;uReset();recalc();toast(`${al} ajouté ${AU_MOMENT[$("#fM").value]||""}`)}
 });
 /* ---------- Ajout rapide : calories et protéines sans chercher l'aliment ---------- */
 const AU_MOMENT={matin:"au matin",midi:"au midi",collation:"à la collation",soir:"au soir"};
@@ -2508,7 +2521,7 @@ function renderHome(){
     const w=dernierPoids(cur), kg=w?+w.poids:b.kg, act=Math.round(activiteJour(cur,kg)), tdep=b.quot+act;
     const l=S.activites[cur]||[], noms=l.filter(a=>!estPas(a)&&a.type!=="repos").map(a=>a.label);
     const prevu=!l.length&&act>0;
-    dep.innerHTML=`<span class="ic">${FEU}</span><span class="t"><b>Dépensé ≈ ${fmt(tdep)} kcal</b><small>vie quotidienne ${fmt(b.quot)}${act?` + ${noms.length?esc(noms.join(", ")):prevu?"sport prévu":"activité"} ${fmt(act)}`:" · aucune activité notée"}</small></span><span class="r">mangé − dépensé<b>${t.k-tdep>0?"+":"−"}${fmt(Math.abs(t.k-tdep))}</b></span>`;
+    dep.innerHTML=`<span class="ic">${FEU}</span><span class="t"><b>Dépensé ≈ ${fmt(tdep)} kcal</b><small>vie quotidienne ${fmt(b.quot)}${act?` + ${noms.length?esc(noms.join(", ")):prevu?"sport prévu":"activité"} ${fmt(act)}`:" · aucune activité notée"}</small></span><span class="r">${t.k<tdep?`encore ≈<b>${fmt(tdep-t.k)} kcal</b>pour couvrir ta journée`:`au-dessus de ta dépense<b>+${fmt(t.k-tdep)} kcal</b>${(S.profil||{}).objectif==="masse"?"c'est voulu en prise de masse":""}`}</span>`;
   }else dep.innerHTML=`<span class="ic">${FEU}</span><span class="t"><b>Ta dépense du jour</b><small>Renseigne ton âge, ta taille et une pesée dans Profil pour la voir.</small></span><span class="r">›</span>`;
   /* Tuiles */
   const M=[["matin","matin"],["midi","midi"],["collation","collation"],["soir","soir"]], has=new Set((d.repas||[]).map(r=>r.moment||"midi"));
@@ -2923,6 +2936,7 @@ $("#plan").addEventListener("change",e=>{
 const TABS=["today","add","prog","profil"];
 function showTab(t){
   if(!TABS.includes(t))t="today";
+  for(const id of["#status","#frStatus","#aStatus","#mStatus","#bStatus"]){const e=$(id);if(e&&e.classList.contains("ok")){e.textContent="";e.classList.remove("ok")}}
   for(const k of TABS)$("#v-"+k).hidden=k!==t;
   document.querySelectorAll(".tabb").forEach(b=>{if(b.dataset.tab===t)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
   window.scrollTo(0,0);
