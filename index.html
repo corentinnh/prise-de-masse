@@ -487,6 +487,41 @@ body.simple .tot .pct{display:none}
 #fctList .chk input{margin-top:1px}
 #fctList .chk small{display:block;color:var(--muted);font-weight:500;font-size:.78rem;margin-top:1px}
 .mtop .gl{display:block;font-size:.72rem;color:var(--muted);text-align:right}
+/* Compte (démonstration, local) */
+.onbstep.welcome{min-height:calc(100vh - 120px);padding-top:40px}
+.onbstep .grow,.loginin .grow{flex:1}
+.logo{width:76px;height:76px;border-radius:22px;background:var(--g-brand);display:grid;place-items:center;box-shadow:0 14px 34px rgba(123,92,255,.35)}
+h1.big{font-size:1.9rem;line-height:1.1}
+.add.grad{background:var(--g-brand);color:#fff}
+.add.big{border-radius:999px}
+.center{text-align:center}
+.pback2{align-self:flex-start;font-weight:700;padding:6px 0;text-decoration:none;color:var(--ink)}
+.demo{font-size:.8rem;line-height:1.45;padding:10px 12px;border-radius:14px;background:var(--prot-soft)}
+.cform{display:flex;flex-direction:column;gap:12px;background:none;border:0;padding:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.cform label{font-size:.82rem;font-weight:600}
+.cform .chk{font-size:.84rem;font-weight:500}
+.pwbar{display:flex;gap:4px;margin-top:-4px}
+.pwbar i{flex:1;height:5px;border-radius:3px;background:color-mix(in srgb,var(--ink) 10%,transparent)}
+.pwbar[data-n="1"] i:nth-child(-n+1){background:var(--accent)}
+.pwbar[data-n="2"] i:nth-child(-n+2){background:var(--carb)}
+.pwbar[data-n="3"] i:nth-child(-n+3),.pwbar[data-n="4"] i{background:var(--ok)}
+.loginin{display:flex;flex-direction:column;gap:14px;min-height:calc(100vh - 80px);padding-top:30px}
+.loginin .forgot{align-self:flex-end;font-size:.85rem;font-weight:600}
+.avatar{width:56px;height:56px;flex:none;border-radius:50%;background:var(--g-brand);color:#fff;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:1.2rem}
+.avatar.big{width:64px;height:64px;font-size:1.35rem}
+.cphead{display:flex;align-items:center;gap:14px}
+.cphead .t{flex:1;min-width:0}
+.cphead .t b{font-family:var(--f-display);font-size:1.05rem;letter-spacing:-.02em;display:block;overflow-wrap:anywhere}
+.cphead .t small{color:var(--muted);font-size:.8rem;overflow-wrap:anywhere}
+.badge{font-size:.7rem;font-weight:700;color:var(--prot);background:var(--prot-soft);border-radius:999px;padding:4px 9px;white-space:nowrap}
+.cprow{display:flex;justify-content:space-between;align-items:center;width:100%;padding:13px 0;border:0;border-top:1px solid var(--line);background:none;text-align:left;font-weight:600;color:var(--ink)}
+.cprow::after{content:"›";color:var(--muted)}
+.cprow.danger{color:var(--accent)}
+.cpform{display:flex;flex-direction:column;gap:10px;padding:4px 0 8px}
+.sheetbg{position:fixed;inset:0;z-index:45;background:rgba(15,10,35,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:560px;max-height:92vh;overflow-y:auto;background:var(--bg);border-radius:28px 28px 0 0;padding:14px 20px calc(env(safe-area-inset-bottom,0px) + 24px);display:flex;flex-direction:column;gap:10px}
+.sheet>div{display:flex;flex-direction:column;gap:10px}
+.sheet .grip{width:40px;height:5px;border-radius:3px;background:color-mix(in srgb,var(--ink) 15%,transparent);align-self:center}
 /* Ajout rapide */
 .addmode{margin-bottom:-4px}
 #fr .calc{min-height:0}
@@ -773,6 +808,7 @@ body.simple .tot .pct{display:none}
 <!-- ================= Profil ================= -->
 <section class="view" id="v-profil" aria-label="Profil" hidden>
   <header class="vhead"><h1>Profil</h1></header>
+  <section class="card" id="cpCard" aria-label="Mon compte"></section>
   <div class="ban" id="pBan" role="status" hidden></div>
 
   <section class="card" aria-label="Profil">
@@ -898,7 +934,42 @@ body.simple .tot .pct{display:none}
 <div class="onb" id="onb" hidden>
   <div class="onbin">
     <div class="onbtop"><div class="dots" id="onbDots"><i></i><i></i><i></i><i></i></div><button type="button" class="lnk2" id="onbSkip">Passer</button></div>
-    <div class="onbstep" data-step="1">
+    <div class="onbstep welcome" data-step="w" hidden>
+      <div class="logo" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 120 120"><circle cx="60" cy="60" r="44" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="12"/><circle cx="60" cy="60" r="44" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-dasharray="276" stroke-dashoffset="80" transform="rotate(-90 60 60)"/></svg></div>
+      <h1 class="big">Prise de masse sèche</h1>
+      <p class="hint">Tes repas, tes protéines, ton sport et ton poids, au même endroit.</p>
+      <div class="grow"></div>
+      <button type="button" class="add big grad" id="wCreate">Créer un compte</button>
+      <button type="button" class="add big" id="wLogin">J'ai déjà un compte</button>
+      <button type="button" class="lnk2" id="wSans">Continuer sans compte</button>
+      <p class="hint center">Tes données restent sur ce téléphone.</p>
+    </div>
+    <div class="onbstep" data-step="c" hidden>
+      <button type="button" class="lnk pback2" id="cBack">‹ Retour</button>
+      <h1>Créer un compte</h1>
+      <div class="demo"><b>Compte de démonstration</b> : il reste sur ce téléphone, rien n'est envoyé. Il sera relié à un vrai serveur plus tard.</div>
+      <form id="cForm" class="cform" novalidate>
+        <label>Prénom<input id="cPrenom" autocomplete="given-name" autocapitalize="words" maxlength="30" required></label>
+        <label>Email<input id="cEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" maxlength="120" required></label>
+        <label>Mot de passe<input id="cPass" type="password" autocomplete="new-password" required></label>
+        <div class="pwbar" id="cBar" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <div class="hint" id="cPwHint">8 caractères minimum, avec au moins un chiffre.</div>
+        <label>Confirmer le mot de passe<input id="cPass2" type="password" autocomplete="new-password" required></label>
+        <label class="chk"><input type="checkbox" id="cOk"> <span>J'ai compris que mes données restent sur ce téléphone : je pense à les exporter.</span></label>
+        <div class="status" id="cStatus" role="status"></div>
+        <button type="submit" class="add big grad" id="cSubmit">Créer mon compte</button>
+      </form>
+    </div>
+    <div class="onbstep" data-step="l" hidden>
+      <button type="button" class="lnk pback2" id="lBack">‹ Retour</button>
+      <h1>J'ai déjà un compte</h1>
+      <p class="hint">Ce compte de démonstration vit sur le téléphone où tu l'as créé : il n'y a pas encore de serveur pour le retrouver ici.</p>
+      <p class="hint">Sur ton ancien téléphone, fais <b>Profil › Exporter mes données</b>, puis restaure le fichier ici : ton journal, ton prénom et ton email reviennent, et tu choisis un nouveau mot de passe.</p>
+      <div class="grow"></div>
+      <button type="button" class="add big" id="lRestore">Restaurer depuis un fichier d'export</button>
+      <button type="button" class="lnk2" id="lCreate">Créer un nouveau compte</button>
+    </div>
+    <div class="onbstep" data-step="1" hidden>
       <h1>Bienvenue</h1>
       <p class="hint">Quelques infos pour calculer tes besoins en calories et en protéines. Elles restent sur ton téléphone.</p>
       <div class="ogrid">
@@ -932,6 +1003,54 @@ body.simple .tot .pct{display:none}
       <div class="card list" id="oList"><div class="hint">Les suggestions apparaissent ici.</div></div>
       <div class="status" id="oStatus" role="status"></div>
       <button type="button" class="add big" id="onb3">C'est parti</button>
+    </div>
+  </div>
+</div>
+
+<div class="onb" id="login" hidden>
+  <div class="onbin">
+    <div class="loginin" id="loginMain">
+      <div class="avatar big" id="lgAv" aria-hidden="true"></div>
+      <h1 id="lgHello">Re-salut</h1>
+      <p class="hint">Connecte-toi pour retrouver ton journal.</p>
+      <form id="lgForm" class="cform" novalidate>
+        <label>Email<input id="lgEmail" type="email" autocomplete="username" readonly></label>
+        <label>Mot de passe<input id="lgPass" type="password" autocomplete="current-password"></label>
+        <button type="button" class="lnk forgot" id="lgForgot">Mot de passe oublié ?</button>
+        <div class="status" id="lgStatus" role="status"></div>
+        <button type="submit" class="add big" id="lgSubmit">Se connecter</button>
+      </form>
+      <p class="hint center">Compte de démonstration, sur ce téléphone uniquement.</p>
+    </div>
+    <div class="loginin" id="loginReset" hidden>
+      <button type="button" class="lnk pback2" id="rsBack">‹ Retour</button>
+      <h1>Nouveau mot de passe</h1>
+      <p class="hint">En démo, il n'y a pas de serveur pour t'envoyer un email de vérification : tu peux choisir un nouveau mot de passe directement. Ton journal est gardé.</p>
+      <form id="rsForm" class="cform" novalidate>
+        <label>Nouveau mot de passe<input id="rsPass" type="password" autocomplete="new-password"></label>
+        <div class="pwbar" id="rsBar" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <label>Confirmer<input id="rsPass2" type="password" autocomplete="new-password"></label>
+        <div class="status" id="rsStatus" role="status"></div>
+        <button type="submit" class="add big">Enregistrer et me connecter</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="sheetbg" id="nivSheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="nsTitle">
+    <i class="grip" aria-hidden="true"></i>
+    <div id="nsStep1">
+      <h2 id="nsTitle">Nouveau : choisis ton niveau</h2>
+      <p class="hint">L'app peut être plus simple ou plus détaillée. Rien n'est effacé, tu pourras changer dans Profil.</p>
+      <div class="nivs" id="nsNivs" role="radiogroup" aria-label="Niveau"></div>
+      <button type="button" class="add big grad" id="nsOk">Continuer</button>
+    </div>
+    <div id="nsStep2" hidden>
+      <h2>Crée ton compte en 30 secondes</h2>
+      <p class="hint">Un prénom, un email et un mot de passe : l'app te dit bonjour et ton journal est verrouillé quand tu te déconnectes. Tout reste sur ce téléphone.</p>
+      <button type="button" class="add big grad" id="nsCreate">Créer mon compte</button>
+      <button type="button" class="lnk2" id="nsLater">Plus tard</button>
     </div>
   </div>
 </div>
@@ -1022,7 +1141,7 @@ let TODAY=ds(new Date());
 let cur=TODAY;
 
 /* ---------- Stockage local ---------- */
-function emptyState(){return{jours:{},aliments:{},mesures:{},objectifs:{kcal:0,prot:0},profil:{},activites:{},gouts:{aime:[],seulement:false},favoris:{},repasComposes:{},planning:null,planSport:{},semaines:[],semaineActive:null,planAuto:null,recoVue:null,rappelExport:null,cible:null,ajust:null,bilanVu:null,complements:null,niveau:null,fonctions:null,onboarded:false,dernierExport:null}}
+function emptyState(){return{jours:{},aliments:{},mesures:{},objectifs:{kcal:0,prot:0},profil:{},activites:{},gouts:{aime:[],seulement:false},favoris:{},repasComposes:{},planning:null,planSport:{},semaines:[],semaineActive:null,planAuto:null,recoVue:null,rappelExport:null,cible:null,ajust:null,bilanVu:null,complements:null,niveau:null,fonctions:null,nivChoisi:false,compte:null,onboarded:false,dernierExport:null}}
 let S=emptyState();
 try{const raw=localStorage.getItem(KEY);if(raw){const o=JSON.parse(raw);S=Object.assign(emptyState(),o)}}catch(e){}
 function persist(){
@@ -1200,7 +1319,8 @@ function render(){
   renderStreak(); renderBilan();
   const d=day(cur), t=tot(d), goals=S.objectifs||{};
   const dl=parse(cur).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"}); $("#dayLabel").textContent=dl.charAt(0).toUpperCase()+dl.slice(1);
-  $("#dayRel").textContent=cur===TODAY?"Aujourd'hui":cur===shift(TODAY,-1)?"Hier":"";
+  const pn=S.compte&&S.compte.prenom?S.compte.prenom:"";
+  $("#dayRel").textContent=(pn&&cur===TODAY?`Salut ${pn} · `:"")+(cur===TODAY?"aujourd'hui":cur===shift(TODAY,-1)?"hier":"");
   $("#next").disabled=cur>=TODAY;
   $("#tK").textContent=fmt(t.k);
   $("#tP").textContent=fmt(t.p);
@@ -1814,7 +1934,7 @@ function renderProfil(){
     $("#pSexe").value=pr.sexe||"h"; $("#pAge").value=pr.age||""; $("#pTaille").value=pr.taille||""; $("#pObj").value=pr.objectif||"masse";
   }
   const b=besoins(), box=$("#pRes");
-  renderSport(); renderBan(b); renderComplProfil(); renderNiveau();
+  renderSport(); renderBan(b); renderComplProfil(); renderNiveau(); renderCompte();
   if(!b){box.innerHTML='<div class="hint">Renseigne ton âge et ta taille, et ajoute une pesée plus bas : l\'app calcule ton IMC et tes besoins en calories et protéines.</div>';return}
   let h="";
   if(b.imc){
@@ -2223,7 +2343,7 @@ function renderNiveau(){
 }
 $("#nivs").addEventListener("click",e=>{
   const b=e.target.closest("[data-niv]"); if(!b||b.dataset.niv===S.niveau)return;
-  snapshot(); setNiveau(b.dataset.niv); persist(); renderAll(); toast(`Niveau ${NIVEAUX[b.dataset.niv][0]}`);
+  snapshot(); setNiveau(b.dataset.niv); S.nivChoisi=true; persist(); renderAll(); toast(`Niveau ${NIVEAUX[b.dataset.niv][0]}`);
 });
 $("#fctList").addEventListener("change",e=>{
   const i=e.target.closest("[data-fct]"); if(!i)return;
@@ -2534,7 +2654,7 @@ function backupInfo(){
   $("#bInfo").textContent=t;
   renderSaveBan(); renderRestore();
 }
-function exportData(){return JSON.stringify({app:"prise-de-masse-seche",version:1,exporte:new Date().toISOString(),jours:S.jours,aliments:S.aliments,mesures:S.mesures,objectifs:S.objectifs,profil:S.profil,activites:S.activites,gouts:S.gouts,favoris:S.favoris,repasComposes:S.repasComposes,planSport:S.planSport,semaines:S.semaines,semaineActive:S.semaineActive,planAuto:S.planAuto,cible:S.cible,complements:S.complements,niveau:S.niveau,fonctions:S.fonctions},null,1)}
+function exportData(){return JSON.stringify({app:"prise-de-masse-seche",version:1,exporte:new Date().toISOString(),jours:S.jours,aliments:S.aliments,mesures:S.mesures,objectifs:S.objectifs,profil:S.profil,activites:S.activites,gouts:S.gouts,favoris:S.favoris,repasComposes:S.repasComposes,planSport:S.planSport,semaines:S.semaines,semaineActive:S.semaineActive,planAuto:S.planAuto,cible:S.cible,complements:S.complements,niveau:S.niveau,fonctions:S.fonctions,compte:S.compte?{prenom:S.compte.prenom,email:S.compte.email,cree:S.compte.cree}:null},null,1)}
 $("#bExport").onclick=async()=>{
   const name="prise-de-masse-"+TODAY+".json", json=exportData();
   const file=new File([json],name,{type:"application/json"});
@@ -2624,7 +2744,9 @@ $("#bPrev").addEventListener("click",e=>{
   if(Array.isArray(o.semaines)&&o.semaines.length){S.semaines=JSON.parse(JSON.stringify(o.semaines.filter(isObj)));S.semaineActive=o.semaineActive||(S.semaines[0]||{}).id}
   if(isObj(o.planAuto))S.planAuto=Object.assign({},o.planAuto);
   if(isObj(o.cible)&&+o.cible.kg>0)S.cible=Object.assign({},o.cible);
-  if(typeof o.niveau==="string"&&(NIVEAUX[o.niveau]||o.niveau==="perso")){S.niveau=o.niveau;S.fonctions=isObj(o.fonctions)?Object.assign({},o.fonctions):null}
+  if(typeof o.niveau==="string"&&(NIVEAUX[o.niveau]||o.niveau==="perso")){S.niveau=o.niveau;S.fonctions=isObj(o.fonctions)?Object.assign({},o.fonctions):null;S.nivChoisi=true}
+  /* Compte : prénom et email seulement (jamais d'empreinte de mot de passe dans un export) ; un compte déjà sur ce téléphone est gardé. */
+  if(!S.compte&&isObj(o.compte)&&typeof o.compte.email==="string")S.compte={prenom:String(o.compte.prenom||"").slice(0,30),email:String(o.compte.email).slice(0,120),cree:o.compte.cree||new Date().toISOString(),hash:null,connecte:true};
   if(isObj(o.complements)&&Array.isArray(o.complements.actifs))S.complements={actifs:o.complements.actifs.slice(),perso:isObj(o.complements.perso)?Object.assign({},o.complements.perso):{}};
   semainesInit();
   S.onboarded=true; $("#onb").hidden=true; importEnAttente=null; $("#bPrev").hidden=true;
@@ -2918,11 +3040,134 @@ function renderProgAct(){
 $("#goAct").onclick=()=>{showTab("add");$("#actMore").open=true;setTimeout(()=>$("#actMore").scrollIntoView({block:"start"}),50)};
 $("#goPesee").onclick=()=>{$("#peseeCard").scrollIntoView({block:"start",behavior:"smooth"});setTimeout(()=>$("#mPoids").focus(),300)};
 
+/* ---------- Compte de démonstration ----------
+   Tout reste sur le téléphone. Le mot de passe n'est jamais gardé : seulement une empreinte PBKDF2-SHA-256 (sel aléatoire).
+   Ce n'est pas une vraie protection des données (lisibles par qui a le téléphone) : c'est la maquette du futur compte en ligne. */
+const PB_ITER=150000;
+const b64=u=>btoa(String.fromCharCode(...new Uint8Array(u)));
+const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function empreinte(pass,salt,iter){
+  const k=await crypto.subtle.importKey("raw",new TextEncoder().encode(pass),"PBKDF2",false,["deriveBits"]);
+  return b64(await crypto.subtle.deriveBits({name:"PBKDF2",hash:"SHA-256",salt,iterations:iter},k,256));
+}
+async function motDePasse(pass){const salt=crypto.getRandomValues(new Uint8Array(16));return{hash:await empreinte(pass,salt,PB_ITER),salt:b64(salt),iter:PB_ITER}}
+async function verifie(pass){const c=S.compte;if(!c||!c.hash)return false;const h=await empreinte(pass,unb64(c.salt),c.iter||PB_ITER);let d=h.length^c.hash.length;for(let i=0;i<h.length;i++)d|=h.charCodeAt(i)^(c.hash.charCodeAt(i)||0);return d===0}
+const cryptoOk=()=>!!(window.crypto&&crypto.subtle);
+function force(p){let n=0;if(p.length>=8)n++;if(/\d/.test(p))n++;if(/[a-z]/.test(p)&&/[A-Z]/.test(p))n++;if(/[^A-Za-z0-9]/.test(p)||p.length>=12)n++;return p?Math.max(1,n):0}
+const pwOk=p=>p.length>=8&&/\d/.test(p);
+const emailOk=e=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
+const initiales=c=>(c&&c.prenom?c.prenom.trim()[0]:c&&c.email?c.email[0]:"?").toUpperCase();
+function barre(sel,p){$(sel).dataset.n=force(p)}
+/* Création : depuis le premier lancement, depuis Profil ou depuis la fenêtre « nouveau » */
+let creerDepuis=null;
+function ouvrirCreation(depuis){creerDepuis=depuis;$("#onb").hidden=false;["#cPrenom","#cEmail","#cPass","#cPass2"].forEach(x=>$(x).value="");$("#cOk").checked=false;barre("#cBar","");say("#cStatus","","","status");onbShow("c")}
+$("#wCreate").onclick=()=>ouvrirCreation("onb");
+$("#wSans").onclick=()=>onbShow(1);
+$("#wLogin").onclick=()=>onbShow("l");
+$("#lBack").onclick=()=>onbShow("w");
+$("#lCreate").onclick=()=>ouvrirCreation("onb");
+$("#lRestore").onclick=()=>{S.onboarded=true;persist();$("#onb").hidden=true;renderAll();showTab("profil");$("#bFile").click()};
+$("#cBack").onclick=()=>{if(creerDepuis==="onb")onbShow("w");else{$("#onb").hidden=true}};
+$("#cPass").addEventListener("input",()=>{barre("#cBar",$("#cPass").value);$("#cPwHint").textContent=pwOk($("#cPass").value)?["","Faible","Moyen","Solide","Très solide"][force($("#cPass").value)]+" ✓":"8 caractères minimum, avec au moins un chiffre."});
+$("#cForm").addEventListener("change",()=>say("#cStatus","","","status"));
+$("#cForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const prenom=$("#cPrenom").value.trim().slice(0,30), email=$("#cEmail").value.trim().toLowerCase(), p=$("#cPass").value;
+  const err=!prenom?"Ton prénom ?":!emailOk(email)?"Cet email n'a pas l'air valide.":!pwOk(p)?"Mot de passe : 8 caractères minimum, avec au moins un chiffre.":p!==$("#cPass2").value?"Les deux mots de passe ne sont pas pareils.":!$("#cOk").checked?"Coche la case pour continuer.":!cryptoOk()?"Impossible de créer le compte ici (navigateur trop ancien).":"";
+  if(err){say("#cStatus",err,"err","status");return}
+  $("#cSubmit").disabled=true;
+  try{S.compte=Object.assign({prenom,email,cree:new Date().toISOString(),connecte:true},await motDePasse(p))}
+  finally{$("#cSubmit").disabled=false}
+  $("#cPass").value=$("#cPass2").value="";
+  persist();
+  if(creerDepuis==="onb")onbShow(1);
+  else{$("#onb").hidden=true;renderAll();toast(`Compte créé : salut ${prenom} !`)}
+});
+/* Connexion */
+function montrerConnexion(){
+  const c=S.compte; $("#login").hidden=false; $("#loginMain").hidden=false; $("#loginReset").hidden=true;
+  $("#lgAv").textContent=initiales(c); $("#lgHello").textContent=`Re-salut ${c.prenom||""}`.trim();
+  $("#lgEmail").value=c.email; $("#lgPass").value=""; say("#lgStatus","","","status");
+}
+$("#lgForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const ok=cryptoOk()&&await verifie($("#lgPass").value);
+  if(!ok){say("#lgStatus","Mot de passe incorrect.","err","status");$("#lgPass").select();return}
+  S.compte.connecte=true; persist(); $("#lgPass").value=""; $("#login").hidden=true; renderAll(); showTab("today");
+});
+$("#lgForgot").onclick=()=>{$("#loginMain").hidden=true;$("#loginReset").hidden=false;$("#rsPass").value=$("#rsPass2").value="";barre("#rsBar","");say("#rsStatus","","","status")};
+$("#rsBack").onclick=()=>{$("#loginReset").hidden=true;$("#loginMain").hidden=false};
+$("#rsPass").addEventListener("input",()=>barre("#rsBar",$("#rsPass").value));
+$("#rsForm").addEventListener("submit",async e=>{
+  e.preventDefault(); const p=$("#rsPass").value;
+  const err=!pwOk(p)?"8 caractères minimum, avec au moins un chiffre.":p!==$("#rsPass2").value?"Les deux mots de passe ne sont pas pareils.":!cryptoOk()?"Impossible ici (navigateur trop ancien).":"";
+  if(err){say("#rsStatus",err,"err","status");return}
+  Object.assign(S.compte,await motDePasse(p),{connecte:true}); $("#rsPass").value=$("#rsPass2").value="";
+  persist(); $("#login").hidden=true; renderAll(); showTab("today"); toast("Nouveau mot de passe enregistré");
+});
+/* Profil : mon compte */
+let cpMode=null, cpSupp=false;
+function renderCompte(){
+  const box=$("#cpCard"), c=S.compte;
+  if(!c){box.innerHTML=`<div class="cphead"><div class="avatar" aria-hidden="true">?</div><div class="t"><b>Pas encore de compte</b><small>Prénom, email et mot de passe, en 30 secondes.</small></div></div>
+    <button type="button" class="add grad" id="cpCreate">Créer mon compte</button><div class="hint">Compte de démonstration : il reste sur ce téléphone.</div>`;return}
+  const depuis=new Date(c.cree).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"});
+  let h=`<div class="cphead"><div class="avatar" aria-hidden="true">${esc(initiales(c))}</div><div class="t"><b>${esc(c.prenom||"Mon compte")}</b><small>${esc(c.email)}</small></div><span class="badge">Compte local</span></div>
+    <div class="hint">Membre depuis le ${depuis}. Compte de démonstration : rien n'est envoyé.</div>`;
+  if(!c.hash)h+=`<div class="warnbox">Compte restauré depuis un export : choisis un mot de passe.</div>`;
+  if(cpMode==="edit")h+=`<form class="cpform cform" id="cpEdit" novalidate><label>Prénom<input id="cpPrenom" maxlength="30" value="${esc(c.prenom||"")}"></label><label>Email<input id="cpEmail" type="email" maxlength="120" value="${esc(c.email)}"></label><div class="status" id="cpStatus" role="status"></div><div class="btns2"><button type="button" class="ghost" data-cp="cancel">Annuler</button><button type="submit" class="add">Enregistrer</button></div></form>`;
+  else if(cpMode==="pass")h+=`<form class="cpform cform" id="cpPass" novalidate>${c.hash?'<label>Mot de passe actuel<input id="cpOld" type="password" autocomplete="current-password"></label>':""}<label>Nouveau mot de passe<input id="cpNew" type="password" autocomplete="new-password"></label><div class="pwbar" id="cpBar" aria-hidden="true"><i></i><i></i><i></i><i></i></div><label>Confirmer<input id="cpNew2" type="password" autocomplete="new-password"></label><div class="status" id="cpStatus" role="status"></div><div class="btns2"><button type="button" class="ghost" data-cp="cancel">Annuler</button><button type="submit" class="add">Enregistrer</button></div></form>`;
+  else h+=`<div><button type="button" class="cprow" data-cp="edit">Modifier mon prénom et mon email</button>
+    <button type="button" class="cprow" data-cp="pass">${c.hash?"Changer mon mot de passe":"Choisir un mot de passe"}</button>
+    ${c.hash?'<button type="button" class="cprow" data-cp="out">Se déconnecter</button>':""}
+    <button type="button" class="cprow danger" data-cp="del">${cpSupp?"Touche encore pour tout effacer (journal compris)":"Supprimer mon compte et mes données"}</button></div>
+    ${cpSupp?'<div class="warnbox">Tout le journal de ce téléphone sera effacé. Exporte-le avant si tu veux le garder.</div>':""}`;
+  box.innerHTML=h;
+}
+$("#cpCard").addEventListener("click",e=>{
+  if(e.target.closest("#cpCreate")){ouvrirCreation("profil");return}
+  const b=e.target.closest("[data-cp]"); if(!b)return; const a=b.dataset.cp;
+  if(a==="cancel"){cpMode=null;renderCompte();return}
+  if(a==="edit"||a==="pass"){cpMode=a;cpSupp=false;renderCompte();setTimeout(()=>{const i=$("#cpCard input");if(i)i.focus()},40);return}
+  if(a==="out"){S.compte.connecte=false;persist();cpMode=null;montrerConnexion();return}
+  if(a==="del"){
+    if(!cpSupp){cpSupp=true;renderCompte();setTimeout(()=>{cpSupp=false;if($("#cpCard"))renderCompte()},8000);return}
+    try{localStorage.removeItem(KEY);localStorage.removeItem(KEY_AVANT)}catch(err){}
+    location.reload();
+  }
+});
+$("#cpCard").addEventListener("input",e=>{if(e.target.id==="cpNew")barre("#cpBar",e.target.value)});
+$("#cpCard").addEventListener("submit",async e=>{
+  e.preventDefault(); const c=S.compte;
+  if(e.target.id==="cpEdit"){
+    const prenom=$("#cpPrenom").value.trim().slice(0,30), email=$("#cpEmail").value.trim().toLowerCase();
+    if(!prenom||!emailOk(email)){say("#cpStatus",!prenom?"Ton prénom ?":"Cet email n'a pas l'air valide.","err","status");return}
+    c.prenom=prenom;c.email=email;persist();cpMode=null;render();renderCompte();toast("Compte mis à jour");return;
+  }
+  if(e.target.id==="cpPass"){
+    if(c.hash&&!(await verifie($("#cpOld").value))){say("#cpStatus","Mot de passe actuel incorrect.","err","status");return}
+    const p=$("#cpNew").value;
+    if(!pwOk(p)){say("#cpStatus","8 caractères minimum, avec au moins un chiffre.","err","status");return}
+    if(p!==$("#cpNew2").value){say("#cpStatus","Les deux mots de passe ne sont pas pareils.","err","status");return}
+    Object.assign(c,await motDePasse(p));persist();cpMode=null;renderCompte();toast("Mot de passe enregistré");
+  }
+});
+/* Fenêtre « nouveau » pour ceux qui avaient déjà un journal : niveau, puis compte */
+let nsNiv="moyen";
+function montrerNivSheet(){nsNiv=S.niveau&&NIVEAUX[S.niveau]&&S.niveau!=="expert"?S.niveau:"moyen";$("#nsNivs").innerHTML=nivButtons(nsNiv);$("#nsStep1").hidden=false;$("#nsStep2").hidden=true;$("#nivSheet").hidden=false}
+$("#nsNivs").addEventListener("click",e=>{const b=e.target.closest("[data-niv]");if(b){nsNiv=b.dataset.niv;$("#nsNivs").innerHTML=nivButtons(nsNiv)}});
+$("#nsOk").onclick=()=>{setNiveau(nsNiv);S.nivChoisi=true;persist();renderAll();if(S.compte){$("#nivSheet").hidden=true;return}$("#nsStep1").hidden=true;$("#nsStep2").hidden=false};
+$("#nsLater").onclick=()=>{$("#nivSheet").hidden=true};
+$("#nsCreate").onclick=()=>{$("#nivSheet").hidden=true;ouvrirCreation("profil")};
+
 /* ---------- Premier lancement ---------- */
 let onbStep=1, onbObj="masse";
 function onbShow(n){
-  onbStep=n; document.querySelectorAll(".onbstep").forEach(x=>x.hidden=+x.dataset.step!==n);
-  document.querySelectorAll("#onbDots i").forEach((x,i)=>x.classList.toggle("on",i<n));
+  onbStep=n; document.querySelectorAll("#onb .onbstep").forEach(x=>x.hidden=x.dataset.step!==String(n));
+  const num=typeof n==="number"; $("#onbDots").style.visibility=num?"":"hidden"; $("#onbSkip").hidden=!num;
+  document.querySelectorAll("#onbDots i").forEach((x,i)=>x.classList.toggle("on",num&&i<n));
+  if(n==="c")setTimeout(()=>$("#cPrenom").focus(),60);
+  $("#onb").scrollTo(0,0);
   if(n===2)onbReco();
   if(n===3)renderONivs();
 }
@@ -2946,7 +3191,7 @@ $("#onb2").onclick=()=>{const b=besoins();if(b&&b.kcal)S.objectifs={kcal:b.kcal,
 let onbNiv="moyen";
 function renderONivs(){$("#oNivs").innerHTML=nivButtons(onbNiv)}
 $("#oNivs").addEventListener("click",e=>{const b=e.target.closest("[data-niv]");if(b){onbNiv=b.dataset.niv;renderONivs()}});
-$("#onbN").onclick=()=>{setNiveau(onbNiv);persist();onbShow(4)};
+$("#onbN").onclick=()=>{setNiveau(onbNiv);S.nivChoisi=true;persist();onbShow(4)};
 let oRes=[];
 $("#oSearch").addEventListener("input",()=>{
   const q=$("#oSearch").value; oRes=q.trim()?candidates(q,6):[];
@@ -2966,9 +3211,11 @@ loadDB();
 /* Premier lancement : seulement si l'app ne contient encore aucune donnée. */
 if(!S.onboarded){
   const has=Object.keys(S.jours).length||Object.keys(S.mesures).length||Object.keys(S.profil||{}).length;
-  if(has){S.onboarded=true;persist()}else{$("#onb").hidden=false;onbShow(1)}
+  if(has){S.onboarded=true;persist()}else{$("#onb").hidden=false;onbShow("w")}
 }
 showTab("today");
+if(S.compte&&S.compte.hash&&S.compte.connecte===false)montrerConnexion();
+else if(S.onboarded&&!S.nivChoisi&&$("#onb").hidden)montrerNivSheet();
 document.addEventListener("visibilitychange",()=>{
   if(document.visibilityState!=="visible")return;
   const t=ds(new Date()); if(t!==TODAY){const wasToday=cur===TODAY;TODAY=t;if(wasToday)cur=t;$("#mDate").max=t;if(autoRattrape())persist();render();renderMesures()}
