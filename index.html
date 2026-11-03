@@ -520,8 +520,42 @@ h1.big{font-size:1.9rem;line-height:1.1}
 .cpform{display:flex;flex-direction:column;gap:10px;padding:4px 0 8px}
 .sheetbg{position:fixed;inset:0;z-index:45;background:rgba(15,10,35,.45);display:flex;align-items:flex-end;justify-content:center}
 .sheet{width:100%;max-width:560px;max-height:92vh;overflow-y:auto;background:var(--bg);border-radius:28px 28px 0 0;padding:14px 20px calc(env(safe-area-inset-bottom,0px) + 24px);display:flex;flex-direction:column;gap:10px}
-.sheet>div{display:flex;flex-direction:column;gap:10px}
+#nivSheet .sheet>div{display:flex;flex-direction:column;gap:10px}
+#editSheet .sheet{gap:14px}
 .sheet .grip{width:40px;height:5px;border-radius:3px;background:color-mix(in srgb,var(--ink) 15%,transparent);align-self:center}
+/* Modifier un aliment */
+.row .name{background:none;border:0;padding:0;text-align:left;color:var(--ink);font:inherit;cursor:pointer}
+.row.editable{cursor:pointer;border-radius:12px}
+.row.editable:active{background:color-mix(in srgb,var(--ink) 6%,transparent)}
+.edhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.edhead h2{font-size:1.15rem;overflow-wrap:anywhere}
+.edx{border:0;background:none;color:var(--muted);font-size:1.6rem;line-height:1;width:40px;height:40px;flex:none}
+#edQ{display:flex;flex-direction:column;gap:10px}
+.edval{width:120px;border:0;background:none;text-align:center;font-family:var(--f-display);font-weight:700;font-size:2rem;padding:0;color:var(--ink)}
+.eddirect{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.edvals{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.edvals div{border-radius:16px;padding:10px 12px;font-size:.76rem;color:var(--muted)}
+.edvals .k{background:color-mix(in srgb,var(--accent) 11%,transparent)}
+.edvals .p{background:color-mix(in srgb,var(--prot) 11%,transparent)}
+.edvals b{display:block;font-family:var(--f-display);font-size:1.1rem;letter-spacing:-.02em}
+.edvals .k b{color:var(--accent)}.edvals .p b{color:var(--prot)}
+.edvals .gl{grid-column:1/-1;text-align:center;padding:0;font-size:.8rem}
+.seg4{grid-template-columns:repeat(4,minmax(0,1fr));margin-top:6px}
+.edbtns{display:flex;gap:8px}
+.edbtns .add{flex:1;border-radius:999px;padding:13px}
+.ghost.danger{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,transparent);padding:13px 16px}
+/* Aide au premier passage */
+.tour{position:fixed;inset:0;z-index:60}
+.tourspot{position:fixed;border-radius:24px;box-shadow:0 0 0 3px #fff,0 0 0 9999px rgba(20,14,45,.62);transition:all .25s ease;pointer-events:none}
+.tourbub{position:fixed;left:16px;right:16px;max-width:420px;margin:0 auto;background:#fff;color:#1c1735;border-radius:20px;padding:14px 16px;box-shadow:0 14px 34px rgba(0,0,0,.28);display:flex;flex-direction:column;gap:6px}
+.tourbub b{font-family:var(--f-display);font-size:1rem;letter-spacing:-.02em}
+.tourbub p{margin:0;font-size:.92rem;line-height:1.45}
+.tourbub .sub{color:#655f84}
+.tourbar{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+.tourbar>span:last-child{display:flex;gap:6px;align-items:center}
+.tourbar .lnk2{color:#655f84}
+.tourbar .pill{background:#1c1735;color:#fff;padding:9px 18px}
+.tourarr{position:absolute;width:16px;height:16px;background:#fff;transform:rotate(45deg)}
 /* Ajout rapide */
 .addmode{margin-bottom:-4px}
 #fr .calc{min-height:0}
@@ -830,6 +864,7 @@ h1.big{font-size:1.9rem;line-height:1.1}
       <summary id="fctSum">Ce que j'affiche</summary>
       <div id="fctList"></div>
     </details>
+    <button type="button" class="linkbtn" id="tourAgain">Revoir l'aide de l'accueil</button>
   </section>
 
   <section class="card" id="spCard" data-f="sport" aria-label="Planning sportif">
@@ -1037,6 +1072,36 @@ h1.big{font-size:1.9rem;line-height:1.1}
   </div>
 </div>
 
+<div class="sheetbg" id="editSheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="edName">
+    <i class="grip" aria-hidden="true"></i>
+    <div class="edhead"><div><h2 id="edName"></h2><div class="hint" id="edPer"></div></div><button type="button" class="edx" id="edClose" aria-label="Fermer">×</button></div>
+    <div id="edQ">
+      <div class="useg" role="group" aria-label="Unité" id="edMode"><button type="button" data-md="u" aria-pressed="true"></button><button type="button" data-md="g" aria-pressed="false">grammes</button></div>
+      <div class="stepper"><button type="button" class="stepb" id="edMinus" aria-label="Moins">−</button><div class="uval"><input id="edVal" class="mono edval" type="number" inputmode="decimal" min="0" aria-label="Quantité"><small id="edUnit"></small></div><button type="button" class="stepb" id="edPlus" aria-label="Plus">+</button></div>
+      <div class="uquick" id="edQuick"></div>
+    </div>
+    <div id="edDirect" class="eddirect" hidden>
+      <label>Calories<input id="edK" type="number" inputmode="numeric" min="0"></label>
+      <label>Protéines (g)<input id="edP" type="number" inputmode="decimal" min="0" step="0.1"></label>
+      <label data-f="macros">Glucides (g)<input id="edG" type="number" inputmode="decimal" min="0" step="0.1"></label>
+      <label data-f="macros">Lipides (g)<input id="edL" type="number" inputmode="decimal" min="0" step="0.1"></label>
+    </div>
+    <div class="edvals" id="edVals"></div>
+    <div><div class="eyebrow">Moment</div><div class="seg seg4" id="edMoment" role="group" aria-label="Moment"></div></div>
+    <div class="edbtns"><button type="button" class="ghost danger" id="edDel">Supprimer</button><button type="button" class="add" id="edSave">Enregistrer</button></div>
+  </div>
+</div>
+
+<div class="tour" id="tour" hidden>
+  <div class="tourspot" id="tourSpot"></div>
+  <div class="tourbub" id="tourBub" role="dialog" aria-live="polite">
+    <i class="tourarr" id="tourArr" aria-hidden="true"></i>
+    <b id="tourT"></b><p id="tourP"></p>
+    <div class="tourbar"><span class="sub" id="tourN"></span><span><button type="button" class="lnk2" id="tourSkip">Passer</button><button type="button" class="pill" id="tourNext">Suivant</button></span></div>
+  </div>
+</div>
+
 <div class="sheetbg" id="nivSheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="nsTitle">
     <i class="grip" aria-hidden="true"></i>
@@ -1141,7 +1206,7 @@ let TODAY=ds(new Date());
 let cur=TODAY;
 
 /* ---------- Stockage local ---------- */
-function emptyState(){return{jours:{},aliments:{},mesures:{},objectifs:{kcal:0,prot:0},profil:{},activites:{},gouts:{aime:[],seulement:false},favoris:{},repasComposes:{},planning:null,planSport:{},semaines:[],semaineActive:null,planAuto:null,recoVue:null,rappelExport:null,cible:null,ajust:null,bilanVu:null,complements:null,niveau:null,fonctions:null,nivChoisi:false,compte:null,onboarded:false,dernierExport:null}}
+function emptyState(){return{jours:{},aliments:{},mesures:{},objectifs:{kcal:0,prot:0},profil:{},activites:{},gouts:{aime:[],seulement:false},favoris:{},repasComposes:{},planning:null,planSport:{},semaines:[],semaineActive:null,planAuto:null,recoVue:null,rappelExport:null,cible:null,ajust:null,bilanVu:null,complements:null,niveau:null,fonctions:null,nivChoisi:false,compte:null,aideVue:false,aideRepas:false,onboarded:false,dernierExport:null}}
 let S=emptyState();
 try{const raw=localStorage.getItem(KEY);if(raw){const o=JSON.parse(raw);S=Object.assign(emptyState(),o)}}catch(e){}
 function persist(){
@@ -1341,7 +1406,7 @@ function render(){
     const st=tot({repas:items});
     const pp=key==="collation"?"":st.p>=25?`<span class="ppill ok">✓ ${fmt(st.p)} g de protéines</span>`:`<span class="ppill low">${fmt(st.p)} g de protéines · vise 25 g</span>`;
     return `<div class="mcard"><div class="mtop"><div><h2>${lab}</h2>${pp}</div><div class="r"><span class="sub mono">${fmt(st.k)} kcal · ${fmt(st.p)} g${fOn("detail")?(()=>{const m=totGL({repas:items});return`<span class="gl">G ${fmt(m.g)} · L ${fmt(m.l)} g</span>`})():""}</span><button class="mplus" data-m="${key}" aria-label="Ajouter au ${lab.toLowerCase()}">+</button></div></div>`+
-      items.map(r=>`<div class="row"><div class="name">${esc(r.aliment)}${r.quantite?`<small>${esc(r.quantite)}</small>`:""}</div><span class="v k">${fmt(+r.kcal||0)}</span><span class="v p">${fmt(+r.prot||0)} g</span><button class="del" data-i="${r.i}" aria-label="Supprimer ${esc(r.aliment)}">×</button></div>`).join("")+
+      items.map(r=>`<div class="row editable" data-e="${r.i}"><button type="button" class="name" data-e="${r.i}" aria-label="Modifier ${esc(r.aliment)}">${esc(r.aliment)}${r.quantite?`<small>${esc(r.quantite)}</small>`:""}</button><span class="v k">${fmt(+r.kcal||0)}</span><span class="v p">${fmt(+r.prot||0)} g</span><button class="del" data-i="${r.i}" aria-label="Supprimer ${esc(r.aliment)}">×</button></div>`).join("")+
       `<button class="msave" data-m="${key}">Enregistrer comme repas composé</button></div>`;
   }).join("");
   renderWeek(); renderLists(); renderCopy(); renderPlan();
@@ -1423,6 +1488,8 @@ $("#supps").addEventListener("click",e=>{
 $("#meals").addEventListener("click",e=>{
   const del=e.target.closest(".del");
   if(del){const d=clone(day(cur)),r=d.repas[+del.dataset.i];snapshot();d.repas.splice(+del.dataset.i,1);if(save(d))toast(`${r?r.aliment:"Aliment"} supprimé`);return}
+  const ed=e.target.closest("[data-e]");
+  if(ed){openEdit(+ed.dataset.e);return}
   const pl=e.target.closest(".mplus");
   if(pl){$("#fM").value=pl.dataset.m;showTab("add");setTimeout(()=>$("#fAl").focus(),50);return}
   const sv=e.target.closest(".msave");
@@ -2413,6 +2480,7 @@ function openPanel(p){
   v.querySelectorAll("[data-panel]").forEach(x=>x.classList.toggle("on",x.dataset.panel===p));
   $("#pTitle").textContent=p==="demain"&&$("#planTitle").textContent?$("#planTitle").textContent:PANELS[p];
   window.scrollTo(0,0);
+  if(p==="repas"&&typeof maybeTourRepas==="function")maybeTourRepas();
 }
 function closePanel(top){
   panel=null; const v=$("#v-today"); v.classList.remove("detail");
@@ -3040,6 +3108,123 @@ function renderProgAct(){
 $("#goAct").onclick=()=>{showTab("add");$("#actMore").open=true;setTimeout(()=>$("#actMore").scrollIntoView({block:"start"}),50)};
 $("#goPesee").onclick=()=>{$("#peseeCard").scrollIntoView({block:"start",behavior:"smooth"});setTimeout(()=>$("#mPoids").focus(),300)};
 
+/* ---------- Modifier un aliment déjà noté ----------
+   Les nouvelles valeurs gardent les proportions de la ligne (y compris une correction faite à la main). */
+let ED=null;
+const MOM=[["matin","Matin"],["midi","Midi"],["collation","Collation"],["soir","Soir"]];
+function openEdit(i){
+  const r=(day(cur).repas||[])[i]; if(!r)return;
+  const g0=+r.grammes||0, direct=!(g0>0)||r.rapide;
+  const u=direct?null:(unitFor(r.aliment)||(findFood(r.aliment)?unitFor(findFood(r.aliment).nom):null));
+  ED={i,r,direct,g:g0,u,mode:u&&(/·/.test(r.quantite||"")||Math.abs(g0/u.g-Math.round(g0/u.g*2)/2)<.01)?"u":"g",moment:r.moment||"midi",
+      kpg:g0?(+r.kcal||0)/g0:0,ppg:g0?(+r.prot||0)/g0:0,gpg:g0&&r.gluc!=null?+r.gluc/g0:null,lpg:g0&&r.lip!=null?+r.lip/g0:null};
+  $("#edName").textContent=r.aliment;
+  $("#edPer").textContent=direct?"Ajout rapide : modifie directement les valeurs.":`${fmt(ED.kpg*100)} kcal · ${n1(ED.ppg*100)} g de protéines pour 100 g`;
+  $("#edQ").hidden=direct; $("#edDirect").hidden=!direct;
+  if(direct){$("#edK").value=+r.kcal||0;$("#edP").value=+r.prot||0;$("#edG").value=r.gluc!=null?r.gluc:"";$("#edL").value=r.lip!=null?r.lip:""}
+  $("#edMode").hidden=!u; if(u)$('#edMode [data-md="u"]').textContent=u.p;
+  $("#edMoment").innerHTML=MOM.map(([m,l])=>`<button type="button" data-mo="${m}" aria-selected="${m===ED.moment}">${l}</button>`).join("");
+  edRender(); $("#editSheet").hidden=false;
+}
+const edQty=()=>ED.mode==="u"?Math.round(ED.g/ED.u.g*2)/2:Math.round(ED.g);
+function edRender(){
+  if(!ED)return;
+  if(!ED.direct){
+    document.querySelectorAll("#edMode [data-md]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.md===ED.mode)));
+    if(document.activeElement!==$("#edVal"))$("#edVal").value=edQty();
+    $("#edUnit").textContent=ED.mode==="u"?`${edQty()>1?ED.u.p:ED.u.s} · ${Math.round(ED.g)} g`:"grammes";
+    const qs=ED.mode==="u"?[1,2,3,4]:[...new Set([50,100,150,200,250,Math.round(+ED.r.grammes)])].sort((a,b)=>a-b);
+    $("#edQuick").innerHTML=qs.map(q=>`<button type="button" data-q="${q}" aria-pressed="${q===edQty()}">${ED.mode==="u"?fmtQty(q)+" "+(q>1?ED.u.p:ED.u.s):q+" g"}</button>`).join("");
+  }
+  const v=edValues(), old=ED.r;
+  $("#edVals").innerHTML=`<div class="k">Calories<b>${fmt(v.kcal)}</b>${Math.round(v.kcal)!==Math.round(+old.kcal||0)?`avant ${fmt(+old.kcal||0)}`:""}</div><div class="p">Protéines<b>${n1(v.prot)} g</b>${Math.round(v.prot*10)!==Math.round((+old.prot||0)*10)?`avant ${n1(+old.prot||0)} g`:""}</div>`+
+    (fOn("macros")&&!ED.direct&&v.gluc!=null?`<div class="gl">Glucides ${fmt(v.gluc)} g · lipides ${n1(v.lip)} g</div>`:"");
+  document.querySelectorAll("#edMoment [data-mo]").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.mo===ED.moment)));
+}
+function edValues(){
+  if(ED.direct){const k=Math.max(0,Math.round(+$("#edK").value||0)),p=Math.max(0,Math.round((+$("#edP").value||0)*10)/10),gv=$("#edG").value,lv=$("#edL").value;
+    return{kcal:k,prot:p,gluc:gv!==""?Math.round(+gv*10)/10:null,lip:lv!==""?Math.round(+lv*10)/10:null}}
+  const g=ED.g, gl=ED.gpg!=null?ED.gpg*g:(()=>{const x=glFor(ED.r.aliment,g);return x.gluc!=null?x.gluc:null})(), li=ED.lpg!=null?ED.lpg*g:(()=>{const x=glFor(ED.r.aliment,g);return x.lip!=null?x.lip:null})();
+  return{kcal:Math.round(ED.kpg*g),prot:Math.round(ED.ppg*g*10)/10,gluc:gl!=null?Math.round(gl*10)/10:null,lip:li!=null?Math.round(li*10)/10:null};
+}
+function edSetQty(q){q=Math.max(ED.mode==="u"?.5:1,q);ED.g=ED.mode==="u"?q*ED.u.g:q;edRender()}
+function closeEdit(){ED=null;$("#editSheet").hidden=true}
+$("#edClose").onclick=closeEdit;
+$("#editSheet").addEventListener("click",e=>{if(e.target.id==="editSheet")closeEdit()});
+$("#edMode").addEventListener("click",e=>{const b=e.target.closest("[data-md]");if(!b||!ED)return;ED.mode=b.dataset.md;if(ED.mode==="u")ED.g=Math.max(.5,Math.round(ED.g/ED.u.g*2)/2)*ED.u.g;edRender()});
+$("#edMinus").onclick=()=>edSetQty(edQty()-(ED.mode==="u"?(edQty()<=1?.5:1):(edQty()>100?10:5)));
+$("#edPlus").onclick=()=>edSetQty(edQty()+(ED.mode==="u"?(edQty()<1?.5:1):(edQty()>=100?10:5)));
+$("#edQuick").addEventListener("click",e=>{const b=e.target.closest("[data-q]");if(b)edSetQty(+b.dataset.q)});
+$("#edVal").addEventListener("input",()=>{const v=parseFloat(String($("#edVal").value).replace(",","."));if(v>0){ED.g=ED.mode==="u"?v*ED.u.g:v;edRender()}});
+$("#edVal").addEventListener("blur",()=>edRender());
+for(const id of["#edK","#edP","#edG","#edL"])$(id).addEventListener("input",()=>edRender());
+$("#edMoment").addEventListener("click",e=>{const b=e.target.closest("[data-mo]");if(b&&ED){ED.moment=b.dataset.mo;edRender()}});
+$("#edDel").onclick=()=>{
+  if(!ED)return; const i=ED.i, nom=ED.r.aliment; closeEdit();
+  const d=clone(day(cur)); snapshot(); d.repas.splice(i,1); if(save(d))toast(`${nom} supprimé`);
+};
+$("#edSave").onclick=()=>{
+  if(!ED)return;
+  const v=edValues(), r=Object.assign({},ED.r,{moment:ED.moment,kcal:v.kcal,prot:v.prot});
+  if(!ED.direct){
+    r.grammes=Math.round(ED.g*10)/10;
+    r.quantite=ED.mode==="u"?`${fmtQty(edQty())} ${edQty()>1?ED.u.p:ED.u.s} · ${Math.round(ED.g)} g`:`${Math.round(ED.g*10)/10} g`;
+  }
+  if(v.gluc!=null&&(ED.direct||ED.r.gluc!=null))r.gluc=v.gluc; else if(ED.direct)delete r.gluc;
+  if(v.lip!=null&&(ED.direct||ED.r.lip!=null))r.lip=v.lip; else if(ED.direct)delete r.lip;
+  if(ED.direct&&(r.gluc==null)!==(r.lip==null)){const rest=Math.max(0,r.kcal-4*r.prot);if(r.gluc==null)r.gluc=Math.round(Math.max(0,(rest-9*r.lip)/4)*10)/10;else r.lip=Math.round(Math.max(0,(rest-4*r.gluc)/9)*10)/10}
+  const i=ED.i; closeEdit();
+  const d=clone(day(cur)); snapshot(); d.repas[i]=r; if(save(d))toast(`${r.aliment} modifié`);
+};
+
+/* ---------- Aide au premier passage : bulles sur l'accueil, une seule fois ---------- */
+const TOUR=[
+  {sel:"#tiles",t:"Touche une tuile",p:"Elle ouvre le détail : tes repas, ton eau, des idées… « ‹ Accueil » pour revenir."},
+  {sel:"#homeAdd",t:"Ajoute ce que tu manges",p:"Cherche un aliment, choisis la quantité : les calories et protéines se calculent toutes seules. Au resto, utilise l'ajout rapide."},
+  {sel:'.tabb[data-tab="profil"]',t:"Règle l'app à ton goût",p:"Dans Profil : ton niveau, ce que tu affiches, tes compléments et ta sauvegarde."}
+];
+let tourSteps=null, tourI=0, tourFin=null;
+function tourShow(){
+  const st=tourSteps[tourI], el=$(st.sel);
+  if(!el||!el.offsetParent){tourNext();return}
+  if(!el.closest(".tabbar"))el.scrollIntoView({block:"center"});
+  requestAnimationFrame(()=>{
+    const r=el.getBoundingClientRect(), pad=6, spot=$("#tourSpot"), bub=$("#tourBub"), arr=$("#tourArr");
+    Object.assign(spot.style,{left:r.left-pad+"px",top:r.top-pad+"px",width:r.width+pad*2+"px",height:r.height+pad*2+"px",borderRadius:el.closest(".tabbar")||el.id==="homeAdd"?"999px":"26px"});
+    $("#tourT").textContent=st.t; $("#tourP").textContent=st.p;
+    $("#tourN").textContent=tourSteps.length>1?`${tourI+1} / ${tourSteps.length}`:"";
+    $("#tourNext").textContent=tourI<tourSteps.length-1?"Suivant":tourSteps.length>1?"C'est parti":"OK";
+    $("#tourSkip").hidden=tourSteps.length<2||tourI===tourSteps.length-1;
+    /* La bulle va du côté où il y a la place ; sinon en bas de l'écran, par-dessus. */
+    const bh=bub.offsetHeight, bas=innerHeight-r.bottom-pad-14, haut=r.top-pad-14;
+    const pos=bas>=bh+8&&(bas>=haut||haut<bh+8)?"dessous":haut>=bh+8?"dessus":"fixe";
+    bub.style.top=pos==="dessous"?r.bottom+pad+14+"px":"auto";
+    bub.style.bottom=pos==="dessus"?innerHeight-r.top+pad+14+"px":pos==="fixe"?"calc(env(safe-area-inset-bottom,0px) + 16px)":"auto";
+    arr.hidden=pos==="fixe";
+    const bl=bub.getBoundingClientRect().left;
+    arr.style.left=Math.min(Math.max(18,r.left+r.width/2-bl-8),bub.offsetWidth-34)+"px";
+    arr.style.top=pos==="dessous"?"-8px":"auto"; arr.style.bottom=pos==="dessus"?"-8px":"auto";
+  });
+}
+function tourNext(){tourI++;if(tourI>=tourSteps.length)tourEnd();else tourShow()}
+function tourEnd(){$("#tour").hidden=true;const f=tourFin;tourSteps=null;tourFin=null;if(f)f();window.scrollTo(0,0)}
+function tourStart(steps,fin){tourSteps=steps;tourI=0;tourFin=fin;$("#tour").hidden=false;tourShow()}
+$("#tourNext").onclick=tourNext;
+$("#tourSkip").onclick=tourEnd;
+$("#tour").addEventListener("click",e=>{if(e.target.id==="tour")tourNext()});
+window.addEventListener("resize",()=>{if(tourSteps)tourShow()});
+function peutGuider(){return S.onboarded&&$("#onb").hidden&&$("#login").hidden&&$("#nivSheet").hidden&&$("#editSheet").hidden&&!$("#v-today").hidden&&!panel}
+function maybeTour(){
+  if(S.aideVue||!peutGuider())return;
+  setTimeout(()=>{if(S.aideVue||!peutGuider())return;tourStart(TOUR,()=>{S.aideVue=true;persist()})},350);
+}
+function maybeTourRepas(){
+  if(S.aideRepas||!$("#tour").hidden)return;
+  const row=$('#meals .row.editable'); if(!row)return;
+  setTimeout(()=>{if(panel!=="repas"||S.aideRepas)return;tourStart([{sel:"#meals .row.editable",t:"Une erreur de quantité ?",p:"Touche un aliment pour changer les grammes, les portions ou le moment."}],()=>{S.aideRepas=true;persist()})},300);
+}
+$("#tourAgain").onclick=()=>{S.aideVue=false;S.aideRepas=false;persist();showTab("today");closePanel(true);maybeTour()};
+
 /* ---------- Compte de démonstration ----------
    Tout reste sur le téléphone. Le mot de passe n'est jamais gardé : seulement une empreinte PBKDF2-SHA-256 (sel aléatoire).
    Ce n'est pas une vraie protection des données (lisibles par qui a le téléphone) : c'est la maquette du futur compte en ligne. */
@@ -3081,7 +3266,7 @@ $("#cForm").addEventListener("submit",async e=>{
   $("#cPass").value=$("#cPass2").value="";
   persist();
   if(creerDepuis==="onb")onbShow(1);
-  else{$("#onb").hidden=true;renderAll();toast(`Compte créé : salut ${prenom} !`)}
+  else{$("#onb").hidden=true;renderAll();toast(`Compte créé : salut ${prenom} !`);maybeTour()}
 });
 /* Connexion */
 function montrerConnexion(){
@@ -3093,7 +3278,7 @@ $("#lgForm").addEventListener("submit",async e=>{
   e.preventDefault();
   const ok=cryptoOk()&&await verifie($("#lgPass").value);
   if(!ok){say("#lgStatus","Mot de passe incorrect.","err","status");$("#lgPass").select();return}
-  S.compte.connecte=true; persist(); $("#lgPass").value=""; $("#login").hidden=true; renderAll(); showTab("today");
+  S.compte.connecte=true; persist(); $("#lgPass").value=""; $("#login").hidden=true; renderAll(); showTab("today"); maybeTour();
 });
 $("#lgForgot").onclick=()=>{$("#loginMain").hidden=true;$("#loginReset").hidden=false;$("#rsPass").value=$("#rsPass2").value="";barre("#rsBar","");say("#rsStatus","","","status")};
 $("#rsBack").onclick=()=>{$("#loginReset").hidden=true;$("#loginMain").hidden=false};
@@ -3156,8 +3341,8 @@ $("#cpCard").addEventListener("submit",async e=>{
 let nsNiv="moyen";
 function montrerNivSheet(){nsNiv=S.niveau&&NIVEAUX[S.niveau]&&S.niveau!=="expert"?S.niveau:"moyen";$("#nsNivs").innerHTML=nivButtons(nsNiv);$("#nsStep1").hidden=false;$("#nsStep2").hidden=true;$("#nivSheet").hidden=false}
 $("#nsNivs").addEventListener("click",e=>{const b=e.target.closest("[data-niv]");if(b){nsNiv=b.dataset.niv;$("#nsNivs").innerHTML=nivButtons(nsNiv)}});
-$("#nsOk").onclick=()=>{setNiveau(nsNiv);S.nivChoisi=true;persist();renderAll();if(S.compte){$("#nivSheet").hidden=true;return}$("#nsStep1").hidden=true;$("#nsStep2").hidden=false};
-$("#nsLater").onclick=()=>{$("#nivSheet").hidden=true};
+$("#nsOk").onclick=()=>{setNiveau(nsNiv);S.nivChoisi=true;persist();renderAll();if(S.compte){$("#nivSheet").hidden=true;maybeTour();return}$("#nsStep1").hidden=true;$("#nsStep2").hidden=false};
+$("#nsLater").onclick=()=>{$("#nivSheet").hidden=true;maybeTour()};
 $("#nsCreate").onclick=()=>{$("#nivSheet").hidden=true;ouvrirCreation("profil")};
 
 /* ---------- Premier lancement ---------- */
@@ -3171,7 +3356,7 @@ function onbShow(n){
   if(n===2)onbReco();
   if(n===3)renderONivs();
 }
-function onbClose(){S.onboarded=true;persist();$("#onb").hidden=true;renderAll();showTab("today")}
+function onbClose(){S.onboarded=true;persist();$("#onb").hidden=true;renderAll();showTab("today");maybeTour()}
 function onbReco(){
   document.querySelectorAll(".oopts [data-obj]").forEach(b=>b.setAttribute("aria-checked",b.dataset.obj===onbObj));
   S.profil=Object.assign({},S.profil,{objectif:onbObj});
@@ -3216,6 +3401,7 @@ if(!S.onboarded){
 showTab("today");
 if(S.compte&&S.compte.hash&&S.compte.connecte===false)montrerConnexion();
 else if(S.onboarded&&!S.nivChoisi&&$("#onb").hidden)montrerNivSheet();
+else maybeTour();
 document.addEventListener("visibilitychange",()=>{
   if(document.visibilityState!=="visible")return;
   const t=ds(new Date()); if(t!==TODAY){const wasToday=cur===TODAY;TODAY=t;if(wasToday)cur=t;$("#mDate").max=t;if(autoRattrape())persist();render();renderMesures()}
