@@ -1,6 +1,6 @@
 /* Service worker : garde l'app disponible hors connexion.
    Change VERSION à chaque mise à jour pour que les téléphones récupèrent la nouvelle version. */
-const VERSION = "pdms-2026-11-03-7";
+const VERSION = "pdms-2026-11-03-8";
 const ASSETS = [
   "./",
   "index.html",

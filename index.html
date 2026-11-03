@@ -102,6 +102,42 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);fo
 .tabb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border:0;border-radius:999px;background:none;color:var(--muted);font-size:.68rem;font-weight:600;padding:4px 0;min-height:50px}
 .tabb svg{width:22px;height:22px}
 .tabb[aria-current="page"]{color:var(--bg);background:var(--ink);font-weight:700}
+.tabb.home{flex:2;flex-direction:row;gap:8px;font-family:var(--f-display);font-size:1rem;font-weight:700;color:var(--ink);background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.tabb.home svg{width:24px;height:24px}
+.tabb.home[aria-current="page"]{color:var(--bg);background:var(--ink)}
+/* Accueil : recherche, puces d'ajout express, glucides et lipides */
+.hsearch{display:flex;gap:8px}
+.hsfind{flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:52px;padding:0 16px;border-radius:18px;background:var(--glass);border:1px solid var(--glass-line);box-shadow:var(--shadow);color:var(--muted);font-size:1rem;text-align:left}
+.hsfind svg{flex:none;color:var(--prot)}
+.hsfind span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hsrap{flex:none;display:flex;align-items:center;gap:6px;min-height:52px;padding:0 16px;border:0;border-radius:18px;background:var(--g-brand);color:#fff;font-weight:700;font-size:.92rem}
+.hchips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:-8px -16px 0;padding:2px 16px}
+.hchips::-webkit-scrollbar,.rqchips::-webkit-scrollbar{display:none}
+.hchip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:0 12px;min-height:38px;font-size:.82rem;font-weight:600;color:var(--ink);white-space:nowrap}
+.hmac{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:12px 14px;border-radius:20px;background:var(--glass);border:1px solid var(--glass-line);box-shadow:var(--shadow);color:var(--ink);text-align:left}
+.hm{display:flex;flex-direction:column;gap:6px;min-width:0}
+.hm .mtl{display:flex;justify-content:space-between;align-items:baseline;gap:6px;font-size:.85rem}
+.hm small{color:var(--muted);font-size:.76rem;white-space:nowrap}
+/* Ajouter : fenêtre par-dessus l'écran */
+body.addopen{overflow:hidden}
+body.addopen::after{content:"";position:fixed;inset:0;background:rgba(14,10,30,.45);z-index:40}
+#v-add{position:fixed;z-index:45;left:0;right:0;bottom:0;top:calc(env(safe-area-inset-top,0px) + 34px);max-width:560px;margin:0 auto;box-sizing:border-box;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  background:var(--bg);border-radius:26px 26px 0 0;box-shadow:0 -12px 40px rgba(20,10,60,.3);padding:18px max(16px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 40px) max(16px,env(safe-area-inset-left,0px))}
+@media (prefers-reduced-motion:no-preference){#v-add:not([hidden]){animation:sheetUp .22s ease-out}}
+@keyframes sheetUp{from{transform:translateY(48px);opacity:.5}to{transform:none;opacity:1}}
+.addtop{display:flex;align-items:center;gap:8px}
+.sheetx{flex:none;width:40px;height:40px;border-radius:50%;border:0;background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--ink);display:grid;place-items:center}
+/* Onglet Repas */
+.useg.rqm{grid-template-columns:repeat(4,1fr)}
+.rqm button{min-height:40px}
+.rqf{display:flex;flex-direction:column;gap:6px}
+.rqchips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:2px 16px}
+.rqc{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:0 13px;min-height:38px;font-size:.84rem;font-weight:600;color:var(--ink);white-space:nowrap}
+.rqc[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.rqlist{display:flex;flex-direction:column;gap:10px}
+.rtags{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+.rtags .tag{margin-left:0}
+.rqgouts{padding:4px 14px}
 /* Repas par moment */
 .meals{display:flex;flex-direction:column;gap:10px}
 .mcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px 6px 14px}
@@ -623,6 +659,11 @@ h1.big{font-size:1.9rem;line-height:1.1}
     <button class="navbtn" id="next" aria-label="Jour suivant">›</button>
   </header>
   <div class="phead" id="pHead"><button type="button" class="lnk pback" id="pBack">‹ Accueil</button><h2 id="pTitle"></h2></div>
+  <div class="hsearch homeonly" id="homeAdd">
+    <button type="button" class="hsfind" id="hsFind"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Qu'as-tu mangé ?</span></button>
+    <button type="button" class="hsrap" id="hsRap"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3 5 13h6l-1 8 8-10h-6l1-8Z"/></svg>Rapide</button>
+  </div>
+  <div class="hchips homeonly" id="hChips" hidden></div>
   <div class="ban homeonly" id="saveBan" role="status" hidden></div>
   <section class="ban bilan homeonly" id="bilanToday" data-f="bilan" aria-label="Bilan de la semaine" hidden></section>
 
@@ -639,10 +680,13 @@ h1.big{font-size:1.9rem;line-height:1.1}
     </div>
   </section>
 
+  <button type="button" class="hmac homeonly" id="hMac" data-f="macros" aria-label="Glucides et lipides du jour">
+    <span class="hm"><span class="mtl"><b>Glucides</b><small class="mono" id="hmG"></small></span><span class="mbar"><i id="hmGB" style="background:var(--g-carb)"></i></span></span>
+    <span class="hm"><span class="mtl"><b>Lipides</b><small class="mono" id="hmL"></small></span><span class="mbar"><i id="hmLB" style="background:var(--g-fat)"></i></span></span>
+  </button>
   <a href="#" class="dep homeonly" id="dep" data-f="depense"></a>
   <section class="tiles homeonly" id="tiles" aria-label="Raccourcis"></section>
   <section class="streak homeonly" id="streak" data-f="serie" aria-label="Série" hidden></section>
-  <button type="button" class="add bigadd homeonly" id="homeAdd">+ Ajouter un repas</button>
 
   <section class="macros" data-panel="macros" aria-label="Glucides et lipides">
     <div class="mac"><div class="mtl"><span>Glucides</span><span class="mono" id="mgV">0 g</span></div><div class="mbar"><i id="mgB" style="background:var(--g-carb)"></i></div></div>
@@ -681,6 +725,46 @@ h1.big{font-size:1.9rem;line-height:1.1}
 
   <section class="ideas" data-panel="idees" aria-label="Idées pour compléter">
     <h2>Idées pour compléter</h2>
+    <div id="ideas"><div class="hint">Règle tes objectifs pour avoir des idées de repas adaptées à ce qu'il te reste.</div></div>
+  </section>
+
+  <section class="block actpanel" data-panel="activite" aria-label="Activité et pas">
+  <section class="aplan" id="aPlan" data-f="sport" aria-label="Séance prévue" hidden></section>
+
+  <details class="card actcard" id="actMore" data-f="depense" open>
+    <summary><span>Activité physique et pas</span><span class="sub mono" id="aTot">0 kcal</span></summary>
+    <div id="aList"></div>
+    <form id="af">
+      <label class="full">Activité<select id="aType"></select></label>
+      <label id="aIntL">Intensité<select id="aInt"><option value="0">Légère</option><option value="1" selected>Modérée</option><option value="2">Intense</option></select></label>
+      <label id="aMinL">Durée (min)<input id="aMin" type="number" inputmode="numeric" min="1" placeholder="60"></label>
+      <label id="aPasL" class="full" hidden>Nombre de pas de la journée (app Santé)<input id="aPas" type="number" inputmode="numeric" min="0" placeholder="8000"></label>
+      <label class="full">Calories dépensées (estimées)<input id="aK" type="number" inputmode="numeric" min="0" placeholder="0"></label>
+      <div class="calc full" id="aCalc">Choisis une activité et une durée : la dépense se calcule avec ton poids.</div>
+      <button class="add full" type="submit">Ajouter l'activité</button>
+      <div class="status full" id="aStatus" role="status"></div>
+    </form>
+    <div class="hint" id="aAvg"></div>
+  </details>
+  </section>
+
+  <section class="card" id="planCard" data-panel="demain" aria-label="Planning">
+    <div class="cardhead"><h2 id="planTitle">Planning de demain</h2></div>
+    <div id="plan"></div>
+  </section>
+</section>
+
+<!-- ================= Repas : idées selon l'heure, le lieu et la cuisine ================= -->
+<section class="view" id="v-repas" aria-label="Idées repas" hidden>
+  <header class="vhead"><div><h1>Idées repas</h1><div class="hint" id="rqNeed"></div></div></header>
+  <div class="useg rqm" role="group" aria-label="Moment du repas">
+    <button type="button" data-rm="matin" aria-pressed="false">Matin</button><button type="button" data-rm="midi" aria-pressed="false">Midi</button><button type="button" data-rm="collation" aria-pressed="false">Collation</button><button type="button" data-rm="soir" aria-pressed="false">Soir</button>
+  </div>
+  <div class="rqf"><div class="eyebrow">Où ?</div><div class="rqchips" id="rqLieu" role="group" aria-label="Où"></div></div>
+  <div class="rqf"><div class="eyebrow">Cuisine</div><div class="rqchips" id="rqCuis" role="group" aria-label="Cuisine"></div></div>
+  <div class="rqlist" id="rqList"></div>
+  <button type="button" class="moreideas" id="rqMore" hidden>Voir plus d'idées</button>
+  <section class="card rqgouts" aria-label="Mes goûts">
     <details class="more" id="gMore">
       <summary id="gSum">Mes goûts</summary>
       <div class="gouts">
@@ -693,20 +777,15 @@ h1.big{font-size:1.9rem;line-height:1.1}
         <button type="button" class="moreideas" id="gMoreBtn">Afficher plus d'aliments</button>
       </div>
     </details>
-    <div id="ideas"><div class="hint">Règle tes objectifs pour avoir des idées de repas adaptées à ce qu'il te reste.</div></div>
-  </section>
-
-  <section class="card" id="planCard" data-panel="demain" aria-label="Planning">
-    <div class="cardhead"><h2 id="planTitle">Planning de demain</h2></div>
-    <div id="plan"></div>
   </section>
 </section>
 
-<!-- ================= Ajouter ================= -->
+<!-- ================= Ajouter (fenêtre ouverte depuis l'Accueil) ================= -->
 <section class="view" id="v-add" aria-label="Ajouter" hidden>
   <header class="vhead">
     <div><h1>Ajouter</h1><div class="hint" id="addDay"></div></div>
-    <label class="inline">au <select id="fM"><option value="matin">Matin</option><option value="midi">Midi</option><option value="collation">Collation</option><option value="soir">Soir</option></select></label>
+    <div class="addtop"><label class="inline">au <select id="fM"><option value="matin">Matin</option><option value="midi">Midi</option><option value="collation">Collation</option><option value="soir">Soir</option></select></label>
+    <button type="button" class="sheetx" id="addClose" aria-label="Fermer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
   </header>
 
   <div class="useg addmode" role="group" aria-label="Façon d'ajouter"><button type="button" id="modeS" aria-pressed="true">Chercher un aliment</button><button type="button" id="modeR" aria-pressed="false">Ajout rapide</button></div>
@@ -758,23 +837,6 @@ h1.big{font-size:1.9rem;line-height:1.1}
     <div class="card list" id="listBox"></div>
   </section>
 
-  <section class="aplan" id="aPlan" data-f="sport" aria-label="Séance prévue" hidden></section>
-
-  <details class="card actcard" id="actMore" data-f="depense">
-    <summary><span>Activité physique et pas</span><span class="sub mono" id="aTot">0 kcal</span></summary>
-    <div id="aList"></div>
-    <form id="af">
-      <label class="full">Activité<select id="aType"></select></label>
-      <label id="aIntL">Intensité<select id="aInt"><option value="0">Légère</option><option value="1" selected>Modérée</option><option value="2">Intense</option></select></label>
-      <label id="aMinL">Durée (min)<input id="aMin" type="number" inputmode="numeric" min="1" placeholder="60"></label>
-      <label id="aPasL" class="full" hidden>Nombre de pas de la journée (app Santé)<input id="aPas" type="number" inputmode="numeric" min="0" placeholder="8000"></label>
-      <label class="full">Calories dépensées (estimées)<input id="aK" type="number" inputmode="numeric" min="0" placeholder="0"></label>
-      <div class="calc full" id="aCalc">Choisis une activité et une durée : la dépense se calcule avec ton poids.</div>
-      <button class="add full" type="submit">Ajouter l'activité</button>
-      <div class="status full" id="aStatus" role="status"></div>
-    </form>
-    <div class="hint" id="aAvg"></div>
-  </details>
 </section>
 
 <!-- ================= Progrès ================= -->
@@ -960,8 +1022,8 @@ h1.big{font-size:1.9rem;line-height:1.1}
 </main>
 
 <nav class="tabbar" aria-label="Navigation">
-  <button type="button" class="tabb" data-tab="today" aria-current="page"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg>Accueil</button>
-  <button type="button" class="tabb" data-tab="add"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M8 12h8"/></svg>Ajouter</button>
+  <button type="button" class="tabb home" data-tab="today" aria-current="page"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg>Accueil</button>
+  <button type="button" class="tabb" data-tab="repas" data-f="idees"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 3c-2 2-2.5 5-2.5 8H17v10"/></svg>Repas</button>
   <button type="button" class="tabb" data-tab="prog"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19h16"/><path d="M5 15l4-4 3 3 6-7"/></svg>Progrès</button>
   <button type="button" class="tabb" data-tab="profil"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c1.2-3.6 4-5.5 7-5.5s5.8 1.9 7 5.5"/></svg>Profil</button>
 </nav>
@@ -1597,7 +1659,7 @@ function build(idea,f){
   const rows=idea.it.map(x=>{
     const ff=x.fix?1:f;
     if(x.dish){
-      const g=Math.max(150,Math.round(x.g*ff/10)*10), kk=x.k100*g/100, pp=x.p100*g/100; k+=kk; p+=pp;
+      const g=x.fix?x.g:Math.max(150,Math.round(x.g*ff/10)*10), kk=x.k100*g/100, pp=x.p100*g/100; k+=kk; p+=pp;
       const sp=x.g100!=null?{g:x.g100,l:x.l100}:splitGL(x.k100,x.p100);
       return{n:x.dish,g,lab:g+" g",k:kk,p:pp,gl:sp.g*g/100,li:sp.l*g/100};
     }
@@ -1802,6 +1864,7 @@ function afterText(Rk,Rp,gk,gp,suffix){
   return "Après ça : "+a.join(" · ")+(suffix||"");
 }
 function renderIdeas(t){
+  if(!$("#v-repas").hidden)renderRepasTab();
   const g=S.objectifs||{}, box=$("#ideas"); shown=[];
   if(!(g.kcal>0||g.prot>0)){box.innerHTML='<div class="hint">Règle tes objectifs pour avoir des idées de repas adaptées à ce qu\'il te reste.</div>';return}
   if(cur!==TODAY){box.innerHTML='<div class="hint">Les idées de repas s\'affichent pour la journée en cours.</div>';return}
@@ -1859,6 +1922,99 @@ $("#ideas").addEventListener("click",e=>{
   const d=clone(day(cur)); d.repas=d.repas||[];
   for(const r of o.x.rows)d.repas.push(rowEntry(r,o.moment));
   save(d);
+});
+
+/* ---------- Onglet Repas : idées selon le moment, le lieu et la cuisine ---------- */
+const LIEUX=[["tous","Partout"],["maison","Fait maison"],["resto","Resto"],["fastfood","Fast-food"],["boulangerie","Boulangerie"],["supermarche","Supermarché"]];
+const CUISINES=[["toutes","Toutes"],["classique","Classique"],["francaise","Française"],["italienne","Italienne"],["asiatique","Asiatique"],["indienne","Indienne"],["latino","Mexicaine, latino"],["orientale","Orientale"],["africaine","Africaine"],["americaine","Américaine"],["europeenne","Européenne"]];
+const LIEU_LAB=Object.fromEntries(LIEUX), CUIS_LAB=Object.fromEntries(CUISINES);
+const ORIG_CUIS={"France":"francaise","France / Suisse":"francaise","France / monde":"francaise","Italie":"italienne","Inde":"indienne","Monde":"classique",
+ "Japon":"asiatique","Chine":"asiatique","Thaïlande":"asiatique","Vietnam":"asiatique","Corée":"asiatique","Indonésie":"asiatique","Malaisie":"asiatique","Philippines":"asiatique","Asie du Sud-Est":"asiatique",
+ "Mexique":"latino","Brésil":"latino","Argentine":"latino","Pérou":"latino","Venezuela / Colombie":"latino","Caraïbes":"latino","Antilles":"latino",
+ "Maroc":"orientale","Maghreb":"orientale","Tunisie":"orientale","Liban":"orientale","Turquie":"orientale","Moyen-Orient":"orientale","Grèce / Turquie":"orientale",
+ "Afrique de l'Ouest":"africaine","Sénégal":"africaine","Cameroun":"africaine","Côte d'Ivoire":"africaine","Éthiopie":"africaine","Sénégal / Mali":"africaine",
+ "États-Unis":"americaine","Canada":"americaine","Hawaï":"americaine"};
+const FAST_FOOD=new Set(["Fish and chips","Pulled pork burger","Burrito bœuf","Burrito poulet","Tacos mexicains bœuf","Shawarma poulet (sandwich)","Kebab assiette (viande, riz, salade)","Lahmacun","Gyros pita","Poutine","Wrap falafel","Banh mi","Bagel saumon cream cheese","Club sandwich","Poke bowl saumon"]);
+const BOULANGERIE=new Set(["Club sandwich","Bagel saumon cream cheese","Piadina jambon fromage"]);
+const SUPERMARCHE=new Set(["Poke bowl saumon","Bowl protéiné poulet quinoa","Wrap falafel","Bagel saumon cream cheese"]);
+/* Repas « sur le pouce » : estimations moyennes, portion d'une part (elle ne change pas). */
+const sp=(nom,type,lieux,cuis,k100,p100,g,m)=>({nom,type,m:m||["midi","soir"],lieux,cuis,sur:true,it:[{dish:nom,g,k100,p100,fix:1}]});
+const SUR_PLACE=[
+ sp("Sandwich jambon-beurre","repas",["boulangerie"],"francaise",270,12,220),
+ sp("Sandwich poulet crudités","repas",["boulangerie","supermarche"],"francaise",215,11,250),
+ sp("Sandwich thon crudités","repas",["boulangerie","supermarche"],"francaise",210,10,250),
+ sp("Quiche lorraine","repas",["boulangerie"],"francaise",270,10,200),
+ sp("Croque-monsieur","repas",["boulangerie"],"francaise",250,13,180),
+ sp("Panini poulet mozzarella","repas",["boulangerie","fastfood"],"italienne",250,14,220),
+ sp("Double cheeseburger","repas",["fastfood"],"americaine",270,15,170),
+ sp("Burger poulet","repas",["fastfood"],"americaine",245,12,220),
+ sp("Nuggets de poulet (9)","repas",["fastfood"],"americaine",260,15,160),
+ sp("Tacos poulet (taille M)","repas",["fastfood"],"francaise",230,11,400),
+ sp("Kebab sandwich","repas",["fastfood"],"orientale",230,12,350),
+ sp("Wrap poulet croustillant","repas",["fastfood"],"americaine",240,11,200),
+ sp("Pizza reine (une moitié)","repas",["fastfood","resto"],"italienne",230,11,300),
+ sp("Salade composée poulet","repas",["supermarche"],"classique",120,9,350),
+ sp("Poulet rôti et taboulé","repas",["supermarche"],"classique",175,12,400),
+ sp("Wrap poulet (rayon frais)","repas",["supermarche"],"classique",220,11,200),
+ sp("Hachis parmentier (plat préparé)","repas",["supermarche"],"francaise",125,7,400),
+ sp("Croissant jambon-fromage","repas",["boulangerie"],"francaise",290,12,140,["matin"]),
+ sp("Muffin œuf, bacon et fromage","repas",["fastfood"],"americaine",250,13,140,["matin"]),
+ sp("Brunch œufs brouillés, pain et bacon","repas",["resto"],"americaine",220,12,350,["matin"]),
+ sp("Fromage blanc et muesli (pot)","repas",["supermarche"],"classique",110,7,300,["matin"]),
+ sp("Demi-sandwich jambon-beurre","collation",["boulangerie"],"francaise",270,12,110),
+ sp("Skyr à boire","collation",["supermarche"],"classique",65,8.5,350),
+ sp("Barre protéinée","collation",["supermarche"],"classique",360,30,60),
+ sp("Sandwich triangle poulet","collation",["supermarche"],"classique",220,11,150)
+];
+function lieuxDe(x){
+  if(x.lieux)return x.lieux;
+  if(x.monde){const l=FAST_FOOD.has(x.nom)?["fastfood","resto","maison"]:["resto","maison"];if(BOULANGERIE.has(x.nom))l.push("boulangerie");if(SUPERMARCHE.has(x.nom))l.push("supermarche");return l}
+  return["maison"];
+}
+const cuisineDe=x=>x.cuis||(x.orig?ORIG_CUIS[x.orig]||"europeenne":"classique");
+var RQ={m:null,lieu:"tous",cuis:"toutes",n:8}, rqShown=[];
+function rqMoment(){const n=new Date(),h=n.getHours()+n.getMinutes()/60;return(SLOTS.find(s=>h<s.fin)||SLOTS[3]).m}
+function renderRepasTab(){
+  if(!RQ.m)RQ.m=rqMoment();
+  document.querySelectorAll("[data-rm]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.rm===RQ.m)));
+  $("#rqLieu").innerHTML=LIEUX.map(([k,l])=>`<button type="button" class="rqc" data-rl="${k}" aria-pressed="${k===RQ.lieu}">${l}</button>`).join("");
+  $("#rqCuis").innerHTML=CUISINES.map(([k,l])=>`<button type="button" class="rqc" data-rc="${k}" aria-pressed="${k===RQ.cuis}">${l}</button>`).join("");
+  const g=S.objectifs||{}, d=day(cur), t=tot(d), Rk=g.kcal>0?g.kcal-t.k:0, Rp=g.prot>0?g.prot-t.p:0, coll=RQ.m==="collation";
+  let Tk=coll?300:650, Tp=coll?20:35;
+  if(g.kcal>0&&Rk>150){
+    if(coll)Tk=Math.min(Rk,450);
+    else{const logged=new Set((d.repas||[]).map(r=>r.moment)), n=new Date(), h=n.getHours()+n.getMinutes()/60, W={matin:.25,midi:.35,soir:.4};
+      const rest=SLOTS.filter(s=>s.main&&(s.m===RQ.m||(!logged.has(s.m)&&(cur!==TODAY||h<s.fin))));
+      Tk=rest.length===1?Math.min(Rk,Math.max(500,Math.min(750,Rk*.75))):Rk*W[RQ.m]/rest.reduce((a,s)=>a+W[s.m],0)*.85}
+    Tp=Rp>0?Rp*Tk/Rk:Tp;
+  }
+  const parts=[]; if(Rk>40)parts.push(`<b>${fmt(Rk)} kcal</b>`); if(Rp>3)parts.push(`<b>${fmt(Rp)} g</b> de protéines`);
+  $("#rqNeed").innerHTML=!(g.kcal>0||g.prot>0)?"Règle tes objectifs dans Profil pour des portions adaptées.":parts.length?`Il te reste ${parts.join(" et ")}.`:"Objectifs du jour atteints ✓";
+  const seen=new Set(), pool=[...IDEAS,...mondeIdeas(),...platsAimes(),...SUR_PLACE].filter(x=>{
+    if(seen.has(x.nom))return false; seen.add(x.nom);
+    if(coll?x.type!=="collation":x.type!=="repas"||!(x.m||["midi","soir"]).includes(RQ.m))return false;
+    if(RQ.lieu!=="tous"&&!lieuxDe(x).includes(RQ.lieu))return false;
+    if(RQ.cuis!=="toutes"&&cuisineDe(x)!==RQ.cuis)return false;
+    return aime(x);
+  });
+  const Rr=Rk>0?Rk:Tk*1.5;
+  const list=pool.map(x=>{const b=coll||x.sur?build(x,1):sized(x,Tk);return{x,b,s:fit(b,Tk,Tp,Rr)+jitter("rq"+RQ.m+x.nom)*.12}}).sort((a,b)=>b.s-a.s);
+  rqShown=list.slice(0,RQ.n);
+  $("#rqList").innerHTML=rqShown.length?rqShown.map(({x,b},i)=>{
+    const tags=lieuxDe(x).slice(0,2).map(l=>LIEU_LAB[l]), c=cuisineDe(x); if(c!=="classique")tags.push(CUIS_LAB[c]);
+    return`<div class="idea"><div class="head"><div><div class="t">${esc(b.nom)}</div><div class="items">${b.rows.map(r=>esc(r.lab)).join(" · ")}</div><div class="vals">${valsHtml(b)}</div><div class="rtags">${tags.map(l=>`<span class="tag">${esc(l)}</span>`).join("")}</div></div><button type="button" class="plus" data-rq="${i}" aria-label="Ajouter ${esc(b.nom)}">Ajouter</button></div></div>`}).join("")
+    :`<div class="empty">Pas d'idée pour ce choix${gouts().seulement?" avec tes goûts":""}. Essaie un autre filtre.</div>`;
+  $("#rqMore").hidden=list.length<=RQ.n;
+}
+document.querySelector(".rqm").addEventListener("click",e=>{const b=e.target.closest("[data-rm]");if(!b)return;RQ.m=b.dataset.rm;RQ.n=8;renderRepasTab()});
+$("#rqLieu").addEventListener("click",e=>{const b=e.target.closest("[data-rl]");if(!b)return;RQ.lieu=b.dataset.rl;RQ.n=8;renderRepasTab()});
+$("#rqCuis").addEventListener("click",e=>{const b=e.target.closest("[data-rc]");if(!b)return;RQ.cuis=b.dataset.rc;RQ.n=8;renderRepasTab()});
+$("#rqMore").onclick=()=>{RQ.n+=8;renderRepasTab()};
+$("#rqList").addEventListener("click",e=>{
+  const b=e.target.closest("[data-rq]"); if(!b)return; const o=rqShown[+b.dataset.rq]; if(!o)return;
+  snapshot(); const d=clone(day(cur)); d.repas=d.repas||[];
+  for(const r of o.b.rows)d.repas.push(rowEntry(r,RQ.m));
+  if(save(d))toast(`${o.b.nom} ajouté ${AU_MOMENT[RQ.m]||""}`);
 });
 /* Recalcule les idées quand l'heure change de créneau, même sans rien toucher. */
 setInterval(()=>{if(document.visibilityState==="visible"&&cur===TODAY){renderIdeas(tot(day(cur)));renderHome()}},5*60*1000);
@@ -2490,13 +2646,14 @@ $("#complAdd").onclick=complAjoute;
 $("#complNew").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();complAjoute()}});
 
 /* ---------- Accueil : cercles, dépense du jour, tuiles qui ouvrent chaque partie ---------- */
-const PANELS={repas:"Repas",eau:"Eau",idees:"Idées repas",compl:"Compléments",macros:"Glucides et lipides",demain:"Planning de demain"};
+const PANELS={activite:"Activité et pas",repas:"Mes repas",eau:"Eau",idees:"Idées repas",compl:"Compléments",macros:"Glucides et lipides",demain:"Planning de demain"};
 let panel=null;
 function openPanel(p){
   panel=p; const v=$("#v-today"); v.classList.add("detail");
   v.querySelectorAll("[data-panel]").forEach(x=>x.classList.toggle("on",x.dataset.panel===p));
   $("#pTitle").textContent=p==="demain"&&$("#planTitle").textContent?$("#planTitle").textContent:PANELS[p];
   window.scrollTo(0,0);
+  if(p==="activite")$("#actMore").open=true;
   if(p==="repas"&&typeof maybeTourRepas==="function")maybeTourRepas();
 }
 function closePanel(top){
@@ -2506,16 +2663,39 @@ function closePanel(top){
 }
 $("#pBack").onclick=()=>closePanel(true);
 $("#tiles").addEventListener("click",e=>{
-  const b=e.target.closest("[data-open]"); if(b){openPanel(b.dataset.open);return}
+  const b=e.target.closest("[data-open]"); if(b){if(b.dataset.open==="idees")showTab("repas");else openPanel(b.dataset.open);return}
   const g=e.target.closest("[data-go]"); if(!g)return;
   showTab(g.dataset.go); const c=g.dataset.cible;
   if(c){const el=$("#"+c);if(el.tagName==="DETAILS")el.open=true;setTimeout(()=>el.scrollIntoView({block:"start"}),50)}
 });
-$("#homeAdd").onclick=()=>{
-  if(cur===TODAY){const h=new Date().getHours(),l=new Set((day(cur).repas||[]).map(r=>r.moment));$("#fM").value=h<11?"matin":h<15?"midi":h<18&&!l.has("collation")?"collation":"soir"}
-  showTab("add"); setTimeout(()=>$("#fAl").focus(),50);
-};
-$("#dep").onclick=e=>{e.preventDefault();showTab("profil")};
+function momentAuto(){const h=new Date().getHours(),l=new Set((day(cur).repas||[]).map(r=>r.moment));return h<11?"matin":h<15?"midi":h<18&&!l.has("collation")?"collation":"soir"}
+function ouvrirAjout(rapide){
+  if(cur===TODAY)$("#fM").value=momentAuto();
+  showTab("add"); setAddMode(!!rapide); frCalc();
+  setTimeout(()=>(rapide?$("#frK"):$("#fAl")).focus(),60);
+}
+$("#hsFind").onclick=()=>ouvrirAjout(false);
+$("#hsRap").onclick=()=>ouvrirAjout(true);
+/* Puces d'ajout express : le repas d'hier au même moment, et les derniers aliments notés. */
+let hcRec=[];
+const HC_MOM={matin:"le petit-déj",midi:"le déjeuner",collation:"la collation",soir:"le dîner"};
+function renderHChips(){
+  const box=$("#hChips"); if(cur!==TODAY){box.hidden=true;return}
+  const mo=momentAuto(), has=new Set((day(cur).repas||[]).map(r=>r.moment||"midi")), y=(day(shift(cur,-1)).repas||[]).filter(r=>(r.moment||"midi")===mo);
+  let h=y.length&&!has.has(mo)?`<button type="button" class="hchip" data-hcopy="${mo}">+ Copier ${HC_MOM[mo]} d'hier</button>`:"";
+  hcRec=recents().slice(0,3);
+  h+=hcRec.map((r,i)=>{const n=r.aliment.length>22?r.aliment.slice(0,21)+"…":r.aliment;return`<button type="button" class="hchip" data-hrec="${i}" aria-label="Ajouter ${esc(r.aliment)}${r.quantite?", "+esc(r.quantite):""}">+ ${esc(n)}${r.quantite?" · "+esc(r.quantite):""}</button>`}).join("");
+  box.innerHTML=h; box.hidden=!h;
+}
+$("#hChips").addEventListener("click",e=>{
+  const c=e.target.closest("[data-hcopy]"), r=e.target.closest("[data-hrec]");
+  if(c){const k=c.dataset.hcopy, items=(day(shift(cur,-1)).repas||[]).filter(x=>(x.moment||"midi")===k);
+    snapshot(); const d=clone(day(cur)); d.repas=d.repas||[]; for(const x of items)d.repas.push(Object.assign({},x,{moment:k}));
+    if(save(d))toast(`${HC_MOM[k].replace(/^(le|la) /,"").replace(/^./,m=>m.toUpperCase())} d'hier copié`);return}
+  if(r){const x=hcRec[+r.dataset.hrec]; if(!x)return; $("#fM").value=momentAuto(); addItems([x],x.aliment)}
+});
+$("#hMac").onclick=()=>openPanel("macros");
+$("#dep").onclick=e=>{e.preventDefault();const b=besoins();if(b&&!b.manque&&b.quot)openPanel("activite");else showTab("profil")};
 const FEU='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-4 2.5-5 .3 1.6 1 2.5 2 3 0-3 0-5.5.5-8z"/></svg>';
 function renderHome(){
   const d=day(cur), t=tot(d), g=S.objectifs||{};
@@ -2535,16 +2715,18 @@ function renderHome(){
   const demain=S.planning&&S.planning.date>TODAY, planDuJour=S.planning&&S.planning.date===TODAY;
   const tile=(p,h,b2,small,cls)=>`<button type="button" class="tile" data-open="${p}"><span class="h">${h}<span aria-hidden="true">›</span></span><b class="${cls||""}">${b2}</b>${small}</button>`;
   let h="";
-  h+=tile("repas","Repas",`${M.filter(([m])=>has.has(m)).length} / 4`,`<small>${!has.size?"rien de noté":manque.length?"reste : "+manque.join(", "):"tout est noté ✓"}</small>`);
+  h+=tile("repas","Mes repas",`${M.filter(([m])=>has.has(m)).length} / 4`,`<small>${!has.size?"rien de noté":manque.length?"reste : "+manque.join(", "):"tout est noté ✓"}</small>`);
   if(fOn("eau"))h+=tile("eau","Eau",`${litres(eauMl)} L`,`<div class="mbar"><i style="width:${Math.min(100,eauMl/eauObj*100)}%;background:var(--g-eau)"></i></div><small>sur ${litres(eauObj)} L</small>`);
   if(fOn("idees"))h+=tile("idees",idea?(idea.moment==="collation"?"Idée collation":"Idée repas"):"Idées repas",idea?esc(idea.x.nom):"Selon ton reste",`<small>${idea?`+${fmt(idea.x.k)} kcal · +${fmt(idea.x.p)} g`:"et tes goûts"}</small>`,"sm");
   if(fOn("compl")&&cl.length){const n=cl.filter(c=>pris(d,c.id)).length;h+=tile("compl","Compléments",`${n} / ${cl.length}`,`<small>${cl.slice(0,3).map(c=>esc(c.nom.split(" ")[0].toLowerCase())+(pris(d,c.id)?" ✓":"")).join(" · ")}${cl.length>3?"…":""}</small>`)}
-  if(fOn("macros"))h+=tile("macros","Glucides · lipides",gT?`${fmt(gl.g)}/${gT} · ${fmt(gl.l)}/${lT} g`:`${fmt(gl.g)} · ${fmt(gl.l)} g`,"<small>macros du jour</small>","sm");
+  $("#hmG").textContent=gT?`${fmt(gl.g)} / ${gT} g`:`${fmt(gl.g)} g`; $("#hmL").textContent=lT?`${fmt(gl.l)} / ${lT} g`:`${fmt(gl.l)} g`;
+  $("#hmGB").style.width=(gT?Math.min(100,gl.g/gT*100):0)+"%"; $("#hmLB").style.width=(lT?Math.min(100,gl.l/lT*100):0)+"%";
+  renderHChips();
   if(fOn("demain"))h+=tile("demain",planDuJour?"Planning du jour":"Demain",demain||planDuJour?"Planning prêt ✓":"Planning repas","<small>+ liste de courses</small>","sm");
   /* Raccourcis vers les autres onglets */
   const go=(tab,cible,hd,b2,small,cls)=>`<button type="button" class="tile" data-go="${tab}" data-cible="${cible}"><span class="h">${hd}<span aria-hidden="true">›</span></span><b class="${cls||""}">${b2}</b>${small}</button>`;
   if(fOn("cible")){const l=lisse();if(l.length){const r=rythme(l),c=S.cible&&+S.cible.kg>0?` · cible ${n1(S.cible.kg)}`:"";h+=go("prog","",`Poids`,`${n1(l[l.length-1].v)} kg`,`<small>${r?sgn(r.rate)+" kg / mois":"moyenne 7 jours"}${c}</small>`)}}
-  if(fOn("sport")&&cur===TODAY){const p=planJour(parse(cur).getDay()),se=p?p.seances||[]:[];if(se.length){const w=dernierPoids(cur),kg=w?+w.poids:0;h+=go("add","actMore","Séance du jour",se.map(x=>actNom(x.type)+" "+(+x.minutes||0)+" min").join(" + "),`<small>prévue${kg?" · "+fmt(se.reduce((a,x)=>a+seanceKcal(x,kg),0))+" kcal":""}</small>`,"sm")}}
+  if(fOn("sport")&&cur===TODAY){const p=planJour(parse(cur).getDay()),se=p?p.seances||[]:[];if(se.length){const w=dernierPoids(cur),kg=w?+w.poids:0;h+=tile("activite","Séance du jour",se.map(x=>actNom(x.type)+" "+(+x.minutes||0)+" min").join(" + "),`<small>prévue${kg?" · "+fmt(se.reduce((a,x)=>a+seanceKcal(x,kg),0))+" kcal":""}</small>`,"sm")}}
   if(fOn("mens")){const m=MENS.map(([k,n])=>[k,n,serieMens(k)]).find(x=>x[2].length);if(m){const e=ecart4(m[2]),v=m[2][m[2].length-1].v;h+=go("prog","mensCard","Mensurations",`${m[1].split(" ").pop()} ${n1(v)}`,`<small>${e?sgn(e.d)+" cm en "+Math.max(1,Math.round(e.j/7))+" sem.":"cm"}</small>`,"sm")}}
   $("#tiles").innerHTML=h;
   if(panel)$("#pTitle").textContent=panel==="demain"&&$("#planTitle").textContent?$("#planTitle").textContent:PANELS[panel];
@@ -2938,14 +3120,22 @@ $("#plan").addEventListener("change",e=>{
 });
 
 /* ---------- Onglets ---------- */
-const TABS=["today","add","prog","profil"];
+const TABS=["today","repas","prog","profil","add"];
 function showTab(t){
   if(!TABS.includes(t))t="today";
   for(const id of["#status","#frStatus","#aStatus","#mStatus","#bStatus"]){const e=$(id);if(e&&e.classList.contains("ok")){e.textContent="";e.classList.remove("ok")}}
-  for(const k of TABS)$("#v-"+k).hidden=k!==t;
+  if(t==="add"){$("#v-add").hidden=false;document.body.classList.add("addopen");$("#v-add").scrollTop=0;return}
+  $("#v-add").hidden=true; document.body.classList.remove("addopen");
+  for(const k of TABS)if(k!=="add")$("#v-"+k).hidden=k!==t;
   document.querySelectorAll(".tabb").forEach(b=>{if(b.dataset.tab===t)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
+  if(t==="repas")renderRepasTab();
   window.scrollTo(0,0);
 }
+function fermerAjout(){$("#v-add").hidden=true;document.body.classList.remove("addopen")}
+$("#addClose").onclick=fermerAjout;
+/* Toucher la zone assombrie autour de la fenêtre la ferme aussi. */
+document.addEventListener("click",e=>{if(e.target===document.body&&document.body.classList.contains("addopen"))fermerAjout()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#v-add").hidden)fermerAjout()});
 document.querySelector(".tabbar").addEventListener("click",e=>{const b=e.target.closest(".tabb");if(!b)return;if(b.dataset.tab==="today")closePanel(true);showTab(b.dataset.tab)});
 
 /* ---------- Annuler : photo de l'état juste avant une action, restaurée par le bandeau ---------- */
@@ -3051,7 +3241,7 @@ $("#listBox").addEventListener("click",e=>{
     $("#fAl").value=r.aliment;$("#fG").value=r.grammes||"";manual=false;uReset();recalc();
     const m=String(r.quantite||"").match(/^([\d½,.]+)\s/);
     if(m&&uCur){uQty=m[1]==="½"?.5:parseFloat(m[1].replace(",","."));uMode="u";uApply()}
-    window.scrollTo({top:0,behavior:"smooth"});}
+    $("#v-add").scrollTo({top:0,behavior:"smooth"});}
 });
 
 /* ---------- Copier un repas de la veille ---------- */
@@ -3124,7 +3314,7 @@ function renderProgAct(){
     lines.push(`<div class="li"><div class="nm">${esc(parse(d).toLocaleDateString("fr-FR",{weekday:"short",day:"numeric"}))}<small>${l.map(a=>esc(a.label)+(a.pas?" "+fmt(a.pas)+" pas":a.minutes?" "+a.minutes+" min":"")).join(", ")}</small></div><span class="mono sub">${fmt(k)} kcal</span></div>`)}
   $("#progAct").innerHTML=(m.aucune?"Aucune activité notée.":`Moyenne : <b>${fmt(m.avg)} kcal par jour</b> sur ${m.jours} jours (utilisée dans ton profil).`)+(lines.length?`<div class="card list" style="border:0;padding:0;margin-top:8px">${lines.join("")}</div>`:"");
 }
-$("#goAct").onclick=()=>{showTab("add");$("#actMore").open=true;setTimeout(()=>$("#actMore").scrollIntoView({block:"start"}),50)};
+$("#goAct").onclick=()=>{showTab("today");openPanel("activite")};
 $("#goPesee").onclick=()=>{$("#peseeCard").scrollIntoView({block:"start",behavior:"smooth"});setTimeout(()=>$("#mPoids").focus(),300)};
 
 /* ---------- Modifier un aliment déjà noté ----------
@@ -3199,7 +3389,8 @@ $("#edSave").onclick=()=>{
 /* ---------- Aide au premier passage : bulles sur l'accueil, une seule fois ---------- */
 const TOUR=[
   {sel:"#tiles",t:"Touche une tuile",p:"Elle ouvre le détail : tes repas, ton eau, des idées… « ‹ Accueil » pour revenir."},
-  {sel:"#homeAdd",t:"Ajoute ce que tu manges",p:"Cherche un aliment, choisis la quantité : les calories et protéines se calculent toutes seules. Au resto, utilise l'ajout rapide."},
+  {sel:"#homeAdd",t:"Ajoute ce que tu manges",p:"Touche la barre et cherche un aliment : calories et protéines se calculent toutes seules. « Rapide » pour noter des calories à la main, au resto par exemple."},
+  {sel:'.tabb[data-tab="repas"]',t:"Des idées de repas",p:"Selon l'heure et ce qu'il te reste à manger. Filtre par lieu (fait maison, resto, fast-food…) et par cuisine."},
   {sel:'.tabb[data-tab="profil"]',t:"Règle l'app à ton goût",p:"Dans Profil : ton niveau, ce que tu affiches, tes compléments et ta sauvegarde."}
 ];
 let tourSteps=null, tourI=0, tourFin=null;
@@ -3209,7 +3400,7 @@ function tourShow(){
   if(!el.closest(".tabbar"))el.scrollIntoView({block:"center"});
   requestAnimationFrame(()=>{
     const r=el.getBoundingClientRect(), pad=6, spot=$("#tourSpot"), bub=$("#tourBub"), arr=$("#tourArr");
-    Object.assign(spot.style,{left:r.left-pad+"px",top:r.top-pad+"px",width:r.width+pad*2+"px",height:r.height+pad*2+"px",borderRadius:el.closest(".tabbar")||el.id==="homeAdd"?"999px":"26px"});
+    Object.assign(spot.style,{left:r.left-pad+"px",top:r.top-pad+"px",width:r.width+pad*2+"px",height:r.height+pad*2+"px",borderRadius:el.closest(".tabbar")?"999px":el.id==="homeAdd"?"20px":"26px"});
     $("#tourT").textContent=st.t; $("#tourP").textContent=st.p;
     $("#tourN").textContent=tourSteps.length>1?`${tourI+1} / ${tourSteps.length}`:"";
     $("#tourNext").textContent=tourI<tourSteps.length-1?"Suivant":tourSteps.length>1?"C'est parti":"OK";

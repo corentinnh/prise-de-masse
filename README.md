@@ -6,7 +6,7 @@ Web app installable (PWA) pour suivre une prise de masse sèche au quotidien.
 
 ## Fonctions
 
-L'app est organisée en 4 onglets : **Accueil** (cercles calories / protéines, dépense du jour, et des tuiles Repas, Eau, Idées, Compléments, Glucides · lipides et Demain qui ouvrent chaque partie en plein écran), **Ajouter** (recherche, portions, récents, favoris, mes repas, copie de la veille, activité), **Progrès** (poids lissé, semaine, activité, mesures) et **Profil** (profil, planning sportif, objectifs, compléments, repas composés, sauvegarde).
+L'app est organisée en 4 onglets : **Accueil**, le bouton large de la barre (barre « Qu'as-tu mangé ? » et bouton « Rapide » qui ouvrent l'ajout par-dessus l'écran, puces d'ajout express, cercles calories / protéines, glucides et lipides dès le niveau Confirmé, dépense du jour qui ouvre l'activité, et des tuiles Mes repas, Eau, Idées, Compléments et Demain), **Repas** (idées de repas ou de collation selon l'heure, filtrées par lieu : fait maison, resto, fast-food, boulangerie, supermarché, et par cuisine), **Progrès** (poids lissé, semaine, activité, mesures) et **Profil** (profil, planning sportif, objectifs, compléments, repas composés, sauvegarde).
 
 - **Ajout rapide** : calories et protéines (glucides et lipides facultatifs) sans chercher l'aliment, pour le resto ou chez quelqu'un.
 - **Série** : nombre de jours d'affilée avec l'objectif de protéines atteint, et le record.
