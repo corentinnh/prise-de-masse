@@ -228,6 +228,45 @@ body.live .toast{bottom:calc(env(safe-area-inset-bottom,0px) + 146px)}
 .fnmsg{font-size:.88rem;background:var(--prot-soft);border-radius:14px;padding:10px 12px}
 .fnmsg b{font-family:var(--f-mono)}
 .lnk2.danger{color:var(--accent)}
+.spsprogs{display:flex;flex-direction:column;gap:6px}
+.spsprog{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:10px 12px;text-align:left;color:var(--ink)}
+.spsprog[aria-checked="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.spsprog b{font-size:.95rem}
+.spsprog small{color:var(--muted);font-size:.78rem}
+.blseg{display:flex;gap:2px;height:7px;border-radius:9px;overflow:hidden}
+.blseg i{display:block;height:100%;min-width:2px}
+.blseg i.past{opacity:.3}
+.blseg i.now{box-shadow:inset 0 0 0 2px var(--ink)}
+.bt-echauf,.bt-calme,.bt-lent,.bt-repos{background:color-mix(in srgb,var(--ink) 22%,transparent)}
+.bt-vite,.bt-effort,.bt-seuil{background:#ff8a5b}
+.bt-nage,.bt-tempo{background:var(--prot)}
+.spsbuild{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.bdrow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
+.bdrow select{flex:1;min-width:0}
+.bdrow input{width:74px;text-align:center;font-family:var(--f-mono)}
+.bdrow span{font-size:.8rem;color:var(--muted)}
+.spsrep{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}
+.spsrep input{width:58px;text-align:center;font-family:var(--f-mono);padding:7px 4px}
+.spsadd{display:flex;gap:6px;flex-wrap:wrap}
+.spsrounds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.spsrounds input{font-family:var(--f-mono);font-weight:600;text-align:center}
+.useg.spsmode{grid-template-columns:1fr 1fr}
+/* Séance par blocs */
+.blk{display:flex;flex-direction:column;gap:12px}
+.blk .blseg{height:9px}
+.blcur{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:14px 0 6px}
+.blcur .pill{background:#ff8a5b;color:#1c1735;font-weight:700;letter-spacing:.06em;font-size:.8rem;padding:6px 14px}
+.blcur .pill.calm{background:color-mix(in srgb,var(--ink) 12%,transparent);color:var(--ink)}
+.blcur b{font-family:var(--f-mono);font-size:4.6rem;line-height:1;font-weight:700}
+.blcur small{color:var(--muted)}
+.blnext{display:flex;flex-direction:column;gap:6px}
+.blnext div{display:flex;justify-content:space-between;padding:10px 14px;border-radius:14px;background:var(--surface);border:1px solid var(--line);font-size:.9rem}
+.blnext div b{font-family:var(--f-mono)}
+.bldone{text-align:center;font-weight:600;padding:10px;border-radius:14px;background:#e3f6ec;color:#1d6b45}
+.fndist label{display:flex;flex-direction:column;gap:5px}
+.fnd{display:flex;align-items:center;gap:8px}
+.fnd input{flex:1;font-family:var(--f-mono);font-weight:600;font-size:1.1rem}
+.fnd span{font-weight:600;color:var(--muted)}
 /* Calendrier du mois */
 .wkseg{margin:-2px 0 10px}
 .cal{display:flex;flex-direction:column;gap:10px}
@@ -1393,7 +1432,26 @@ h1.big{font-size:1.9rem;line-height:1.1}
     <i class="grip" aria-hidden="true"></i>
     <div class="edhead"><div><h2 id="spsTitle">Démarrer</h2><div class="hint" id="spsSub"></div></div><button type="button" class="edx" id="spsClose" aria-label="Fermer">×</button></div>
     <div class="rqchips spswrap" id="spsTypes" role="group" aria-label="Sport"></div>
-    <div class="eyebrow">Intensité</div>
+    <div id="spsEnd" hidden>
+      <div class="useg spsint" id="spsLvl" role="group" aria-label="Niveau"><button type="button" data-lv="0" aria-pressed="false">Débutant</button><button type="button" data-lv="1" aria-pressed="true">Régulier</button><button type="button" data-lv="2" aria-pressed="false">Confirmé</button></div>
+      <div class="eyebrow" style="margin-top:12px">Programme</div>
+      <div class="spsprogs" id="spsProgs" role="radiogroup" aria-label="Programme"></div>
+      <div class="spsbuild" id="spsBuild" hidden>
+        <div id="spsBlocs"></div>
+        <div class="spsrep"><span>Ajouter</span><input id="bdN" type="number" inputmode="numeric" min="1" max="30" value="4" aria-label="Nombre de répétitions"><span>×</span><input id="bdE" type="number" inputmode="decimal" min="0.25" step="0.25" value="3" aria-label="Minutes d'effort"><span>min vite /</span><input id="bdR" type="number" inputmode="decimal" min="0" step="0.25" value="2" aria-label="Minutes de récup"><span>min lent</span><button type="button" class="pill" id="bdRep">+</button></div>
+        <div class="spsadd"><button type="button" class="pill ghostpill" data-bdadd="echauf">+ Échauffement</button><button type="button" class="pill ghostpill" data-bdadd="effort">+ Effort</button><button type="button" class="pill ghostpill" data-bdadd="calme">+ Retour au calme</button></div>
+        <label>Nom (pour le garder dans tes programmes)<input id="bdNom" maxlength="40" placeholder="Ex. : Mon fractionné" autocomplete="off"></label>
+      </div>
+    </div>
+    <div id="spsRnd" hidden>
+      <div class="useg spsint spsmode" id="spsMode" role="group" aria-label="Façon de compter"><button type="button" data-md="chrono" aria-pressed="true">Simple chrono</button><button type="button" data-md="rounds" aria-pressed="false">Rounds</button></div>
+      <div class="spsrounds" id="spsRounds" hidden>
+        <label>Rounds<input id="rdN" type="number" inputmode="numeric" min="1" max="30" value="6"></label>
+        <label>Effort (min)<input id="rdE" type="number" inputmode="decimal" min="0.25" step="0.25" value="3"></label>
+        <label>Repos (min)<input id="rdR" type="number" inputmode="decimal" min="0" step="0.25" value="1"></label>
+      </div>
+    </div>
+    <div class="eyebrow" id="spsIntL">Intensité</div>
     <div class="useg spsint" id="spsInt" role="group" aria-label="Intensité"><button type="button" data-si="0" aria-pressed="false">Légère</button><button type="button" data-si="1" aria-pressed="true">Moyenne</button><button type="button" data-si="2" aria-pressed="false">Intense</button></div>
     <div class="hint" id="spsKcal"></div>
     <button type="button" class="add big grad" id="spsGo">Démarrer le chrono</button>
@@ -1408,6 +1466,7 @@ h1.big{font-size:1.9rem;line-height:1.1}
     <div class="eyebrow">C'était comment ?</div>
     <div class="useg fnfeel" id="fnFeel" role="group" aria-label="Ressenti"><button type="button" data-fe="0" aria-pressed="false">Facile</button><button type="button" data-fe="1" aria-pressed="true">Normal</button><button type="button" data-fe="2" aria-pressed="false">Dur</button><button type="button" data-fe="3" aria-pressed="false">Très dur</button></div>
     <div class="fnmsg" id="fnMsg"></div>
+    <div class="fndist" id="fnDistBox" hidden><label>Distance<span class="fnd"><input id="fnDist" type="text" inputmode="decimal" placeholder="0" aria-label="Distance"><span id="fnDistU">km</span></span></label><div class="hint" id="fnAllure"></div></div>
     <label class="chk" id="fnProgL"><input type="checkbox" id="fnProg"> <span>Enregistrer aussi comme programme</span></label>
     <label id="fnProgNomL" hidden>Nom du programme<input id="fnProgNom" maxlength="40" autocomplete="off"></label>
     <button type="button" class="add big grad" id="fnSave">Enregistrer la séance</button>
@@ -4244,8 +4303,75 @@ function seRun(){return S.seanceEnCours&&S.seanceEnCours.debut?S.seanceEnCours:n
 function seMs(se){const now=se.pauseDepuis||Date.now();return Math.max(0,now-se.debut-(se.pauseTotal||0))}
 const chrono=ms=>{const t=Math.floor(ms/1000),h=Math.floor(t/3600),m=Math.floor(t%3600/60),sx=t%60;return(h?h+":"+String(m).padStart(2,"0"):m)+":"+String(sx).padStart(2,"0")};
 function sePoids(){const w=dernierPoids(TODAY);return w?+w.poids:0}
-function seKcal(se,ms,inten){const a=ACTS.find(x=>x[0]===se.type),kg=sePoids();if(!a||!a[2]||!kg)return 0;const i=inten==null?(se.intensite==null?1:+se.intensite):inten;return(a[2][i]-1)*kg*ms/3600000}
+function seKcal(se,ms,inten){if(se.blocs&&se.blocs.length&&inten==null)return blKcalSec(se,ms);const a=ACTS.find(x=>x[0]===se.type),kg=sePoids();if(!a||!a[2]||!kg)return 0;const i=inten==null?(se.intensite==null?1:+se.intensite):inten;return(a[2][i]-1)*kg*ms/3600000}
 function seVolume(se){let v=0;for(const x of se.exos||[])for(const st of x.series||[])if(st.ok)v+=numF(st.kg)*numF(st.reps);return Math.round(v)}
+
+/* ---------- Programmes d'endurance et rounds ----------
+   Un programme = une suite de blocs {t:type, s:secondes}. Le bloc en cours se déduit du temps écoulé (hors pauses). */
+const BL_LAB={echauf:"Échauffement",vite:"Vite",lent:"Lent",seuil:"Allure soutenue",tempo:"Allure régulière",calme:"Retour au calme",effort:"Effort",repos:"Repos",nage:"Nage"};
+const BL_INT={echauf:0,lent:0,calme:0,repos:-1,vite:2,seuil:2,effort:null,tempo:1,nage:1};
+const bl=(t,min)=>({t,s:Math.round(min*60)});
+const rep2=(n,a,b)=>{const o=[];for(let i=0;i<n;i++){o.push(a);if(b&&b.s&&i<n-1)o.push(b)}return o};
+const ENDU_PROGS={
+ course:[
+  [0,"Course-marche 25 min","Alterner course lente et marche",[bl("echauf",5),...rep2(6,bl("tempo",1.5),bl("lent",1.5)),bl("calme",3)]],
+  [0,"Footing doux 20 min","Tranquille, tu peux parler",[bl("tempo",20)]],
+  [1,"Footing 40 min","Endurance de base",[bl("tempo",40)]],
+  [1,"Fractionné 6 × 1 min","Vitesse",[bl("echauf",10),...rep2(6,bl("vite",1),bl("lent",1)),bl("calme",10)]],
+  [1,"Sortie longue 60 min","Fond, à allure facile",[bl("tempo",60)]],
+  [2,"Fractionné 10 × 1:30","Vitesse",[bl("echauf",15),...rep2(10,bl("vite",1.5),bl("lent",1)),bl("calme",10)]],
+  [2,"Seuil 3 × 8 min","Allure soutenue",[bl("echauf",15),...rep2(3,bl("seuil",8),bl("lent",2)),bl("calme",10)]],
+  [2,"Côtes 10 × 30 s","Puissance",[bl("echauf",15),...rep2(10,bl("vite",.5),bl("lent",1.5)),bl("calme",10)]]],
+ velo:[
+  [0,"Balade 30 min","Tranquille",[bl("tempo",30)]],
+  [1,"Sortie 60 min","Endurance",[bl("tempo",60)]],
+  [1,"Intervalles 5 × 3 min","Puissance",[bl("echauf",10),...rep2(5,bl("vite",3),bl("lent",3)),bl("calme",8)]],
+  [2,"Pyramide 1-2-3-2-1","Home-trainer",[bl("echauf",10),bl("vite",1),bl("lent",1),bl("vite",2),bl("lent",2),bl("vite",3),bl("lent",2),bl("vite",2),bl("lent",1),bl("vite",1),bl("calme",8)]],
+  [2,"Sortie longue 2 h","Fond",[bl("tempo",120)]]],
+ natation:[
+  [0,"Découverte 20 min","Nage et pauses",[bl("echauf",4),...rep2(6,bl("nage",1.5),bl("repos",1)),bl("calme",3)]],
+  [1,"Technique 30 min","Séries courtes",[bl("echauf",5),...rep2(8,bl("nage",2),bl("repos",.5)),bl("calme",5)]],
+  [1,"Endurance 40 min","Nage continue",[bl("echauf",5),bl("nage",30),bl("calme",5)]],
+  [2,"Fractionné 10 × 1 min","Vitesse",[bl("echauf",8),...rep2(10,bl("vite",1),bl("repos",.5)),bl("calme",6)]]]
+};
+const ENDU_TYPES=["course","velo","natation"];
+const blTot=l=>l.reduce((a,b)=>a+b.s,0);
+const blSeg=(l,cur)=>`<div class="blseg" aria-hidden="true">${l.map((b,k)=>`<i class="bt-${b.t}${cur!=null&&k<cur?" past":k===cur?" now":""}" style="flex:${Math.max(1,b.s)}"></i>`).join("")}</div>`;
+const minTxt=sec=>{const m=sec/60;return m>=1?`${String(Math.round(m*10)/10).replace(".",",")} min`:`${sec} s`};
+function metFor(type,i){const a=ACTS.find(x=>x[0]===type);if(!a||!a[2])return 0;return i===-1?1.8:a[2][Math.max(0,Math.min(2,i))]}
+function blKcalSec(se,ms){
+  const kg=sePoids(); if(!kg)return 0;
+  let rest=ms/1000, k=0;
+  for(const b of se.blocs){if(rest<=0)break;const d=Math.min(b.s,rest),i=BL_INT[b.t]==null?+se.intensite:BL_INT[b.t];k+=(metFor(se.type,i)-1)*kg*d/3600;rest-=d}
+  if(rest>0)k+=(metFor(se.type,+se.intensite)-1)*kg*rest/3600;
+  return k;
+}
+function blEtat(se,ms){
+  let t=ms/1000;
+  for(let i=0;i<se.blocs.length;i++){const b=se.blocs[i];if(t<b.s)return{i,reste:b.s-t,b};t-=b.s}
+  return{i:se.blocs.length,reste:0,b:null};
+}
+function blNom(se,i){
+  const b=se.blocs[i]; if(!b)return"";
+  if(se.rounds&&b.t==="effort"){const n=se.blocs.slice(0,i+1).filter(x=>x.t==="effort").length,tot=se.blocs.filter(x=>x.t==="effort").length;return`Round ${n} sur ${tot}`}
+  const same=se.blocs.filter(x=>x.t===b.t).length;
+  if(same>1&&(b.t==="vite"||b.t==="nage"||b.t==="seuil")){const n=se.blocs.slice(0,i+1).filter(x=>x.t===b.t).length;return`${BL_LAB[b.t]} · ${n} sur ${same}`}
+  return BL_LAB[b.t]||b.t;
+}
+let blAudio=null, blLast=-1;
+function blBip(){try{if(!blAudio)return;const o=blAudio.createOscillator(),g=blAudio.createGain();o.frequency.value=880;g.gain.value=.12;o.connect(g);g.connect(blAudio.destination);o.start();o.stop(blAudio.currentTime+.18)}catch(e){}}
+function blUnlock(){try{const C=window.AudioContext||window.webkitAudioContext;if(C&&!blAudio)blAudio=new C();if(blAudio&&blAudio.state==="suspended")blAudio.resume()}catch(e){}}
+function renderBlocs(se){
+  const ms=seMs(se), e=blEtat(se,ms), fin=!e.b;
+  const calm=e.b&&(BL_INT[e.b.t]===0||BL_INT[e.b.t]===-1);
+  const suiv=se.blocs.slice(e.i+1,e.i+3).map((b,k)=>`<div><span>${k?"Puis":"Ensuite"} : ${esc(blNom(se,e.i+1+k).toLowerCase())}</span><b>${chrono(b.s*1000)}</b></div>`).join("");
+  return`<div class="blk">${blSeg(se.blocs,e.i)}
+    <div class="hint" style="display:flex;justify-content:space-between"><span>${fin?"Programme terminé":`Bloc ${e.i+1} sur ${se.blocs.length}`}</span><span class="mono">${chrono(Math.min(ms,blTot(se.blocs)*1000))} / ${chrono(blTot(se.blocs)*1000)}</span></div>
+    ${fin?`<div class="bldone">Programme terminé ✓ Continue ou touche « Terminer ».</div>`:`<div class="blcur"><span class="pill${calm?" calm":""}">${esc(blNom(se,e.i).toUpperCase())}</span><b id="blT">${chrono(Math.ceil(e.reste)*1000)}</b><small>reste sur ce bloc</small></div>`}
+    <div class="blnext">${suiv}</div>
+    ${se.rounds?`<div class="eyebrow">Intensité des rounds</div><div class="useg spsint" role="group" aria-label="Intensité">${["Légère","Moyenne","Intense"].map((l,i)=>`<button type="button" data-gi="${i}" aria-pressed="${+se.intensite===i}">${l}</button>`).join("")}</div>`:""}
+    <button type="button" class="sepause" id="sePause">${se.pauseDepuis?"Reprendre":"Pause"}</button></div>`;
+}
 function startSeance(o){
   if(seRun()){openSeance();toast("Une séance est déjà en cours");return}
   S.seanceEnCours=Object.assign({id:"s"+Date.now().toString(36),debut:Date.now(),pauseTotal:0,pauseDepuis:null,repos:null,reposDef:90,intensite:1,exos:[]},o);
@@ -4265,10 +4391,12 @@ function seTick(){
     $("#seChrono").textContent=chrono(ms); $("#seChronoSub").textContent=se.pauseDepuis?"en pause":"durée";
     $("#seKcal").textContent=kg?`≈ ${fmt(k)} kcal`:"—"; $("#seKcalSub").textContent=kg?`avec ton poids (${n1(kg)} kg)`:"ajoute une pesée pour la dépense";
     if(reste!=null){const b=$("#seRestT");if(b)b.textContent=chrono(reste*1000)}
-  }
+    if(se.blocs&&se.blocs.length){const e=blEtat(se,ms);if(e.i!==blLast){if(blLast>=0&&!se.pauseDepuis){blBip();if(navigator.vibrate)navigator.vibrate([160,90,160])}renderSeance()}else{const t=$("#blT");if(t)t.textContent=chrono(Math.ceil(e.reste)*1000)}}
+  }else if(se.blocs&&se.blocs.length){const e=blEtat(se,ms);if(e.i!==blLast){if(blLast>=0&&!se.pauseDepuis){blBip();if(navigator.vibrate)navigator.vibrate([160,90,160])}blLast=e.i}}
   bar.hidden=!$("#seance").hidden;
   if(!bar.hidden){
-    const sub=se.pauseDepuis?"En pause":reste!=null?`Repos ${chrono(reste*1000)}`:se.type==="muscu"?`${(se.exos||[]).reduce((a,x)=>a+(x.series||[]).filter(st=>st.ok).length,0)} séries faites`:"en cours";
+    const be=se.blocs&&se.blocs.length?blEtat(se,ms):null;
+    const sub=se.pauseDepuis?"En pause":reste!=null?`Repos ${chrono(reste*1000)}`:be?(be.b?`${blNom(se,be.i)} · ${chrono(Math.ceil(be.reste)*1000)}`:"programme terminé"):se.type==="muscu"?`${(se.exos||[]).reduce((a,x)=>a+(x.series||[]).filter(st=>st.ok).length,0)} séries faites`:"en cours";
     const html=`<span class="dot" aria-hidden="true"></span><span class="t"><b>${esc(se.titre)}</b><small>${sub}</small></span><span class="c">${chrono(ms)}</span>${kg?`<span class="k">${fmt(k)} kcal</span>`:""}`;
     if(bar.innerHTML!==html)bar.innerHTML=html;
     bar.setAttribute("aria-label",`${se.titre} en cours, ${chrono(ms)}${kg?", environ "+fmt(k)+" kcal":""}. Rouvrir la séance`);
@@ -4294,6 +4422,8 @@ function renderSeance(){
       ${(x.series||[]).map((st,j)=>`<div class="setr${st.ok?" done":""}"><span class="ix">${j+1}</span><input type="text" inputmode="decimal" data-sk="${i}.${j}" value="${esc(String(st.kg??""))}" placeholder="kg" aria-label="${esc(x.nom)}, série ${j+1}, charge en kg"><input type="text" inputmode="numeric" data-sr="${i}.${j}" value="${esc(String(st.reps??""))}" placeholder="répét." aria-label="${esc(x.nom)}, série ${j+1}, répétitions"><button type="button" class="sck" data-so="${i}.${j}" aria-pressed="${!!st.ok}" aria-label="Série ${j+1} ${st.ok?"faite":"à faire"}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></button></div>`).join("")}
       <div class="exf"><span><button type="button" class="lnk" data-sadd="${i}">+ Série</button>${(x.series||[]).length>1?` · <button type="button" class="lnk" data-sdel="${i}">− Série</button>`:""} · <button type="button" class="lnk" data-xdel="${i}">Retirer</button></span>${pr?`<span class="newpr">Nouveau record : ${kgTxt(mx)} kg</span>`:""}</div></div>`;
     }).join("")+`<button type="button" class="seadd" id="seAddEx">+ Ajouter un exercice</button><button type="button" class="sepause" id="sePause">${se.pauseDepuis?"Reprendre":"Pause"}</button>`;
+  }else if(se.blocs&&se.blocs.length){
+    blLast=blEtat(se,seMs(se)).i; b.innerHTML=renderBlocs(se);
   }else{
     const a=ACTS.find(x=>x[0]===se.type);
     b.innerHTML=`<div class="segen"><div class="big">${esc(a?a[1].replace(/ \(.*\)$/,""):se.titre)} : le chrono tourne.</div>
@@ -4363,38 +4493,91 @@ $("#exGo").onclick=()=>{
 $("#exClose").onclick=()=>{$("#exSheet").hidden=true};
 $("#exSheet").addEventListener("click",e=>{if(e.target.id==="exSheet")$("#exSheet").hidden=true});
 /* Autres sports : chrono simple avec intensité */
-let spsTile=null, spsType=null, spsInt=1;
+let spsTile=null, spsType=null, spsInt=1, spsLvl=1, spsProg="chrono", spsMode="chrono", bdBlocs=[];
 function openSps(k){
-  const t=S_TUILES.find(x=>x[0]===k); if(!t)return; spsTile=t; spsType=t[2]; spsInt=1;
+  const t=S_TUILES.find(x=>x[0]===k); if(!t)return; spsTile=t; spsType=t[2]; spsInt=1; spsProg="chrono"; spsMode="chrono"; bdBlocs=[bl("echauf",10),...rep2(4,bl("vite",3),bl("lent",2)),bl("calme",5)]; $("#bdNom").value="";
   $("#spsTitle").textContent=t[1]; renderSps(); $("#spSheet").hidden=false;
+}
+function spsBlocs(){
+  if(ENDU_TYPES.includes(spsType)){if(spsProg==="chrono")return null;if(spsProg==="perso")return bdBlocs.filter(b=>b.s>0);
+    if(spsProg.startsWith("g")){const p=ent().programmes.find(x=>x.id===spsProg);return p?p.blocs:null}
+    const p=(ENDU_PROGS[spsType]||[])[+spsProg];return p?p[3]:null}
+  if(spsMode==="rounds"){const n=Math.max(1,Math.min(30,Math.round(+$("#rdN").value||1))),e=Math.max(15,Math.round((+$("#rdE").value||0)*60)),r=Math.max(0,Math.round((+$("#rdR").value||0)*60));return rep2(n,{t:"effort",s:e},{t:"repos",s:r})}
+  return null;
+}
+function renderBd(){
+  $("#spsBlocs").innerHTML=bdBlocs.map((b,i)=>`<div class="bdrow"><select data-bdt="${i}" aria-label="Type du bloc ${i+1}">${["echauf","vite","lent","tempo","seuil","calme"].map(t=>`<option value="${t}"${t===b.t?" selected":""}>${BL_LAB[t]}</option>`).join("")}</select><input type="number" inputmode="decimal" min="0.25" step="0.25" data-bdm="${i}" value="${Math.round(b.s/15)/4}" aria-label="Durée du bloc ${i+1} en minutes"><span>min</span><button type="button" class="x" data-bdx="${i}" aria-label="Retirer le bloc ${i+1}">×</button></div>`).join("")
+    +`<div class="hint">${blSeg(bdBlocs)}<span style="display:block;margin-top:6px">${bdBlocs.length} bloc${bdBlocs.length>1?"s":""} · ${minTxt(blTot(bdBlocs))}</span></div>`;
 }
 function renderSps(){
   const t=spsTile, types=t[3]||[t[2]];
   $("#spsTypes").innerHTML=types.length>1?types.map(ty=>`<button type="button" class="rqc" data-st="${ty}" aria-pressed="${ty===spsType}">${esc(actNom(ty))}</button>`).join(""):"";
   $("#spsTypes").hidden=types.length<2;
+  const endu=ENDU_TYPES.includes(spsType); $("#spsEnd").hidden=!endu; $("#spsRnd").hidden=endu;
+  if(endu){
+    document.querySelectorAll("#spsLvl [data-lv]").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.lv===spsLvl)));
+    const mine=ent().programmes.filter(p=>p.type===spsType&&p.blocs);
+    const opts=[["chrono","Juste le chrono","Tu arrêtes quand tu veux",null],...mine.map(p=>[p.id,p.nom,"Mon programme · "+minTxt(blTot(p.blocs)),p.blocs]),
+      ...(ENDU_PROGS[spsType]||[]).map((p,i)=>[String(i),p[1],`${p[2]} · ${minTxt(blTot(p[3]))}`,p[3],p[0]]).filter(o=>o[4]===spsLvl),["perso","Mon programme","Tu enchaînes tes blocs",null]];
+    if(!opts.some(o=>o[0]===spsProg))spsProg="chrono";
+    $("#spsProgs").innerHTML=opts.map(([k,n,d,l])=>`<button type="button" class="spsprog" role="radio" data-pr="${k}" aria-checked="${k===spsProg}"><span><b>${esc(n)}</b><small> · ${esc(d)}</small></span>${l?blSeg(l):""}</button>`).join("");
+    $("#spsBuild").hidden=spsProg!=="perso"; if(spsProg==="perso")renderBd();
+  }else{
+    document.querySelectorAll("#spsMode [data-md]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.md===spsMode)));
+    $("#spsRounds").hidden=spsMode!=="rounds";
+  }
+  const blx=spsBlocs(); $("#spsInt").hidden=!!blx&&endu; $("#spsIntL").hidden=!!blx&&endu;
+  $("#spsIntL").textContent=spsMode==="rounds"&&!endu?"Intensité des rounds":"Intensité";
   document.querySelectorAll("#spsInt [data-si]").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.si===spsInt)));
   const a=ACTS.find(x=>x[0]===spsType), kg=sePoids();
   $("#spsSub").textContent=actNom(spsType);
-  $("#spsKcal").innerHTML=a&&a[2]&&kg?`≈ <b class="mono">${fmt((a[2][spsInt]-1)*kg)} kcal</b> par heure pour ${n1(kg)} kg. Le chrono démarre, tu arrêtes quand tu as fini.`:"Ajoute une pesée (Progrès) pour que l'app calcule ta dépense.";
+  if(!(a&&a[2]&&kg)){$("#spsKcal").innerHTML="Ajoute une pesée (Progrès) pour que l'app calcule ta dépense.";}
+  else if(blx&&blx.length){const fake={type:spsType,intensite:spsInt,blocs:blx,rounds:spsMode==="rounds"};$("#spsKcal").innerHTML=`${minTxt(blTot(blx))} · ≈ <b class="mono">${fmt(blKcalSec(fake,blTot(blx)*1000))} kcal</b> pour ${n1(kg)} kg. Un bip et une vibration (Android) à chaque changement de bloc, si le son est activé.`}
+  else $("#spsKcal").innerHTML=`≈ <b class="mono">${fmt((a[2][spsInt]-1)*kg)} kcal</b> par heure pour ${n1(kg)} kg. Le chrono démarre, tu arrêtes quand tu as fini.`;
+  $("#spsGo").textContent=blx&&blx.length?"Démarrer le programme":"Démarrer le chrono";
 }
 $("#spsTypes").addEventListener("click",e=>{const b=e.target.closest("[data-st]");if(!b)return;spsType=b.dataset.st;renderSps()});
 $("#spsInt").addEventListener("click",e=>{const b=e.target.closest("[data-si]");if(!b)return;spsInt=+b.dataset.si;renderSps()});
-$("#spsGo").onclick=()=>{$("#spSheet").hidden=true;startSeance({type:spsType,titre:actNom(spsType),intensite:spsInt})};
+$("#spsLvl").addEventListener("click",e=>{const b=e.target.closest("[data-lv]");if(!b)return;spsLvl=+b.dataset.lv;renderSps()});
+$("#spsProgs").addEventListener("click",e=>{const b=e.target.closest("[data-pr]");if(!b)return;spsProg=b.dataset.pr;renderSps()});
+$("#spsMode").addEventListener("click",e=>{const b=e.target.closest("[data-md]");if(!b)return;spsMode=b.dataset.md;renderSps()});
+for(const id of["#rdN","#rdE","#rdR"])$(id).addEventListener("input",renderSps);
+$("#spsBlocs").addEventListener("change",e=>{const t=e.target.closest("[data-bdt]"),m=e.target.closest("[data-bdm]");if(t)bdBlocs[+t.dataset.bdt].t=t.value;if(m)bdBlocs[+m.dataset.bdm].s=Math.max(15,Math.round((+m.value||0)*60));renderSps()});
+$("#spsBlocs").addEventListener("click",e=>{const x=e.target.closest("[data-bdx]");if(!x)return;bdBlocs.splice(+x.dataset.bdx,1);renderSps()});
+$("#bdRep").onclick=()=>{const n=Math.max(1,Math.min(30,Math.round(+$("#bdN").value||1))),ef=Math.max(15,Math.round((+$("#bdE").value||0)*60)),r=Math.max(0,Math.round((+$("#bdR").value||0)*60));const i=bdBlocs.findIndex(b=>b.t==="calme");bdBlocs.splice(i<0?bdBlocs.length:i,0,...rep2(n,{t:"vite",s:ef},{t:"lent",s:r}));renderSps()};
+document.querySelector(".spsadd").addEventListener("click",e=>{const b=e.target.closest("[data-bdadd]");if(!b)return;const t=b.dataset.bdadd==="effort"?"tempo":b.dataset.bdadd;bdBlocs.push(bl(t,t==="tempo"?10:5));renderSps()});
+$("#spsGo").onclick=()=>{
+  const blx=spsBlocs(), endu=ENDU_TYPES.includes(spsType); let titre=actNom(spsType), garde=null;
+  if(blx&&blx.length){
+    if(endu){if(spsProg==="perso"){const nom=$("#bdNom").value.trim();titre=nom||`${actNom(spsType)} · mon programme`;if(nom){const pr=ent().programmes,ex=pr.find(p=>p.type===spsType&&norm(p.nom)===norm(nom));const data={nom,type:spsType,blocs:blx.map(b=>({t:b.t,s:b.s}))};if(ex)Object.assign(ex,data);else pr.push(Object.assign({id:"g"+Date.now().toString(36)},data));garde=nom}}
+      else if(spsProg.startsWith("g")){const p=ent().programmes.find(x=>x.id===spsProg);titre=p?p.nom:titre}else titre=`${actNom(spsType)} · ${(ENDU_PROGS[spsType][+spsProg]||[])[1]||""}`}
+    else titre=`${actNom(spsType)} · ${blx.filter(b=>b.t==="effort").length} rounds`;
+  }
+  blUnlock(); $("#spSheet").hidden=true;
+  startSeance(Object.assign({type:spsType,titre,intensite:spsInt},blx&&blx.length?{blocs:blx.map(b=>({t:b.t,s:b.s})),rounds:!endu}:{}));
+  if(garde)toast(`« ${garde} » gardé dans tes programmes`);
+};
 $("#spsClose").onclick=()=>{$("#spSheet").hidden=true};
 $("#spSheet").addEventListener("click",e=>{if(e.target.id==="spSheet")$("#spSheet").hidden=true});
 /* Fin de séance */
 let fnFeel=1;
 const FEEL_INT=[0,1,2,2];
 function fnInt(se){return se.type==="muscu"?FEEL_INT[fnFeel]:Math.min(2,Math.max(0,+se.intensite+(fnFeel===0?-1:fnFeel===3?1:0)))}
+const FEEL_F=[.9,1,1.1,1.2];
+function fnKcal(se,ms){return se.blocs&&se.blocs.length?blKcalSec(se,ms)*FEEL_F[fnFeel]:seKcal(se,ms,fnInt(se))}
+function fnDistKm(se){const v=numF($("#fnDist").value);return v?(se.type==="natation"?v/1000:v):0}
+function allureTxt(se,ms,km){if(!km)return"";const min=ms/60000;if(se.type==="velo")return`${String(Math.round(km/(min/60)*10)/10).replace(".",",")} km/h de moyenne`;if(se.type==="natation"){const p=min/(km*10);return`${Math.floor(p)}:${String(Math.round(p%1*60)).padStart(2,"0")} aux 100 m`}const p=min/km;return`${Math.floor(p)}:${String(Math.round(p%1*60)).padStart(2,"0")} min/km`}
+$("#fnDist").addEventListener("input",()=>{const se=seRun();if(!se)return;const km=fnDistKm(se);$("#fnAllure").textContent=km?"Allure : "+allureTxt(se,seMs(se),km):"Facultatif : l'app calcule ton allure."});
 function openFin(){
   const se=seRun(); if(!se)return; fnFeel=1;
   $("#fnProg").checked=false; $("#fnProgNomL").hidden=true; $("#fnProgNom").value=se.titre&&se.titre!=="Muscu"?se.titre:"";
   $("#fnProgL").hidden=se.type!=="muscu"||!(se.exos||[]).length;
+  const dist=ENDU_TYPES.includes(se.type); $("#fnDistBox").hidden=!dist; $("#fnDist").value=""; $("#fnDistU").textContent=se.type==="natation"?"m":"km"; $("#fnAllure").textContent=dist?"Facultatif : l'app calcule ton allure.":"";
   renderFin(); $("#finSheet").hidden=false;
 }
 function renderFin(){
   const se=seRun(); if(!se)return;
-  const ms=seMs(se), k=Math.round(seKcal(se,ms,fnInt(se))), min=Math.max(1,Math.round(ms/60000)), kg=sePoids();
+  const ms=seMs(se), k=Math.round(fnKcal(se,ms)), min=Math.max(1,Math.round(ms/60000)), kg=sePoids();
   const pr=(se.exos||[]).filter(x=>{const b=exoBest(x.id,se.id);return b>0&&(x.series||[]).some(st=>st.ok&&numF(st.kg)>b)}).length;
   document.querySelectorAll("#fnFeel [data-fe]").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.fe===fnFeel)));
   $("#fnSub").textContent=`${se.titre} · ${parse(TODAY).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"})}`;
@@ -4413,12 +4596,12 @@ function finSeance(garder){
   const se=seRun(); if(!se)return;
   snapshot();
   if(garder){
-    const ms=seMs(se), inten=fnInt(se), k=Math.round(seKcal(se,ms,inten)), min=Math.max(1,Math.round(ms/60000)), date=ds(new Date(se.debut));
+    const ms=seMs(se), inten=fnInt(se), k=Math.round(fnKcal(se,ms)), min=Math.max(1,Math.round(ms/60000)), date=ds(new Date(se.debut)), km=fnDistKm(se);
     const exos=(se.exos||[]).map(x=>({id:x.id,nom:x.nom,series:(x.series||[]).filter(st=>st.ok).map(st=>({kg:numF(st.kg),reps:numF(st.reps)}))})).filter(x=>x.series.length);
-    ent().seances.push({id:se.id,date,type:se.type,titre:se.titre,debut:se.debut,minutes:min,kcal:k,intensite:inten,ressenti:fnFeel,exos});
+    ent().seances.push(Object.assign({id:se.id,date,type:se.type,titre:se.titre,debut:se.debut,minutes:min,kcal:k,intensite:inten,ressenti:fnFeel,exos},km?{km:Math.round(km*1000)/1000}:{},se.blocs?{blocs:se.blocs.length}:{}));
     if(ent().seances.length>400)ent().seances.splice(0,ent().seances.length-400);
     const a=ACTS.find(x=>x[0]===se.type), l=(S.activites[date]||[]).slice();
-    l.push({type:se.type,label:se.type==="muscu"?`Muscu · ${se.titre}`.replace("Muscu · Muscu","Musculation"):(a?a[1].replace(/ \(.*\)$/,""):se.titre),intensite:inten,minutes:min,kcal:k,seance:se.id});
+    l.push({type:se.type,label:se.type==="muscu"?`Muscu · ${se.titre}`.replace("Muscu · Muscu","Musculation"):(se.titre||(a?a[1].replace(/ \(.*\)$/,""):""))+(km?` · ${se.type==="natation"?fmt(km*1000)+" m":String(Math.round(km*10)/10).replace(".",",")+" km"}`:""),intensite:inten,minutes:min,kcal:k,seance:se.id});
     S.activites[date]=l;
     if(se.type==="muscu"&&$("#fnProg").checked){const nom=$("#fnProgNom").value.trim()||se.titre;const pr=ent().programmes;const ex=pr.find(p=>norm(p.nom)===norm(nom));const data={nom,type:"muscu",exos:(se.exos||[]).map(x=>({id:x.id,nom:x.nom,n:Math.max(1,(x.series||[]).length)}))};if(ex)Object.assign(ex,data);else pr.push(Object.assign({id:"g"+Date.now().toString(36)},data))}
   }
@@ -4437,7 +4620,7 @@ function renderSportTab(){
   $("#sGrid").innerHTML=S_TUILES.map(t=>`<button type="button" data-tu="${t[0]}"${t[0]==="muscu"?' class="mu"':""}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${t[4]}</svg>${t[1]}</button>`).join("");
   $("#sPoids").hidden=!!kg; $("#sPoids").textContent="Ajoute une pesée dans Progrès : la dépense de tes séances se calcule avec ton poids.";
   $("#sProgBox").hidden=!e.programmes.length;
-  $("#sProgs").innerHTML=e.programmes.map((p,i)=>`<div class="li"><div class="nm">${esc(p.nom)}<small>Muscu · ${p.exos.length} exercice${p.exos.length>1?"s":""} · ${p.exos.slice(0,3).map(x=>esc(x.nom)).join(", ")}${p.exos.length>3?"…":""}</small></div><button type="button" class="x" data-pgd="${i}" aria-label="Supprimer le programme ${esc(p.nom)}">×</button><button type="button" class="splay" data-pg="${i}" aria-label="Lancer ${esc(p.nom)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8Z"/></svg></button></div>`).join("");
+  $("#sProgs").innerHTML=e.programmes.map((p,i)=>`<div class="li"><div class="nm">${esc(p.nom)}<small>${p.blocs?`${esc(actNom(p.type))} · ${minTxt(blTot(p.blocs))} · ${p.blocs.length} blocs`:`Muscu · ${(p.exos||[]).length} exercice${(p.exos||[]).length>1?"s":""} · ${(p.exos||[]).slice(0,3).map(x=>esc(x.nom)).join(", ")}${(p.exos||[]).length>3?"…":""}`}</small></div><button type="button" class="x" data-pgd="${i}" aria-label="Supprimer le programme ${esc(p.nom)}">×</button><button type="button" class="splay" data-pg="${i}" aria-label="Lancer ${esc(p.nom)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8Z"/></svg></button></div>`).join("");
   const ids=[...new Set(e.seances.slice().reverse().flatMap(x=>(x.exos||[]).map(y=>y.id)))].slice(0,8);
   $("#sExoBox").hidden=!ids.length;
   $("#sExos").innerHTML=ids.map(id=>{const h=exoHisto(id), last=h[0], st=last&&last.series.reduce((a,b)=>numF(b.kg)>numF(a.kg)?b:a,last.series[0]), b=exoBest(id), info=exoInfo(id);
@@ -4445,13 +4628,13 @@ function renderSportTab(){
     let spark=""; if(pts.length>1){const mn=Math.min(...pts),mx=Math.max(...pts),r=mx-mn||1;spark=`<svg width="64" height="28" viewBox="0 0 64 28" aria-hidden="true"><polyline points="${pts.map((v,i)=>`${2+i*60/(pts.length-1)},${24-(v-mn)/r*20}`).join(" ")}" fill="none" stroke="var(--prot)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
     return`<div class="li"><div class="nm">${esc(info?info.nom:id)}${b&&st&&numF(st.kg)>=b?'<span class="prbadge">record</span>':""}<small class="mono">${st?`${last.series.length} × ${st.reps||"?"}${numF(st.kg)?" à "+kgTxt(numF(st.kg))+" kg":""}`:""}${b?` · record ${kgTxt(b)} kg`:""}</small></div>${spark}</div>`}).join("");
   const hist=e.seances.slice(-6).reverse();
-  $("#sHist").innerHTML=hist.length?hist.map(x=>`<div class="li"><div class="nm">${esc(x.type==="muscu"?"Muscu · "+x.titre:x.titre).replace("Muscu · Muscu","Muscu")}<small>${parse(x.date).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"short"})} · ${x.minutes} min${x.exos&&x.exos.length?` · ${x.exos.length} exercice${x.exos.length>1?"s":""}`:""}</small></div><span class="sk">${fmt(x.kcal)} kcal</span></div>`).join("")
+  $("#sHist").innerHTML=hist.length?hist.map(x=>`<div class="li"><div class="nm">${esc(x.type==="muscu"?"Muscu · "+x.titre:x.titre).replace("Muscu · Muscu","Muscu")}<small>${parse(x.date).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"short"})} · ${x.minutes} min${x.exos&&x.exos.length?` · ${x.exos.length} exercice${x.exos.length>1?"s":""}`:""}${x.km?` · ${x.type==="natation"?fmt(x.km*1000)+" m":String(Math.round(x.km*10)/10).replace(".",",")+" km"}`:""}</small></div><span class="sk">${fmt(x.kcal)} kcal</span></div>`).join("")
     :'<div class="li"><div class="hint">Tes séances apparaîtront ici.</div></div>';
 }
 $("#sGrid").addEventListener("click",e=>{const b=e.target.closest("[data-tu]");if(!b)return;if(seRun()){openSeance();return}if(b.dataset.tu==="muscu")openExPicker("new");else openSps(b.dataset.tu)});
 $("#sProgs").addEventListener("click",e=>{
   const pg=e.target.closest("[data-pg]"), d=e.target.closest("[data-pgd]"), pr=ent().programmes;
-  if(pg){const p=pr[+pg.dataset.pg];if(p)startSeance({type:"muscu",titre:p.nom,exos:p.exos.map(x=>{const o=exoPourSeance(x.id);o.nom=x.nom||o.nom;while(o.series.length<x.n)o.series.push({kg:"",reps:"",ok:false});return o})});return}
+  if(pg){const p=pr[+pg.dataset.pg];if(p&&p.blocs){blUnlock();startSeance({type:p.type,titre:p.nom,intensite:1,blocs:p.blocs.map(b=>({t:b.t,s:b.s}))});return}if(p)startSeance({type:"muscu",titre:p.nom,exos:p.exos.map(x=>{const o=exoPourSeance(x.id);o.nom=x.nom||o.nom;while(o.series.length<x.n)o.series.push({kg:"",reps:"",ok:false});return o})});return}
   if(d){snapshot();const p=pr.splice(+d.dataset.pgd,1)[0];persist();renderSportTab();toast(`Programme « ${p?p.nom:""} » supprimé`)}
 });
 
