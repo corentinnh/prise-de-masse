@@ -38,7 +38,7 @@
   --aurora:radial-gradient(circle at 8% 4%,#ffd5c2 0,transparent 40%),radial-gradient(circle at 96% 18%,#c9e8ff 0,transparent 44%),radial-gradient(circle at 40% 70%,#e6d9ff 0,transparent 52%),radial-gradient(circle at 100% 100%,#ffe0ef 0,transparent 40%);
   --f-display:"Outfit",ui-sans-serif,system-ui,sans-serif;
   --f-body:"Inter",ui-sans-serif,system-ui,-apple-system,sans-serif;
-  --f-mono:"Inter",ui-sans-serif,system-ui,sans-serif;
+  --f-mono:"Outfit",ui-sans-serif,system-ui,sans-serif;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){:root{
@@ -62,6 +62,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);fo
 .cardhead{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .sub{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+/* Chiffres glissés dans le texte : même police que les autres chiffres */
+.tot .goal b,.tot .pct,.dep b,.need b,#rqNeed b,.hm small,.hchip{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 .pill{flex:none;background:var(--ink);color:var(--bg);border:0;border-radius:999px;padding:7px 13px;font-size:.82rem;font-weight:600}
 .ghostpill{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
 .macros{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px}
