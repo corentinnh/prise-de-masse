@@ -140,6 +140,13 @@ body.addopen::after{content:"";position:fixed;inset:0;background:rgba(14,10,30,.
 .rtags{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
 .rtags .tag{margin-left:0}
 .rqgouts{padding:4px 14px}
+/* Recettes en parts */
+.rcparts{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.rcparts small{display:block;font-size:.78rem;color:var(--muted)}
+.rcparts .stepper{flex:none}
+.rcpick{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:4px 0 8px}
+.rcpick span{font-size:.8rem;color:var(--muted);margin-right:2px}
+.rcpick button{border:1px solid var(--line);background:var(--surface);border-radius:999px;min-height:38px;padding:0 13px;font-family:var(--f-mono);font-weight:600;color:var(--ink)}
 /* Ajout en une phrase */
 #f.phrase>*:not(.phkeep){display:none!important}
 .phbox{display:flex;flex-direction:column;gap:8px}
@@ -212,7 +219,8 @@ body.addopen::after{content:"";position:fixed;inset:0;background:rgba(14,10,30,.
 .rcadd{display:flex;gap:8px;align-items:flex-end}
 .rcadd .grow{flex:1}
 .rcadd .qty{width:92px;flex:none}
-.rctot{display:flex;justify-content:space-between;font-weight:600}
+.rctot{display:flex;flex-direction:column;gap:4px;font-weight:600}
+.rctot>div{display:flex;justify-content:space-between}
 .btns2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 /* Bandeau Annuler */
 .toast{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 82px);z-index:50;
@@ -305,7 +313,8 @@ label{display:flex;flex-direction:column;gap:4px;font-size:.75rem;color:var(--mu
 input,select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;min-width:0;width:100%;-webkit-appearance:none;appearance:none}
 select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 16px) 55%,calc(100% - 11px) 55%;background-size:5px 5px;background-repeat:no-repeat;padding-right:28px}
 input[type=date]{min-height:42px}
-.calc{font-family:var(--f-mono);font-size:.8rem;line-height:1.45;color:var(--muted);background:var(--bg);border-radius:8px;padding:8px 10px;min-height:calc(2.9em + 16px)}
+.calc{font-family:var(--f-body);font-size:.8rem;line-height:1.45;color:var(--muted);background:var(--bg);border-radius:8px;padding:8px 10px;min-height:calc(2.9em + 16px)}
+.calc b{font-family:var(--f-mono)}
 .calc b{color:var(--ink);font-weight:500}
 .offRes{display:flex;flex-direction:column;gap:6px}
 .offRes:empty{display:none}
@@ -1005,10 +1014,11 @@ h1.big{font-size:1.9rem;line-height:1.1}
   </section>
 
   <section class="card" id="rcCard" aria-label="Mes repas composés">
-    <div class="cardhead"><h2>Mes repas composés</h2><button type="button" class="pill" id="rcNew">+ Nouveau</button></div>
+    <div class="cardhead"><h2 id="rcTitle">Mes repas composés</h2><button type="button" class="pill" id="rcNew">+ Nouveau</button></div>
     <div id="rcList"></div>
     <div id="rcEd" class="rced" hidden>
       <label>Nom du repas<input id="rcName" placeholder="Mon bowl du midi" autocomplete="off"></label>
+      <div class="rcparts" data-f="recettes"><div><b>La recette fait</b><small>tout le plat, avant de le partager</small></div><div class="stepper"><button type="button" class="stepb" id="rcPm" aria-label="Une part de moins">−</button><div class="uval"><span class="mono" id="rcPv">1</span><small id="rcPl">part</small></div><button type="button" class="stepb" id="rcPp" aria-label="Une part de plus">+</button></div></div>
       <div id="rcItems"></div>
       <div class="rcadd">
         <label class="grow">Ingrédient<input id="rcAl" list="foods" placeholder="Riz basmati cuit" autocomplete="off"></label>
@@ -2561,6 +2571,7 @@ const FONCTIONS=[
   ["compl","Compléments alimentaires","Cocher chaque jour whey, créatine… pour ne pas oublier."],
   ["idees","Idées repas","Des plats qui collent à ce qu'il te reste à manger, selon tes goûts."],
   ["demain","Planning de demain","4 repas préparés pour demain, avec la liste de courses."],
+  ["recettes","Recettes en parts","Une recette pour plusieurs parts (un plat pour 4…) : tu notes « 1 part » et le calcul se fait seul."],
   ["detail","Détails pour experts","Glucides et lipides de chaque repas et idée, calculs complets de la dépense."]]],
  ["Sport et suivi",[
   ["depense","Dépense du jour et activités","Ce que tu brûles (vie quotidienne + sport), pour savoir si tu manges assez."],
@@ -2574,7 +2585,7 @@ const FONCTIONS=[
 const NIVEAUX={
  debutant:["Débutant","Je veux juste suivre mes calories et mes protéines, simplement.",["eau","idees","depense"]],
  moyen:["Moyen","Je fais du sport et je veux voir ce que je dépense, mes compléments et mes habitudes.",["eau","idees","depense","compl","serie","sport","bilan"]],
- confirme:["Confirmé","Je suis aussi mes glucides et lipides, et je prépare mes repas à l'avance.",["eau","idees","depense","compl","serie","sport","bilan","macros","demain","cible","ajust"]],
+ confirme:["Confirmé","Je suis aussi mes glucides et lipides, et je prépare mes repas à l'avance.",["eau","idees","depense","compl","serie","sport","bilan","macros","demain","cible","ajust","recettes"]],
  expert:["Expert","Je veux tout : macros détaillées partout, mensurations, calculs complets.",null]
 };
 const F_IDS=FONCTIONS.flatMap(g=>g[1].map(f=>f[0]));
@@ -3309,14 +3320,14 @@ function recents(){
   return out;
 }
 const itemLine=r=>`${r.quantite?esc(r.quantite)+" · ":""}<span class="mono">${fmt(+r.kcal||0)} kcal · ${fmt(+r.prot||0)} g</span>`;
-let listData=[];
+let listData=[], rcPick=null;
 function renderLists(){
   document.querySelectorAll(".seg [data-list]").forEach(b=>b.setAttribute("aria-selected",b.dataset.list===listTab));
   const box=$("#listBox");
   if(listTab==="repas"){
     listData=Object.entries(S.repasComposes).map(([id,r])=>({id,...r}));
     if(!listData.length){box.innerHTML='<div class="li"><div class="hint">Crée un repas composé dans Profil, ou enregistre un repas de ta journée avec « Enregistrer comme repas composé ».</div></div>';return}
-    box.innerHTML=listData.map((r,i)=>{const t=tot({repas:r.items||[]});return`<div class="li"><div class="nm">${esc(r.nom)}<small>${(r.items||[]).length} ingrédient${(r.items||[]).length>1?"s":""} · <span class="mono">${fmt(t.k)} kcal · ${fmt(t.p)} g</span></small></div><button class="go" data-go="${i}" aria-label="Ajouter ${esc(r.nom)}">+</button></div>`}).join("");
+    box.innerHTML=listData.map((r,i)=>{const t=tot({repas:r.items||[]}),pp=rcPartsOf(r);return`<div class="li"><div class="nm">${esc(r.nom)}<small>${pp>1?`recette ${pp} parts`:`${(r.items||[]).length} ingrédient${(r.items||[]).length>1?"s":""}`} · <span class="mono">${fmt(t.k/pp)} kcal · ${fmt(t.p/pp)} g${pp>1?" la part":""}</span></small></div><button class="go" data-go="${i}" aria-label="Ajouter ${esc(r.nom)}">+</button></div>${rcPick===i?`<div class="rcpick"><span>J'en mange</span>${[.5,1,1.5,2].map(q=>`<button type="button" data-rq2="${q}">${partsLab(q)}</button>`).join("")}</div>`:""}`}).join("");
     return;
   }
   listData=listTab==="favoris"?Object.values(S.favoris):recents();
@@ -3327,12 +3338,15 @@ function addItems(items,label){
   snapshot();
   const d=clone(day(cur)); d.repas=d.repas||[]; const mo=$("#fM").value;
   for(const r of items)d.repas.push(Object.assign({moment:mo,aliment:r.aliment,quantite:r.quantite||"",grammes:+r.grammes||0,kcal:+r.kcal||0,prot:+r.prot||0},r.gluc!=null?{gluc:r.gluc,lip:r.lip}:{}));
-  if(save(d))toast(`${label} ajouté${items.length>1?"s":""} au ${(MOMENTS.find(m=>m[0]===mo)||["",""])[1].toLowerCase()}`);
+  if(save(d))toast(`${label} ajouté${items.length>1?"s":""} ${AU_MOMENT[mo]||""}`);
 }
-document.querySelector(".seg").addEventListener("click",e=>{const b=e.target.closest("[data-list]");if(!b)return;listTab=b.dataset.list;renderLists()});
+document.querySelector(".seg").addEventListener("click",e=>{const b=e.target.closest("[data-list]");if(!b)return;listTab=b.dataset.list;rcPick=null;renderLists()});
 $("#listBox").addEventListener("click",e=>{
   const go=e.target.closest("[data-go]"), st=e.target.closest("[data-star]"), fi=e.target.closest("[data-fill]");
-  if(go){const r=listData[+go.dataset.go];if(!r)return;if(listTab==="repas")addItems(r.items||[],r.nom);else addItems([r],r.aliment);return}
+  const rq=e.target.closest("[data-rq2]");
+  if(rq){const r=listData[rcPick];if(!r)return;const q=+rq.dataset.rq2,pp=rcPartsOf(r),f=q/pp,t=tot({repas:r.items||[]}),gl=totGL({repas:r.items||[]}),g=(r.items||[]).reduce((a,x)=>a+(+x.grammes||0),0);
+    rcPick=null;addItems([{aliment:r.nom,quantite:`${partsLab(q)} · ${Math.round(g*f)} g`,grammes:Math.round(g*f),kcal:Math.round(t.k*f),prot:Math.round(t.p*f*10)/10,gluc:Math.round(gl.g*f*10)/10,lip:Math.round(gl.l*f*10)/10}],`${partsLab(q)} de ${r.nom}`);return}
+  if(go){const r=listData[+go.dataset.go];if(!r)return;if(listTab==="repas"&&rcPartsOf(r)>1){rcPick=rcPick===+go.dataset.go?null:+go.dataset.go;renderLists();return}if(listTab==="repas")addItems(r.items||[],r.nom);else addItems([r],r.aliment);return}
   if(st){const r=listData[+st.dataset.star];if(!r)return;const k=itemKey(r.aliment);
     if(S.favoris[k])delete S.favoris[k];else S.favoris[k]=Object.assign({aliment:r.aliment,quantite:r.quantite||"",grammes:+r.grammes||0,kcal:+r.kcal||0,prot:+r.prot||0},r.gluc!=null?{gluc:r.gluc,lip:r.lip}:{});
     persist();renderLists();return}
@@ -3360,22 +3374,31 @@ $("#copyY").addEventListener("click",e=>{
 });
 
 /* ---------- Repas composés ---------- */
-let rcDraft=null;
+let rcDraft=null, rcParts=1;
+const partsLab=q=>`${fmtQty(q)} part${q>1?"s":""}`;
 function openRc(id,items,nom){
+  const ex=id&&S.repasComposes[id]; rcParts=ex&&+ex.parts>1?+ex.parts:1;
   rcDraft={id:id||null,items:clone(items||[]).map(r=>Object.assign({aliment:r.aliment,grammes:+r.grammes||0,quantite:r.quantite||"",kcal:+r.kcal||0,prot:+r.prot||0},r.gluc!=null?{gluc:r.gluc,lip:r.lip}:{}))};
   $("#rcName").value=nom||""; $("#rcEd").hidden=false; $("#rcHint").textContent=""; renderRcEd();
 }
 function renderRcEd(){
   const l=rcDraft?rcDraft.items:[];
   $("#rcItems").innerHTML=l.length?`<div class="card list" style="border:0;padding:0">${l.map((r,i)=>`<div class="li"><div class="nm">${esc(r.aliment)}<small class="mono">${fmt(r.kcal)} kcal · ${fmt(r.prot)} g</small></div><input class="mono" style="width:84px" type="number" inputmode="decimal" min="0" data-rg="${i}" value="${r.grammes||""}" aria-label="Grammes de ${esc(r.aliment)}"><button type="button" class="x" data-rx="${i}" aria-label="Retirer ${esc(r.aliment)}">×</button></div>`).join("")}</div>`:'<div class="hint">Ajoute les ingrédients un par un.</div>';
-  const t=tot({repas:l}); $("#rcTot").innerHTML=l.length?`<span>Total</span><span class="mono"><span style="color:var(--accent)">${fmt(t.k)} kcal</span> · <span style="color:var(--prot)">${fmt(t.p)} g</span></span>`:"";
+  const t=tot({repas:l}), pp=rcParts;
+  $("#rcPv").textContent=rcParts; $("#rcPl").textContent=rcParts>1?"parts":"part";
+  $("#rcTot").innerHTML=l.length?`<div><span>${pp>1?"Tout le plat":"Total"}</span><span class="mono"><span style="color:var(--accent)">${fmt(t.k)} kcal</span> · <span style="color:var(--prot)">${fmt(t.p)} g</span></span></div>`
+    +(pp>1?`<div><span>Une part</span><span class="mono"><b style="color:var(--accent)">${fmt(t.k/pp)} kcal</b> · <b style="color:var(--prot)">${fmt(t.p/pp)} g</b></span></div>`:""):"";
 }
+const rcPartsOf=r=>+r.parts>1?Math.round(+r.parts):1;
 function renderRcList(){
   const e=Object.entries(S.repasComposes);
-  $("#rcList").innerHTML=e.length?`<div class="card list" style="border:0;padding:0">${e.map(([id,r])=>{const t=tot({repas:r.items||[]});return`<div class="li"><div class="nm">${esc(r.nom)}<small>${(r.items||[]).map(x=>esc(x.aliment)).join(", ")} · <span class="mono">${fmt(t.k)} kcal · ${fmt(t.p)} g</span></small></div><button type="button" class="pill ghostpill" data-rce="${id}">Modifier</button><button type="button" class="x" data-rcd="${id}" aria-label="Supprimer ${esc(r.nom)}">×</button></div>`}).join("")}</div>`
+  $("#rcTitle").textContent=fOn("recettes")?"Mes recettes et repas":"Mes repas composés";
+  $("#rcList").innerHTML=e.length?`<div class="card list" style="border:0;padding:0">${e.map(([id,r])=>{const t=tot({repas:r.items||[]}),pp=rcPartsOf(r);return`<div class="li"><div class="nm">${esc(r.nom)}<small>${pp>1?`${pp} parts · `:""}${(r.items||[]).map(x=>esc(x.aliment)).join(", ")} · <span class="mono">${fmt(t.k/pp)} kcal · ${fmt(t.p/pp)} g${pp>1?" par part":""}</span></small></div><button type="button" class="pill ghostpill" data-rce="${id}">Modifier</button><button type="button" class="x" data-rcd="${id}" aria-label="Supprimer ${esc(r.nom)}">×</button></div>`}).join("")}</div>`
     :'<div class="hint">Enregistre tes repas habituels (ton bowl du midi, ton petit-déj…) pour les ajouter en un appui depuis Ajouter › Mes repas.</div>';
 }
 $("#rcNew").onclick=()=>{openRc(null,[],"");$("#rcName").focus()};
+$("#rcPm").onclick=()=>{rcParts=Math.max(1,rcParts-1);renderRcEd()};
+$("#rcPp").onclick=()=>{rcParts=Math.min(20,rcParts+1);renderRcEd()};
 $("#rcCancel").onclick=()=>{rcDraft=null;$("#rcEd").hidden=true};
 $("#rcAddIt").onclick=()=>{
   const name=$("#rcAl").value.trim(), g=+$("#rcG").value||0; if(!name||!rcDraft)return;
@@ -3396,7 +3419,7 @@ $("#rcSave").onclick=()=>{
   if(!nom){$("#rcHint").textContent="Donne un nom à ton repas.";$("#rcName").focus();return}
   if(!rcDraft.items.length){$("#rcHint").textContent="Ajoute au moins un ingrédient.";return}
   const id=rcDraft.id||("r"+Date.now().toString(36));
-  S.repasComposes[id]={nom,items:rcDraft.items}; persist();
+  S.repasComposes[id]=Object.assign({nom,items:rcDraft.items},rcParts>1?{parts:rcParts}:{}); persist();
   rcDraft=null; $("#rcEd").hidden=true; undoSnap=null; renderRcList(); renderLists(); toast(`« ${nom} » enregistré`);
 };
 $("#rcList").addEventListener("click",e=>{
