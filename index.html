@@ -140,6 +140,37 @@ body.addopen::after{content:"";position:fixed;inset:0;background:rgba(14,10,30,.
 .rtags{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
 .rtags .tag{margin-left:0}
 .rqgouts{padding:4px 14px}
+/* Scanner de code-barres */
+.alwrap{position:relative;display:block}
+body.f-scan .alwrap input{padding-right:52px}
+.scanbtn{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:44px;height:40px;border:0;border-radius:10px;background:none;color:var(--prot);display:grid;place-items:center}
+.scan{position:fixed;inset:0;z-index:55;background:#0d0a1d;color:#fff;overflow:hidden}
+.scan video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.scantop{position:absolute;left:16px;right:16px;top:calc(env(safe-area-inset-top,0px) + 14px);display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:600;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.scanx{width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.18);color:#fff;display:grid;place-items:center;flex:none}
+#scanMsg{text-align:center;font-size:.95rem}
+.scanframe{position:absolute;left:50%;top:28%;width:min(78vw,300px);height:170px;transform:translateX(-50%);border:3px solid #fff;border-radius:22px;box-shadow:0 0 0 9999px rgba(0,0,0,.4)}
+.scanframe i{position:absolute;left:14px;right:14px;top:50%;height:2px;background:#ff8a5b;box-shadow:0 0 12px #ff8a5b}
+@media (prefers-reduced-motion:no-preference){.scanframe i{animation:scanl 1.6s ease-in-out infinite alternate}}
+@keyframes scanl{from{transform:translateY(-60px)}to{transform:translateY(60px)}}
+.scanman{position:absolute;left:16px;right:16px;top:calc(28% + 190px);display:flex;flex-direction:column;align-items:center;gap:10px}
+.scanman .lnk2{color:#fff;text-decoration:underline;text-underline-offset:3px;min-height:44px}
+.scanform{display:flex;gap:8px;width:100%;max-width:360px;background:none;border:0;padding:0;box-shadow:none}
+.scanform input{flex:1;font-family:var(--f-mono);font-size:1.05rem;letter-spacing:.04em}
+.scanres{position:absolute;left:0;right:0;bottom:0;max-height:78%;overflow-y:auto;background:var(--bg);color:var(--ink);border-radius:26px 26px 0 0;padding:18px 16px calc(env(safe-area-inset-bottom,0px) + 22px);display:flex;flex-direction:column;gap:12px;box-shadow:0 -12px 40px rgba(0,0,0,.35)}
+.scanres .sh{display:flex;gap:12px;align-items:center}
+.scanres .sh b{font-size:1.05rem}
+.sico{flex:none;width:48px;height:48px;border-radius:14px;background:var(--prot-soft);color:var(--prot);display:grid;place-items:center}
+.scanres .sh small{display:block;color:var(--muted);font-size:.8rem}
+.scanres .s100{font-size:.9rem}
+.scanres .s100 b{font-family:var(--f-mono)}
+.sqty{display:flex;flex-wrap:wrap;gap:6px}
+.sqty button{border:1px solid var(--line);background:var(--surface);border-radius:999px;min-height:40px;padding:0 14px;font-family:var(--f-mono);font-weight:600;color:var(--ink)}
+.sqty button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.sqty input{width:96px;font-family:var(--f-mono)}
+.stot{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.stot b{font-family:var(--f-mono);font-size:1.05rem}
+.scanres .add{min-height:50px}
 /* Recettes en parts */
 .rcparts{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .rcparts small{display:block;font-size:.78rem;color:var(--muted)}
@@ -541,7 +572,7 @@ input,select{border-radius:12px}
 /* Niveau et fonctions affichées */
 body:not(.f-macros) [data-f="macros"],body:not(.f-eau) [data-f="eau"],body:not(.f-compl) [data-f="compl"],body:not(.f-idees) [data-f="idees"],
 body:not(.f-demain) [data-f="demain"],body:not(.f-depense) [data-f="depense"],body:not(.f-serie) [data-f="serie"],body:not(.f-sport) [data-f="sport"],
-body:not(.f-bilan) [data-f="bilan"],body:not(.f-cible) [data-f="cible"],body:not(.f-ajust) [data-f="ajust"],body:not(.f-mens) [data-f="mens"]{display:none!important}
+body:not(.f-bilan) [data-f="bilan"],body:not(.f-cible) [data-f="cible"],body:not(.f-ajust) [data-f="ajust"],body:not(.f-mens) [data-f="mens"],body:not(.f-recettes) [data-f="recettes"],body:not(.f-scan) [data-f="scan"]{display:none!important}
 body.simple .tot .pct{display:none}
 body.simple #pRes .kv,body.simple #pRes .scale,body.simple #pRes .scalelab,body.simple #pRes>.hint:last-child{display:none}
 .nivs{display:flex;flex-direction:column;gap:8px}
@@ -833,7 +864,7 @@ h1.big{font-size:1.9rem;line-height:1.1}
   </form>
 
   <form id="f">
-    <label class="full phkeep">Aliment ou plat<input id="fAl" list="foods" required placeholder="Ex. : poulet, ou 200 g riz, 2 œufs" autocomplete="off" autocapitalize="sentences" enterkeyhint="done"></label>
+    <label class="full phkeep">Aliment ou plat<span class="alwrap"><input id="fAl" list="foods" required placeholder="Ex. : poulet, ou 200 g riz, 2 œufs" autocomplete="off" autocapitalize="sentences" enterkeyhint="done"><button type="button" class="scanbtn" id="scanBtn" data-f="scan" aria-label="Scanner un code-barres"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2M8 8v8M11 8v8M14 8v8M17 8v8"/></svg></button></span></label>
     <div class="phbox full phkeep" id="phBox" hidden></div>
     <datalist id="foods"></datalist>
     <div class="calc full" id="calc">Tape un aliment et un grammage : le calcul se fait tout seul.</div>
@@ -1053,6 +1084,17 @@ h1.big{font-size:1.9rem;line-height:1.1}
   </section>
 </section>
 </main>
+
+<div class="scan" id="scan" role="dialog" aria-modal="true" aria-label="Scanner un code-barres" hidden>
+  <video id="scanV" playsinline muted autoplay></video>
+  <div class="scantop"><button type="button" class="scanx" id="scanX" aria-label="Fermer le scanner"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button><span id="scanMsg">Vise le code-barres</span><span style="width:44px"></span></div>
+  <div class="scanframe" id="scanFrame" aria-hidden="true"><i></i></div>
+  <div class="scanman" id="scanMan">
+    <button type="button" class="lnk2" id="scanType">ou tape les chiffres du code</button>
+    <form id="scanForm" class="scanform" novalidate hidden><input id="scanCode" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="Ex. : 3017620422003" aria-label="Chiffres du code-barres"><button type="submit" class="add">Chercher</button></form>
+  </div>
+  <div class="scanres" id="scanRes" hidden></div>
+</div>
 
 <nav class="tabbar" aria-label="Navigation">
   <button type="button" class="tabb home" data-tab="today" aria-current="page"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg>Accueil</button>
@@ -1621,6 +1663,93 @@ $("#f").addEventListener("submit",e=>{
   snapshot(); const d=clone(day(cur)); d.repas=d.repas||[];
   d.repas.push(Object.assign({moment:$("#fM").value,aliment:al,quantite:quantiteLabel(g),grammes:g,kcal:k,prot:p},manual?{}:glFor(al,g)));
   if(save(d)){["#fAl","#fG","#fK","#fP"].forEach(s=>$(s).value="");manual=false;gTouche=false;uReset();recalc();toast(`${al} ajouté ${AU_MOMENT[$("#fM").value]||""}`)}
+});
+
+/* ---------- Scanner de code-barres : caméra + ZXing (local), produit cherché sur Open Food Facts ---------- */
+let scanReader=null, scanProd=null, scanG=0, scanBusy=false;
+function loadZX(){
+  if(window.ZXing)return Promise.resolve();
+  return new Promise((ok,ko)=>{const sc=document.createElement("script");sc.src="vendor/zxing.min.js";sc.onload=ok;sc.onerror=ko;document.head.appendChild(sc)});
+}
+function scanStop(){try{if(scanReader)scanReader.reset()}catch(e){}scanReader=null;const v=$("#scanV");if(v.srcObject){v.srcObject.getTracks().forEach(t=>t.stop());v.srcObject=null}}
+function scanClose(){scanStop();$("#scan").hidden=true;scanProd=null}
+function scanMsg(t){$("#scanMsg").textContent=t}
+async function scanOpen(){
+  $("#scan").hidden=false; $("#scanRes").hidden=true; $("#scanForm").hidden=true; $("#scanType").hidden=false; $("#scanFrame").hidden=false; scanProd=null; scanBusy=false;
+  scanMsg("Vise le code-barres");
+  if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){scanManuel("Appareil photo indisponible : tape les chiffres du code.");return}
+  try{
+    await loadZX();
+    const hints=new Map(); hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,[ZXing.BarcodeFormat.EAN_13,ZXing.BarcodeFormat.EAN_8,ZXing.BarcodeFormat.UPC_A,ZXing.BarcodeFormat.UPC_E]);
+    scanReader=new ZXing.BrowserMultiFormatReader(hints,250);
+    await scanReader.decodeFromConstraints({audio:false,video:{facingMode:"environment"}},$("#scanV"),(res)=>{if(res&&!scanBusy&&!$("#scan").hidden){const c=res.getText();if(/^\d{8,14}$/.test(c)){if(navigator.vibrate)navigator.vibrate(40);scanChercher(c)}}});
+  }catch(e){scanStop();scanManuel(e&&e.name==="NotAllowedError"?"Accès à l'appareil photo refusé : autorise-le dans les réglages, ou tape les chiffres.":"Impossible d'ouvrir l'appareil photo : tape les chiffres du code.")}
+}
+function scanManuel(msg){$("#scanType").hidden=true;$("#scanForm").hidden=false;if(msg)scanMsg(msg);setTimeout(()=>$("#scanCode").focus(),50)}
+const aliEan=c=>Object.values(S.aliments).find(a=>a&&a.ean===c);
+async function scanChercher(code){
+  scanBusy=true; scanStop(); $("#scanFrame").hidden=true;
+  const mine=aliEan(code);
+  if(mine){scanMontrer({nom:mine.nom,marque:"",k:+mine.kcal100,p:+mine.prot100,g:mine.gluc100,l:mine.lip100,portion:+mine.portion||0,paquet:+mine.paquet||0,ean:code,deja:true});return}
+  scanMsg("Recherche du produit…");
+  try{
+    const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),10000);
+    const r=await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=code,product_name,product_name_fr,brands,nutriments,serving_quantity,product_quantity`,{signal:ctl.signal,credentials:"omit",referrerPolicy:"no-referrer"});
+    clearTimeout(t);
+    const j=r.ok?await r.json():null, o=j&&j.status===1?j.product:null, x=o?offPick(o):null;
+    if(!x){scanErreur(o?"Produit trouvé, mais sans calories ou protéines connues.":"Produit inconnu d'Open Food Facts.",code);return}
+    const sq=parseFloat(o.serving_quantity), pq=parseFloat(o.product_quantity);
+    scanMontrer(Object.assign(x,{portion:sq>0&&sq<=1000?Math.round(sq):0,paquet:pq>0&&pq<=1000?Math.round(pq):0,ean:code}));
+  }catch(e){scanErreur(navigator.onLine===false?"Pas de réseau : la recherche du produit en a besoin.":"La recherche n'a pas répondu, réessaie dans un instant.",code)}
+}
+function scanErreur(msg,code){
+  scanBusy=false; $("#scanRes").hidden=false;
+  $("#scanRes").innerHTML=`<div class="sh"><div><b>${esc(msg)}</b><small class="mono">Code ${esc(code)}</small></div></div><div class="hint">Tu peux taper le nom du produit dans la recherche, ou noter ses valeurs avec « Ajout rapide ».</div><div class="btns2"><button type="button" class="ghost" data-sc="again">Rescanner</button><button type="button" class="add" data-sc="close">Fermer</button></div>`;
+  scanMsg("Pas trouvé");
+}
+function scanMontrer(x){
+  scanProd=x; scanBusy=false; scanMsg(x.deja?"Déjà dans tes aliments":"Produit trouvé");
+  scanG=x.portion||x.paquet&&x.paquet<=250&&x.paquet||100; scanRender();
+}
+function scanRender(){
+  const x=scanProd, opts=[];
+  if(x.portion)opts.push([x.portion,`1 portion (${x.portion} g)`]);
+  if(x.paquet&&x.paquet!==x.portion)opts.push([x.paquet,`${x.paquet<=250?"1 pot / paquet":"Tout le paquet"} (${x.paquet} g)`]);
+  for(const g of[100,200])if(!opts.some(o=>o[0]===g))opts.push([g,`${g} g`]);
+  const k=x.k*scanG/100, p=x.p*scanG/100, mo=$("#fM").value;
+  $("#scanRes").hidden=false;
+  $("#scanRes").innerHTML=`<div class="sh"><span class="sico" aria-hidden="true">${'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2M8 8v8M11 8v8M14 8v8M17 8v8"/></svg>'}</span><div><b>${esc(x.nom)}</b><small>${x.marque?esc(x.marque)+" · ":""}${x.deja?"déjà dans tes aliments":"trouvé sur Open Food Facts"}</small></div></div>
+    <div class="s100">Pour 100 g : <b>${fmt(x.k)} kcal</b> · <b>${String(x.p).replace(".",",")} g</b> de protéines</div>
+    <div class="eyebrow">Quantité</div>
+    <div class="sqty">${opts.map(([g,l])=>`<button type="button" data-sg="${g}" aria-pressed="${g===scanG}">${esc(l)}</button>`).join("")}<input type="number" inputmode="decimal" min="1" id="scanGIn" placeholder="Autre (g)" aria-label="Autre quantité en grammes" value="${opts.some(o=>o[0]===scanG)?"":scanG}"></div>
+    <div class="stot"><span class="hint">Au total</span><span><b style="color:var(--accent)">${fmt(k)} kcal</b> · <b style="color:var(--prot)">${fmt(p)} g prot.</b></span></div>
+    <button type="button" class="add big grad" data-sc="add">Ajouter ${AU_MOMENT[mo]||""}</button>
+    <button type="button" class="lnk2" data-sc="again">Scanner un autre produit</button>`;
+}
+$("#scanBtn").onclick=scanOpen;
+$("#scanX").onclick=scanClose;
+$("#scanType").onclick=()=>{scanStop();$("#scanFrame").hidden=true;scanManuel("Tape les chiffres sous le code-barres")};
+$("#scanForm").addEventListener("submit",e=>{e.preventDefault();const c=$("#scanCode").value.replace(/\D/g,"");if(c.length<8){scanMsg("Le code fait 8 à 13 chiffres.");return}$("#scanForm").hidden=true;scanChercher(c)});
+$("#scanRes").addEventListener("click",e=>{
+  const g=e.target.closest("[data-sg]"), a=e.target.closest("[data-sc]");
+  if(g){scanG=+g.dataset.sg;scanRender();return}
+  if(!a)return;
+  if(a.dataset.sc==="close"){scanClose();return}
+  if(a.dataset.sc==="again"){$("#scanCode").value="";scanOpen();return}
+  if(a.dataset.sc==="add"&&scanProd&&scanG>0){
+    const x=scanProd, nom=x.marque&&!norm(x.nom).includes(norm(x.marque))?`${x.nom} (${x.marque})`:x.nom;
+    rememberFood(nom,x.k,x.p,x.g,x.l); Object.assign(S.aliments[slug(nom)],{ean:x.ean},x.portion?{portion:x.portion}:{},x.paquet?{paquet:x.paquet}:{});
+    const mo=$("#fM").value; snapshot(); const d=clone(day(cur)); d.repas=d.repas||[];
+    d.repas.push(Object.assign({moment:mo,aliment:nom,quantite:`${Math.round(scanG)} g`,grammes:Math.round(scanG),kcal:Math.round(x.k*scanG/100),prot:Math.round(x.p*scanG/10)/10},x.g!=null&&x.l!=null?{gluc:Math.round(x.g*scanG/10)/10,lip:Math.round(x.l*scanG/10)/10}:{}));
+    scanClose(); if(save(d))toast(`${nom} ajouté ${AU_MOMENT[mo]||""}`);
+  }
+});
+$("#scanRes").addEventListener("input",e=>{if(e.target.id==="scanGIn"){const v=+e.target.value;if(v>0){scanG=v;const k=scanProd.k*v/100,p=scanProd.p*v/100;$("#scanRes .stot").innerHTML=`<span class="hint">Au total</span><span><b style="color:var(--accent)">${fmt(k)} kcal</b> · <b style="color:var(--prot)">${fmt(p)} g prot.</b></span>`;document.querySelectorAll("#scanRes [data-sg]").forEach(b=>b.setAttribute("aria-pressed","false"))}}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#scan").hidden){e.stopImmediatePropagation();scanClose()}},true);
+document.addEventListener("visibilitychange",()=>{
+  if($("#scan").hidden)return;
+  if(document.hidden){if(scanReader)scanStop()}
+  else if(!scanReader&&!scanProd&&!scanBusy&&$("#scanRes").hidden&&$("#scanForm").hidden)scanOpen();
 });
 /* ---------- Ajout rapide : calories et protéines sans chercher l'aliment ---------- */
 const AU_MOMENT={matin:"au matin",midi:"au midi",collation:"à la collation",soir:"au soir"};
@@ -2571,6 +2700,7 @@ const FONCTIONS=[
   ["compl","Compléments alimentaires","Cocher chaque jour whey, créatine… pour ne pas oublier."],
   ["idees","Idées repas","Des plats qui collent à ce qu'il te reste à manger, selon tes goûts."],
   ["demain","Planning de demain","4 repas préparés pour demain, avec la liste de courses."],
+  ["scan","Scanner un code-barres","L'appareil photo lit le code du produit et trouve ses calories et protéines (Open Food Facts)."],
   ["recettes","Recettes en parts","Une recette pour plusieurs parts (un plat pour 4…) : tu notes « 1 part » et le calcul se fait seul."],
   ["detail","Détails pour experts","Glucides et lipides de chaque repas et idée, calculs complets de la dépense."]]],
  ["Sport et suivi",[
@@ -2583,9 +2713,9 @@ const FONCTIONS=[
   ["mens","Mensurations","Tours de bras, taille… pour voir si tu prends du muscle ou du gras."]]]
 ];
 const NIVEAUX={
- debutant:["Débutant","Je veux juste suivre mes calories et mes protéines, simplement.",["eau","idees","depense"]],
- moyen:["Moyen","Je fais du sport et je veux voir ce que je dépense, mes compléments et mes habitudes.",["eau","idees","depense","compl","serie","sport","bilan"]],
- confirme:["Confirmé","Je suis aussi mes glucides et lipides, et je prépare mes repas à l'avance.",["eau","idees","depense","compl","serie","sport","bilan","macros","demain","cible","ajust","recettes"]],
+ debutant:["Débutant","Je veux juste suivre mes calories et mes protéines, simplement.",["eau","idees","depense","scan"]],
+ moyen:["Moyen","Je fais du sport et je veux voir ce que je dépense, mes compléments et mes habitudes.",["eau","idees","depense","compl","serie","sport","bilan","scan"]],
+ confirme:["Confirmé","Je suis aussi mes glucides et lipides, et je prépare mes repas à l'avance.",["eau","idees","depense","compl","serie","sport","bilan","macros","demain","cible","ajust","recettes","scan"]],
  expert:["Expert","Je veux tout : macros détaillées partout, mensurations, calculs complets.",null]
 };
 const F_IDS=FONCTIONS.flatMap(g=>g[1].map(f=>f[0]));

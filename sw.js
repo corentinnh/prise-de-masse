@@ -1,6 +1,6 @@
 /* Service worker : garde l'app disponible hors connexion.
    Change VERSION à chaque mise à jour pour que les téléphones récupèrent la nouvelle version. */
-const VERSION = "pdms-2026-11-04-3";
+const VERSION = "pdms-2026-11-04-4";
 const ASSETS = [
   "./",
   "index.html",
@@ -18,6 +18,7 @@ const ASSETS = [
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/icon-maskable-512.png",
+  "vendor/zxing.min.js",
 ];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
