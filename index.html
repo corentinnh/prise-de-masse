@@ -140,6 +140,14 @@ body.addopen::after{content:"";position:fixed;inset:0;background:rgba(14,10,30,.
 .rtags{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
 .rtags .tag{margin-left:0}
 .rqgouts{padding:4px 14px}
+/* Jours sport / repos */
+.jsbox{display:flex;flex-direction:column;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.jsvals{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.jsbox .chk{align-items:flex-start}
+.jsbox .chk span{display:flex;flex-direction:column;gap:2px}
+.jsbox .chk small{display:block;color:var(--muted);font-size:.8rem;font-weight:400;line-height:1.4}
+.jsvals input{font-family:var(--f-mono);font-weight:600}
+.jsvals .full{grid-column:1/-1}
 /* Scanner de code-barres */
 .alwrap{position:relative;display:block}
 body.f-scan .alwrap input{padding-right:52px}
@@ -572,7 +580,7 @@ input,select{border-radius:12px}
 /* Niveau et fonctions affichées */
 body:not(.f-macros) [data-f="macros"],body:not(.f-eau) [data-f="eau"],body:not(.f-compl) [data-f="compl"],body:not(.f-idees) [data-f="idees"],
 body:not(.f-demain) [data-f="demain"],body:not(.f-depense) [data-f="depense"],body:not(.f-serie) [data-f="serie"],body:not(.f-sport) [data-f="sport"],
-body:not(.f-bilan) [data-f="bilan"],body:not(.f-cible) [data-f="cible"],body:not(.f-ajust) [data-f="ajust"],body:not(.f-mens) [data-f="mens"],body:not(.f-recettes) [data-f="recettes"],body:not(.f-scan) [data-f="scan"]{display:none!important}
+body:not(.f-bilan) [data-f="bilan"],body:not(.f-cible) [data-f="cible"],body:not(.f-ajust) [data-f="ajust"],body:not(.f-mens) [data-f="mens"],body:not(.f-recettes) [data-f="recettes"],body:not(.f-scan) [data-f="scan"],body:not(.f-jsport) [data-f="jsport"]{display:none!important}
 body.simple .tot .pct{display:none}
 body.simple #pRes .kv,body.simple #pRes .scale,body.simple #pRes .scalelab,body.simple #pRes>.hint:last-child{display:none}
 .nivs{display:flex;flex-direction:column;gap:8px}
@@ -1029,6 +1037,14 @@ h1.big{font-size:1.9rem;line-height:1.1}
   <section class="card" aria-label="Objectifs du jour">
     <div class="cardhead"><h2>Objectifs du jour</h2><span class="sub mono" id="goalNow"></span></div>
     <button class="ghost" id="editGoals" type="button">Régler mes objectifs</button>
+    <div class="jsbox" data-f="jsport">
+      <label class="chk"><input type="checkbox" id="jsOn"><span><b>Calories différentes les jours de sport</b><small>Les protéines restent les mêmes. Un jour de sport, c'est une séance dans ton planning sportif ou une activité notée.</small></span></label>
+      <div class="jsvals" id="jsVals" hidden>
+        <label>Jour de sport (kcal)<input id="jsS" type="number" inputmode="numeric" min="0" step="50"></label>
+        <label>Jour de repos (kcal)<input id="jsR" type="number" inputmode="numeric" min="0" step="50"></label>
+        <div class="hint full" id="jsHint"></div>
+      </div>
+    </div>
     <form id="gf" hidden>
       <label>Calories (kcal/jour)<input id="gfK" type="number" inputmode="numeric" min="0" placeholder="2400"></label>
       <label>Protéines (g/jour)<input id="gfP" type="number" inputmode="numeric" min="0" placeholder="135"></label>
@@ -1535,10 +1551,10 @@ function ring(val,goal,unit,rId,pId,gId){
 }
 function render(){
   renderStreak(); renderBilan();
-  const d=day(cur), t=tot(d), goals=S.objectifs||{};
+  const d=day(cur), t=tot(d), goals=objJour(cur);
   const dl=parse(cur).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"}); $("#dayLabel").textContent=dl.charAt(0).toUpperCase()+dl.slice(1);
   const pn=S.compte&&S.compte.prenom?S.compte.prenom:"";
-  $("#dayRel").textContent=(pn&&cur===TODAY?`Salut ${pn} · `:"")+(cur===TODAY?"aujourd'hui":cur===shift(TODAY,-1)?"hier":"");
+  $("#dayRel").textContent=(pn&&cur===TODAY?`Salut ${pn} · `:"")+(cur===TODAY?"aujourd'hui":cur===shift(TODAY,-1)?"hier":"")+(jsActif()?(cur===TODAY||cur===shift(TODAY,-1)?" · ":"")+(jourSport(cur)?"jour de sport":"jour de repos"):"");
   $("#next").disabled=cur>=TODAY;
   $("#tK").textContent=fmt(t.k);
   $("#tP").textContent=fmt(t.p);
@@ -1550,7 +1566,8 @@ function render(){
   if(typeof renderIdeas==="function")renderIdeas(t);
   renderHome();
   renderActivites();
-  $("#goalNow").textContent=(goals.kcal>0||goals.prot>0)?`${fmt(goals.kcal||0)} kcal · ${goals.prot||0} g`:"";
+  $("#goalNow").textContent=jsActif()?`${fmt(S.objSport.sport)} / ${fmt(S.objSport.repos)} kcal · ${goals.prot||0} g`:(goals.kcal>0||goals.prot>0)?`${fmt(S.objectifs.kcal||0)} kcal · ${goals.prot||0} g`:"";
+  if(typeof renderJS==="function")renderJS();
   $("#addDay").textContent=cur===TODAY?"Pour aujourd'hui":"Pour "+parse(cur).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
   const list=d.repas||[];
   $("#meals").innerHTML=MOMENTS.map(([key,lab])=>{
@@ -2028,7 +2045,7 @@ function afterText(Rk,Rp,gk,gp,suffix){
 }
 function renderIdeas(t){
   if(!$("#v-repas").hidden)renderRepasTab();
-  const g=S.objectifs||{}, box=$("#ideas"); shown=[];
+  const g=objJour(cur), box=$("#ideas"); shown=[];
   if(!(g.kcal>0||g.prot>0)){box.innerHTML='<div class="hint">Règle tes objectifs pour avoir des idées de repas adaptées à ce qu\'il te reste.</div>';return}
   if(cur!==TODAY){box.innerHTML='<div class="hint">Les idées de repas s\'affichent pour la journée en cours.</div>';return}
   const Rk=g.kcal>0?g.kcal-t.k:0, Rp=g.prot>0?g.prot-t.p:0;
@@ -2142,7 +2159,7 @@ function renderRepasTab(){
   document.querySelectorAll("[data-rm]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.rm===RQ.m)));
   $("#rqLieu").innerHTML=LIEUX.map(([k,l])=>`<button type="button" class="rqc" data-rl="${k}" aria-pressed="${k===RQ.lieu}">${l}</button>`).join("");
   $("#rqCuis").innerHTML=CUISINES.map(([k,l])=>`<button type="button" class="rqc" data-rc="${k}" aria-pressed="${k===RQ.cuis}">${l}</button>`).join("");
-  const g=S.objectifs||{}, d=day(cur), t=tot(d), Rk=g.kcal>0?g.kcal-t.k:0, Rp=g.prot>0?g.prot-t.p:0, coll=RQ.m==="collation";
+  const g=objJour(cur), d=day(cur), t=tot(d), Rk=g.kcal>0?g.kcal-t.k:0, Rp=g.prot>0?g.prot-t.p:0, coll=RQ.m==="collation";
   let Tk=coll?300:650, Tp=coll?20:35;
   if(g.kcal>0&&Rk>150){
     if(coll)Tk=Math.min(Rk,450);
@@ -2192,6 +2209,36 @@ $("#gf").addEventListener("submit",e=>{
   $("#gf").hidden=true; $("#editGoals").hidden=false;
 });
 
+
+/* ---------- Jours sport / jours repos ---------- */
+function jourSport(date){
+  const l=S.activites[date]||[];
+  if(l.some(a=>a.type==="repos"))return false;
+  if(l.some(a=>!estPas(a)))return true;
+  const p=planJour(parse(date).getDay()); return!!(p&&(p.seances||[]).length);
+}
+function jsActif(){const o=S.objSport;return fOn("jsport")&&!!o&&!!o.on&&+o.sport>0&&+o.repos>0}
+/* Objectif du jour : celui du profil, ou celui du jour de sport / de repos. */
+function objJour(date){const g=S.objectifs||{};if(!jsActif())return g;return Object.assign({},g,{kcal:jourSport(date||cur)?+S.objSport.sport:+S.objSport.repos})}
+function renderJS(){
+  const o=S.objSport||{}, on=!!o.on;
+  $("#jsOn").checked=on; $("#jsVals").hidden=!on;
+  if(!on)return;
+  if(document.activeElement!==$("#jsS"))$("#jsS").value=o.sport||""; if(document.activeElement!==$("#jsR"))$("#jsR").value=o.repos||"";
+  const n=[0,1,2,3,4,5,6].filter(wd=>{const p=planJour(wd);return p&&(p.seances||[]).length}).length;
+  const moy=o.sport>0&&o.repos>0?(n*o.sport+(7-n)*o.repos)/7:0;
+  $("#jsHint").innerHTML=n?`Ton planning a <b>${n} jour${n>1?"s":""} de sport</b> par semaine : moyenne <b class="mono">${fmt(moy)} kcal</b> par jour.`:"Ton planning sportif est vide : ajoute tes séances dans « Planning sportif » pour que l'app sache quels jours sont du sport.";
+}
+$("#jsOn").addEventListener("change",()=>{
+  const o=Object.assign({},S.objSport), base=+(S.objectifs||{}).kcal||((besoins()||{}).kcal)||0;
+  o.on=$("#jsOn").checked;
+  if(o.on&&!(o.sport>0&&o.repos>0)&&base>0){o.sport=Math.round((base+200)/50)*50;o.repos=Math.round((base-200)/50)*50}
+  S.objSport=o; persist(); renderJS(); render(); renderHome();
+});
+for(const id of["#jsS","#jsR"])$(id).addEventListener("change",()=>{
+  const o=Object.assign({},S.objSport); o.sport=Math.max(0,Math.round(+$("#jsS").value||0)); o.repos=Math.max(0,Math.round(+$("#jsR").value||0));
+  S.objSport=o; persist(); renderJS(); render(); renderHome();
+});
 /* ---------- Poids & mensurations ---------- */
 const MF=[["poids","#mPoids"],["taille","#mTaille"],["bras","#mBras"],["poitrine","#mPoitrine"],["cuisse","#mCuisse"]];
 function renderMesures(){
@@ -2705,6 +2752,7 @@ const FONCTIONS=[
   ["detail","Détails pour experts","Glucides et lipides de chaque repas et idée, calculs complets de la dépense."]]],
  ["Sport et suivi",[
   ["depense","Dépense du jour et activités","Ce que tu brûles (vie quotidienne + sport), pour savoir si tu manges assez."],
+  ["jsport","Jours sport / jours repos","Un objectif de calories pour les jours de sport, un autre pour les jours de repos. Les protéines restent les mêmes."],
   ["sport","Planning sportif","Tes séances de la semaine, comptées dans tes besoins et notées en un appui."],
   ["serie","Série","Le nombre de jours d'affilée où tu atteins tes protéines, pour la motivation."],
   ["bilan","Bilan de la semaine","Tes moyennes de la semaine, le dimanche et le lundi."],
@@ -2864,7 +2912,7 @@ $("#hMac").onclick=()=>openPanel("macros");
 $("#dep").onclick=e=>{e.preventDefault();const b=besoins();if(b&&!b.manque&&b.quot)openPanel("activite");else showTab("profil")};
 const FEU='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-4 2.5-5 .3 1.6 1 2.5 2 3 0-3 0-5.5.5-8z"/></svg>';
 function renderHome(){
-  const d=day(cur), t=tot(d), g=S.objectifs||{};
+  const d=day(cur), t=tot(d), g=objJour(cur);
   /* Dépense du jour : vie quotidienne du profil + activités notées (ou prévues par le planning). */
   const b=besoins(), dep=$("#dep");
   if(b&&!b.manque&&b.quot){
@@ -2927,7 +2975,7 @@ function bilanSemaine(fin){
   const jours=[...Array(7)].map((_,i)=>shift(fin,i-6)), g=S.objectifs||{}, gk=+g.kcal||0, gp=+g.prot||0;
   const notes=jours.filter(d=>(day(d).repas||[]).length), t=notes.map(d=>tot(day(d)));
   const moy=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
-  const cible=t.filter(x=>(!gp||x.p>=gp)&&(!gk||Math.abs(x.k-gk)<=gk*.1)).length;
+  const cible=notes.filter((d,i)=>{const x=t[i],k=+objJour(d).kcal||0;return(!gp||x.p>=gp)&&(!k||Math.abs(x.k-k)<=k*.1)}).length;
   const ws=Object.values(S.mesures).filter(m=>m&&+m.poids>0);
   const pm=(a,b)=>{const l=ws.filter(m=>m.date>=a&&m.date<=b).map(m=>+m.poids);return l.length?moy(l):null};
   let faites=0, prevues=0;
@@ -2992,7 +3040,8 @@ $("#ajust").addEventListener("click",e=>{
   const ok=e.target.closest("#ajOk"), no=e.target.closest("#ajNo");
   if(ok){
     snapshot(); const k=+ok.dataset.k;
-    S.objectifs=Object.assign({},S.objectifs,{kcal:k}); S.ajust={fait:TODAY};
+    const dl=k-(+(S.objectifs||{}).kcal||0); S.objectifs=Object.assign({},S.objectifs,{kcal:k}); S.ajust={fait:TODAY};
+    if(S.objSport&&S.objSport.on&&dl)S.objSport=Object.assign({},S.objSport,{sport:Math.max(0,S.objSport.sport+dl),repos:Math.max(0,S.objSport.repos+dl)});
     const b=besoins(); if(b&&b.kcal)S.recoVue=b.kcal+"/"+b.prot;
     persist(); render(); renderMesures(); toast(`Objectif : ${fmt(k)} kcal par jour`);
   }else if(no){S.ajust=Object.assign({},S.ajust,{vu:TODAY,sens:+no.dataset.s});persist();renderMesures()}
@@ -3087,7 +3136,7 @@ function backupInfo(){
   $("#bInfo").textContent=t;
   renderSaveBan(); renderRestore();
 }
-function exportData(){return JSON.stringify({app:"prise-de-masse-seche",version:1,exporte:new Date().toISOString(),jours:S.jours,aliments:S.aliments,mesures:S.mesures,objectifs:S.objectifs,profil:S.profil,activites:S.activites,gouts:S.gouts,favoris:S.favoris,repasComposes:S.repasComposes,planSport:S.planSport,semaines:S.semaines,semaineActive:S.semaineActive,planAuto:S.planAuto,cible:S.cible,complements:S.complements,niveau:S.niveau,fonctions:S.fonctions,compte:S.compte?{prenom:S.compte.prenom,email:S.compte.email,cree:S.compte.cree}:null},null,1)}
+function exportData(){return JSON.stringify({app:"prise-de-masse-seche",version:1,exporte:new Date().toISOString(),jours:S.jours,aliments:S.aliments,mesures:S.mesures,objectifs:S.objectifs,profil:S.profil,activites:S.activites,gouts:S.gouts,favoris:S.favoris,repasComposes:S.repasComposes,planSport:S.planSport,semaines:S.semaines,semaineActive:S.semaineActive,planAuto:S.planAuto,cible:S.cible,complements:S.complements,objSport:S.objSport||null,niveau:S.niveau,fonctions:S.fonctions,compte:S.compte?{prenom:S.compte.prenom,email:S.compte.email,cree:S.compte.cree}:null},null,1)}
 $("#bExport").onclick=async()=>{
   const name="carbu-"+TODAY+".json", json=exportData();
   const file=new File([json],name,{type:"application/json"});
@@ -3174,6 +3223,7 @@ $("#bPrev").addEventListener("click",e=>{
   if(isObj(o.favoris))Object.assign(S.favoris,o.favoris);
   if(isObj(o.repasComposes))Object.assign(S.repasComposes,o.repasComposes);
   if(isObj(o.planSport)&&Object.keys(o.planSport).length)S.planSport=JSON.parse(JSON.stringify(o.planSport));
+  if(isObj(o.objSport))S.objSport={on:!!o.objSport.on,sport:Math.max(0,Math.round(+o.objSport.sport||0)),repos:Math.max(0,Math.round(+o.objSport.repos||0))};
   if(Array.isArray(o.semaines)&&o.semaines.length){S.semaines=JSON.parse(JSON.stringify(o.semaines.filter(isObj)));S.semaineActive=o.semaineActive||(S.semaines[0]||{}).id}
   if(isObj(o.planAuto))S.planAuto=Object.assign({},o.planAuto);
   if(isObj(o.cible)&&+o.cible.kg>0)S.cible=Object.assign({},o.cible);
@@ -3224,7 +3274,7 @@ $("#saveBan").addEventListener("click",e=>{
 const PLAN_SLOTS=[["matin",.25,"Petit-déj"],["midi",.35,"Déjeuner"],["collation",.12,"Collation"],["soir",.28,"Dîner"]];
 function jit(key){let h=2166136261;for(const c of key){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return((h>>>0)%1000)/1000}
 function planPick(slot,share,seed,date){
-  const g=S.objectifs||{}, Tk=(+g.kcal||0)*share, Tp=(+g.prot||0)*share, key=date+slot+seed;
+  const g=objJour(date), Tk=(+g.kcal||0)*share, Tp=(+g.prot||0)*share, key=date+slot+seed;
   if(slot==="collation"){
     const pool=IDEAS.filter(x=>x.type==="collation"&&aime(x)).map(x=>{const b=build(x,1);return{b,s:fit(b,Tk,Tp,Tk*1.2)+jit(key+x.nom)*.35}});
     pool.sort((a,b)=>b.s-a.s); return pool[0]?pool[0].b:null;
@@ -3244,7 +3294,7 @@ function courses(P){
   return[...m.values()].map(e=>{const u=unitFor(e.nom);const n=u?Math.ceil(e.g/u.g*2)/2:0;return{...e,q:u&&n?`${fmtQty(n)} ${n>1?u.p:u.s} (${Math.round(e.g)} g)`:e.g>=1000?`${(Math.round(e.g/100)/10).toLocaleString("fr-FR")} kg`:`${Math.round(e.g)} g`}}).sort((a,b)=>a.nom.localeCompare(b.nom,"fr"));
 }
 function renderPlan(){
-  const P=S.planning, dem=shift(TODAY,1), box=$("#plan"), g=S.objectifs||{};
+  const P=S.planning, dem=shift(TODAY,1), box=$("#plan"), g=objJour(P&&P.date||dem);
   const actif=P&&(P.date===TODAY||P.date===dem)?P:null;
   $("#planTitle").textContent=actif&&actif.date===TODAY?"Planning du jour":"Planning de demain";
   if(!actif){
