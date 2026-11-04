@@ -140,6 +140,34 @@ body.addopen::after{content:"";position:fixed;inset:0;background:rgba(14,10,30,.
 .rtags{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
 .rtags .tag{margin-left:0}
 .rqgouts{padding:4px 14px}
+/* Calendrier du mois */
+.wkseg{margin:-2px 0 10px}
+.cal{display:flex;flex-direction:column;gap:10px}
+.calnav{display:flex;align-items:center;justify-content:space-between}
+.calnav b{font-family:var(--f-display);font-size:1.05rem}
+.calnav button{width:40px;height:40px;border-radius:50%;border:0;background:color-mix(in srgb,var(--ink) 7%,transparent);color:var(--ink);font-size:1.1rem}
+.calnav button:disabled{opacity:.35}
+.calg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.calg .wd{text-align:center;font-size:.68rem;font-weight:600;color:var(--muted)}
+.cday{height:42px;border-radius:11px;border:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:var(--f-mono);font-weight:700;font-size:.86rem;background:color-mix(in srgb,var(--ink) 6%,transparent);color:var(--muted);padding:0}
+.cday.ok{background:#1d8a55;color:#fff}
+.cday.mi{background:#ffb35b;color:#1c1735}
+.cday.no{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--ink)}
+.cday.fut{background:none;color:color-mix(in srgb,var(--muted) 55%,transparent)}
+.cday.auj{box-shadow:inset 0 0 0 2px var(--ink)}
+.cday i{width:5px;height:5px;border-radius:50%;background:var(--prot)}
+.cday.ok i{background:#fff}
+.cday i.vide{background:none}
+.callg{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:.74rem;color:var(--muted)}
+.callg span{display:inline-flex;align-items:center;gap:5px}
+.callg em{width:12px;height:12px;border-radius:4px;display:inline-block}
+.calst{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;text-align:center}
+.calst b{display:block;font-family:var(--f-mono);font-size:1.25rem}
+.calst small{font-size:.74rem;color:var(--muted)}
+/* Bilan à partager */
+#shareOpen{margin-top:12px;width:100%}
+.shimg{width:100%;max-width:330px;align-self:center;border-radius:20px;box-shadow:0 12px 34px rgba(28,23,53,.3);aspect-ratio:4/5;background:#1c1735}
+#shareSheet .sheet{gap:12px}
 /* Jours sport / repos */
 .jsbox{display:flex;flex-direction:column;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .jsvals{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -580,7 +608,7 @@ input,select{border-radius:12px}
 /* Niveau et fonctions affichées */
 body:not(.f-macros) [data-f="macros"],body:not(.f-eau) [data-f="eau"],body:not(.f-compl) [data-f="compl"],body:not(.f-idees) [data-f="idees"],
 body:not(.f-demain) [data-f="demain"],body:not(.f-depense) [data-f="depense"],body:not(.f-serie) [data-f="serie"],body:not(.f-sport) [data-f="sport"],
-body:not(.f-bilan) [data-f="bilan"],body:not(.f-cible) [data-f="cible"],body:not(.f-ajust) [data-f="ajust"],body:not(.f-mens) [data-f="mens"],body:not(.f-recettes) [data-f="recettes"],body:not(.f-scan) [data-f="scan"],body:not(.f-jsport) [data-f="jsport"]{display:none!important}
+body:not(.f-bilan) [data-f="bilan"],body:not(.f-cible) [data-f="cible"],body:not(.f-ajust) [data-f="ajust"],body:not(.f-mens) [data-f="mens"],body:not(.f-recettes) [data-f="recettes"],body:not(.f-scan) [data-f="scan"],body:not(.f-jsport) [data-f="jsport"],body:not(.f-calendrier) [data-f="calendrier"],body:not(.f-partage) [data-f="partage"]{display:none!important}
 body.simple .tot .pct{display:none}
 body.simple #pRes .kv,body.simple #pRes .scale,body.simple #pRes .scalelab,body.simple #pRes>.hint:last-child{display:none}
 .nivs{display:flex;flex-direction:column;gap:8px}
@@ -931,6 +959,7 @@ h1.big{font-size:1.9rem;line-height:1.1}
   <section class="card" id="bilanCard" data-f="bilan" aria-label="Bilan de la semaine">
     <div class="cardhead"><h2>Bilan de la semaine</h2><span class="sub" id="bilanDates"></span></div>
     <div id="bilanBody"></div>
+    <button type="button" class="ghost" id="shareOpen" data-f="partage">Partager ma semaine</button>
   </section>
 
   <section class="card" id="mensCard" data-f="mens" aria-label="Mensurations" hidden>
@@ -940,7 +969,9 @@ h1.big{font-size:1.9rem;line-height:1.1}
   </section>
 
   <section class="card">
-    <div class="cardhead"><h2>7 derniers jours</h2><span class="sub mono" id="weekAvg"></span></div>
+    <div class="cardhead"><h2 id="wkTitle">7 derniers jours</h2><span class="sub mono" id="weekAvg"></span></div>
+    <div class="useg wkseg" data-f="calendrier" role="group" aria-label="Affichage"><button type="button" data-wk="sem" aria-pressed="true">Semaine</button><button type="button" data-wk="mois" aria-pressed="false">Mois</button></div>
+    <div class="cal" id="cal" hidden></div>
     <div class="weekwrap"><div class="tline" id="weekLine" hidden></div><div class="week" id="week"></div></div>
     <div class="hint" id="weekStats"></div>
   </section>
@@ -1228,6 +1259,17 @@ h1.big{font-size:1.9rem;line-height:1.1}
         <button type="submit" class="add big">Enregistrer et me connecter</button>
       </form>
     </div>
+  </div>
+</div>
+
+<div class="sheetbg" id="shareSheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle">
+    <i class="grip" aria-hidden="true"></i>
+    <div class="edhead"><div><h2 id="shTitle">Partager ma semaine</h2><div class="hint" id="shDates"></div></div><button type="button" class="edx" id="shClose" aria-label="Fermer">×</button></div>
+    <img class="shimg" id="shImg" alt="Image du bilan de la semaine">
+    <label class="chk"><input type="checkbox" id="shPoids" checked> <span>Montrer mon poids sur l'image</span></label>
+    <button type="button" class="add big grad" id="shGo">Partager l'image</button>
+    <div class="hint" id="shHint" style="text-align:center">S'ouvre dans le partage du téléphone : WhatsApp, Insta, Messages… Rien ne part sans ton choix.</div>
   </div>
 </div>
 
@@ -1579,7 +1621,7 @@ function render(){
       items.map(r=>`<div class="row editable" data-e="${r.i}"><button type="button" class="name" data-e="${r.i}" aria-label="Modifier ${esc(r.aliment)}">${esc(r.aliment)}${r.quantite?`<small>${esc(r.quantite)}</small>`:""}</button><span class="v k">${fmt(+r.kcal||0)}</span><span class="v p">${fmt(+r.prot||0)} g</span><button class="del" data-i="${r.i}" aria-label="Supprimer ${esc(r.aliment)}">×</button></div>`).join("")+
       `<button class="msave" data-m="${key}">Enregistrer comme repas composé</button></div>`;
   }).join("");
-  renderWeek(); renderLists(); renderCopy(); renderPlan();
+  renderWeek(); renderCal(); renderLists(); renderCopy(); renderPlan();
 }
 /* Repères : lipides ≈ 28 % des calories, protéines selon l'objectif, glucides pour le reste. */
 function renderMacros(d,goals){
@@ -2756,14 +2798,16 @@ const FONCTIONS=[
   ["sport","Planning sportif","Tes séances de la semaine, comptées dans tes besoins et notées en un appui."],
   ["serie","Série","Le nombre de jours d'affilée où tu atteins tes protéines, pour la motivation."],
   ["bilan","Bilan de la semaine","Tes moyennes de la semaine, le dimanche et le lundi."],
+  ["calendrier","Calendrier du mois","Le mois en un coup d'œil : chaque jour en couleur selon tes objectifs."],
+  ["partage","Bilan à partager","Une image de ta semaine à envoyer à un pote ou à ton coach."],
   ["cible","Poids cible","Ta progression vers un poids à atteindre et la date estimée."],
   ["ajust","Ajustement guidé","Une proposition de −150 ou +150 kcal quand ton poids va trop vite ou stagne."],
   ["mens","Mensurations","Tours de bras, taille… pour voir si tu prends du muscle ou du gras."]]]
 ];
 const NIVEAUX={
  debutant:["Débutant","Je veux juste suivre mes calories et mes protéines, simplement.",["eau","idees","depense","scan"]],
- moyen:["Moyen","Je fais du sport et je veux voir ce que je dépense, mes compléments et mes habitudes.",["eau","idees","depense","compl","serie","sport","bilan","scan"]],
- confirme:["Confirmé","Je suis aussi mes glucides et lipides, et je prépare mes repas à l'avance.",["eau","idees","depense","compl","serie","sport","bilan","macros","demain","cible","ajust","recettes","scan"]],
+ moyen:["Moyen","Je fais du sport et je veux voir ce que je dépense, mes compléments et mes habitudes.",["eau","idees","depense","compl","serie","sport","bilan","scan","calendrier","partage"]],
+ confirme:["Confirmé","Je suis aussi mes glucides et lipides, et je prépare mes repas à l'avance.",["eau","idees","depense","compl","serie","sport","bilan","macros","demain","cible","ajust","recettes","scan","calendrier","partage"]],
  expert:["Expert","Je veux tout : macros détaillées partout, mensurations, calculs complets.",null]
 };
 const F_IDS=FONCTIONS.flatMap(g=>g[1].map(f=>f[0]));
@@ -3004,6 +3048,99 @@ function renderBilan(){
   box.hidden=false;
   box.innerHTML=`<div class="t" style="display:flex;justify-content:space-between;gap:10px"><span>Bilan de la semaine</span><span class="sub3">${dates}</span></div>${bilanHTML(b)}<div class="r"><button type="button" class="later" id="bilanHide">Masquer</button></div>`;
 }
+
+/* ---------- Calendrier du mois (dans la carte « 7 derniers jours ») ---------- */
+var wkMode="sem", calM=null;
+function jourEtat(d){
+  const l=day(d).repas||[]; if(!l.length)return"";
+  const t=tot(day(d)), g=objJour(d), gk=+g.kcal||0, gp=+g.prot||0;
+  const okK=!gk||Math.abs(t.k-gk)<=gk*.1, okP=!gp||t.p>=gp;
+  return okK&&okP?"ok":okK||okP?"mi":"no";
+}
+const seanceJour=d=>(S.activites[d]||[]).some(a=>!estPas(a)&&a.type!=="repos");
+function renderCal(){
+  const on=fOn("calendrier")&&wkMode==="mois";
+  document.querySelectorAll("[data-wk]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.wk===(on?"mois":"sem"))));
+  $("#cal").hidden=!on; $(".weekwrap").hidden=on; $("#weekAvg").hidden=on; $("#weekStats").hidden=on;
+  $("#wkTitle").textContent=on?"Mon mois":"7 derniers jours";
+  if(!on)return;
+  if(!calM)calM=TODAY.slice(0,7);
+  const [y,m]=calM.split("-").map(Number), n=new Date(y,m,0).getDate(), first=(new Date(y,m-1,1).getDay()+6)%7;
+  const nom=new Date(y,m-1,1).toLocaleDateString("fr-FR",{month:"long",year:"numeric"});
+  let h=`<div class="calnav"><button type="button" data-cm="-1" aria-label="Mois précédent">‹</button><b>${nom.charAt(0).toUpperCase()+nom.slice(1)}</b><button type="button" data-cm="1" aria-label="Mois suivant"${calM>=TODAY.slice(0,7)?" disabled":""}>›</button></div>`;
+  h+=`<div class="calg">${["L","M","M","J","V","S","D"].map(x=>`<span class="wd" aria-hidden="true">${x}</span>`).join("")}${'<span></span>'.repeat(first)}`;
+  let nOk=0,nMi=0,nSe=0;
+  const LAB={ok:"calories et protéines atteintes",mi:"un des deux objectifs atteint",no:"objectifs pas atteints","":"rien de noté"};
+  for(let i=1;i<=n;i++){
+    const d=`${calM}-${String(i).padStart(2,"0")}`, fut=d>TODAY, e=fut?"":jourEtat(d), se=!fut&&seanceJour(d);
+    if(e==="ok")nOk++; if(e==="mi")nMi++; if(se)nSe++;
+    h+=`<button type="button" class="cday ${fut?"fut":e}${d===TODAY?" auj":""}" data-cd="${d}"${fut?" disabled":""} aria-label="${i} : ${fut?"à venir":LAB[e]}${se?", séance":""}">${i}<i class="${se?"":"vide"}"></i></button>`;
+  }
+  h+=`</div><div class="callg"><span><em style="background:#1d8a55"></em>les deux atteints</span><span><em style="background:#ffb35b"></em>un des deux</span><span><em style="background:color-mix(in srgb,var(--accent) 22%,transparent)"></em>aucun</span><span><em style="background:color-mix(in srgb,var(--ink) 6%,transparent)"></em>rien de noté</span>${fOn("depense")?'<span><i style="width:7px;height:7px;border-radius:50%;background:var(--prot);display:inline-block"></i>séance</span>':""}</div>`;
+  h+=`<div class="calst"><div><b style="color:#1d8a55">${nOk}</b><small>jours au top</small></div><div><b>${nMi}</b><small>à moitié</small></div><div><b>${nSe}</b><small>séance${nSe>1?"s":""}</small></div></div>`;
+  $("#cal").innerHTML=h;
+}
+document.querySelector(".wkseg").addEventListener("click",e=>{const b=e.target.closest("[data-wk]");if(!b)return;wkMode=b.dataset.wk;try{localStorage.setItem("pdms-cal",wkMode)}catch(x){}renderCal()});
+try{if(localStorage.getItem("pdms-cal")==="mois")wkMode="mois"}catch(x){}
+$("#cal").addEventListener("click",e=>{
+  const m=e.target.closest("[data-cm]"), d=e.target.closest("[data-cd]");
+  if(m){const [y,mo]=calM.split("-").map(Number), dt=new Date(y,mo-1+ +m.dataset.cm,1);calM=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}`;renderCal();return}
+  if(d&&!d.disabled){cur=d.dataset.cd;closePanel();render();showTab("today")}
+});
+
+/* ---------- Bilan à partager : image de la semaine (dessinée sur le téléphone) ---------- */
+let shBlob=null;
+function shWrap(ctx,txt,maxW){const w=txt.split(" "),l=[];let c="";for(const x of w){const t=c?c+" "+x:x;if(ctx.measureText(t).width>maxW&&c){l.push(c);c=x}else c=t}if(c)l.push(c);return l}
+function shRound(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+async function shDraw(){
+  try{await Promise.all(["700 80px Outfit","600 40px Outfit","500 30px Inter","600 30px Inter"].map(f=>document.fonts.load(f)))}catch(e){}
+  const fin=finBilan(), b=bilanSemaine(fin), poids=$("#shPoids").checked, W=1080, H=1350;
+  const c=document.createElement("canvas"); c.width=W; c.height=H; const x=c.getContext("2d");
+  x.fillStyle="#1c1735"; x.fillRect(0,0,W,H);
+  let gr=x.createRadialGradient(80,0,0,80,0,760); gr.addColorStop(0,"rgba(255,138,91,.95)"); gr.addColorStop(1,"rgba(255,138,91,0)"); x.fillStyle=gr; x.fillRect(0,0,W,H);
+  gr=x.createRadialGradient(W,H,0,W,H,900); gr.addColorStop(0,"rgba(123,92,255,.95)"); gr.addColorStop(1,"rgba(123,92,255,0)"); x.fillStyle=gr; x.fillRect(0,0,W,H);
+  x.fillStyle="#fff"; x.textBaseline="alphabetic";
+  x.font="700 56px Outfit"; x.fillText("Carbu",72,128);
+  x.font="600 36px Outfit"; x.textAlign="right"; x.fillStyle="rgba(255,255,255,.85)"; x.fillText(`${dShort(b.debut)} – ${dShort(fin)}`,W-72,124); x.textAlign="left";
+  const obj=(S.profil||{}).objectif||"masse", titre={masse:"Ma semaine de prise de masse",perte:"Ma semaine de sèche",maintien:"Ma semaine en maintien"}[obj]||"Ma semaine";
+  x.fillStyle="#fff"; x.font="700 84px Outfit"; shWrap(x,titre,W-144).forEach((l,i)=>x.fillText(l,72,270+i*96));
+  const tiles=[["Calories / jour",b.n?fmt(b.k):"–",b.gk?`sur ${fmt(b.gk)}`:""],["Protéines / jour",b.n?`${fmt(b.p)} g`:"–",b.gp?`sur ${b.gp} g`:""],["Jours dans la cible",`${b.cible} / 7`,(()=>{const r=serie();return r&&r.n>1?`série de ${r.n} jours`:""})()]];
+  const dw=b.pw!=null&&b.pw0!=null?b.pw-b.pw0:null;
+  if(poids)tiles.push(["Poids moyen",b.pw!=null?`${n1(b.pw)} kg`:"–",dw!=null?`${sgn(dw)} kg`:""]);
+  else tiles.push(["Séances",String(b.faites),b.prevues?`sur ${b.prevues} prévues`:""]);
+  const tw=(W-144-28)/2, th=250, ty=480;
+  tiles.forEach(([l,v,s2],i)=>{const tx=72+(i%2)*(tw+28), yy=ty+Math.floor(i/2)*(th+28);
+    x.fillStyle="rgba(255,255,255,.11)"; shRound(x,tx,yy,tw,th,36); x.fill();
+    x.fillStyle="rgba(255,255,255,.78)"; x.font="500 32px Inter"; x.fillText(l,tx+36,yy+70);
+    x.fillStyle="#fff"; x.font="700 84px Outfit"; x.fillText(v,tx+36,yy+168);
+    x.fillStyle="rgba(255,255,255,.8)"; x.font="600 32px Outfit"; x.fillText(s2,tx+36,yy+218)});
+  const yb=ty+2*(th+28);
+  x.fillStyle="rgba(255,255,255,.11)"; shRound(x,72,yb,W-144,150,36); x.fill();
+  const acts=[...new Set(jours7(fin).flatMap(d=>(S.activites[d]||[]).filter(a=>!estPas(a)&&a.type!=="repos").map(a=>a.label||actNom(a.type))))].slice(0,3);
+  x.fillStyle="rgba(255,255,255,.78)"; x.font="500 32px Inter"; x.fillText(poids?"Séances":"Eau par jour",108,yb+64);
+  x.fillStyle="#fff"; x.font="700 52px Outfit";
+  const bas=poids?`${b.faites}${acts.length?" · "+acts.join(", "):""}`:b.eau?`${litres(b.eau)} L`:"–";
+  let bt=bas; while(x.measureText(bt).width>W-216&&bt.length>4)bt=bt.slice(0,-2); if(bt!==bas)bt=bt.trim()+"…";
+  x.fillText(bt,108,yb+124);
+  x.fillStyle="rgba(255,255,255,.6)"; x.font="500 28px Inter"; x.fillText("Fait avec Carbu",72,H-64);
+  $("#shImg").src=c.toDataURL("image/png");
+  shBlob=await new Promise(r=>c.toBlob(r,"image/png"));
+}
+const jours7=fin=>[...Array(7)].map((_,i)=>shift(fin,i-6));
+async function shOpen(){$("#shareSheet").hidden=false;const fin=finBilan(),b=bilanSemaine(fin);$("#shDates").textContent=`${dShort(b.debut)} – ${dShort(fin)}`;await shDraw()}
+$("#shareOpen").onclick=shOpen;
+$("#shClose").onclick=()=>{$("#shareSheet").hidden=true};
+$("#shareSheet").addEventListener("click",e=>{if(e.target.id==="shareSheet")$("#shareSheet").hidden=true});
+$("#shPoids").addEventListener("change",shDraw);
+$("#shGo").onclick=async()=>{
+  if(!shBlob)await shDraw(); if(!shBlob)return;
+  const file=new File([shBlob],`carbu-semaine-${finBilan()}.png`,{type:"image/png"});
+  try{
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"Ma semaine sur Carbu"});return}
+  }catch(e){if(e&&e.name==="AbortError")return}
+  const u=URL.createObjectURL(file), a=document.createElement("a"); a.href=u; a.download=file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000);
+  $("#shHint").textContent="Image enregistrée : envoie-la depuis tes photos ou tes fichiers.";
+};
 $("#bilanToday").addEventListener("click",e=>{if(e.target.closest("#bilanHide")){S.bilanVu=finBilan();persist();renderBilan()}});
 /* ---------- Rythme, ajustement guidé et poids cible ---------- */
 function rythme(sm){
