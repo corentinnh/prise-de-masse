@@ -140,6 +140,26 @@ body.addopen::after{content:"";position:fixed;inset:0;background:rgba(14,10,30,.
 .rtags{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
 .rtags .tag{margin-left:0}
 .rqgouts{padding:4px 14px}
+/* Ajout en une phrase */
+#f.phrase>*:not(.phkeep){display:none!important}
+.phbox{display:flex;flex-direction:column;gap:8px}
+.phhint{font-size:.82rem;color:var(--muted)}
+.phrow{display:flex;flex-direction:column;gap:4px;padding:8px 10px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.phrow.no{border-style:dashed}
+.phl1,.phl2{display:flex;align-items:center;gap:8px;min-width:0}
+.phst{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:.75rem;font-weight:700}
+.phst.ok{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
+.phst.warn{background:color-mix(in srgb,var(--carb) 25%,transparent);color:var(--carb)}
+.phst.no{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)}
+.phl1 select{flex:1;min-width:0;font-weight:600;padding:7px 10px}
+.phl1 .phnf{flex:1;min-width:0;font-weight:600}
+.phx{flex:none;width:36px;height:36px;border:0;border-radius:50%;background:color-mix(in srgb,var(--ink) 7%,transparent);color:var(--ink);font-size:1.05rem}
+.phg{display:flex;flex-direction:row;align-items:center;gap:6px;font-size:.82rem;color:var(--muted);flex:none}
+.phg input{width:74px;padding:6px 8px;text-align:center;font-family:var(--f-mono)}
+.phq{flex:1;min-width:0;font-size:.8rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.phv{flex:none;font-family:var(--f-mono);font-size:.84rem;font-weight:600}
+.phtot{display:flex;justify-content:space-between;align-items:center;padding:8px 2px 0;font-size:.88rem}
+.phtot b{font-family:var(--f-mono)}
 /* Repas par moment */
 .meals{display:flex;flex-direction:column;gap:10px}
 .mcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px 6px 14px}
@@ -195,7 +215,7 @@ body.addopen::after{content:"";position:fixed;inset:0;background:rgba(14,10,30,.
 .rctot{display:flex;justify-content:space-between;font-weight:600}
 .btns2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 /* Bandeau Annuler */
-.toast{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 82px);z-index:30;
+.toast{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 82px);z-index:50;
   max-width:528px;margin:0 auto;background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 10px 10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
 .toast span{flex:1;font-size:.9rem}
 .toast button{border:0;background:none;color:var(--accent);font-weight:700;padding:8px 10px}
@@ -804,7 +824,8 @@ h1.big{font-size:1.9rem;line-height:1.1}
   </form>
 
   <form id="f">
-    <label class="full">Aliment ou plat<input id="fAl" list="foods" required placeholder="Rechercher : poulet, riz, pad thaï…" autocomplete="off" autocapitalize="sentences"></label>
+    <label class="full phkeep">Aliment ou plat<input id="fAl" list="foods" required placeholder="Ex. : poulet, ou 200 g riz, 2 œufs" autocomplete="off" autocapitalize="sentences" enterkeyhint="done"></label>
+    <div class="phbox full phkeep" id="phBox" hidden></div>
     <datalist id="foods"></datalist>
     <div class="calc full" id="calc">Tape un aliment et un grammage : le calcul se fait tout seul.</div>
     <button type="button" class="ghost full" id="est" hidden>Estimer en ligne</button>
@@ -821,8 +842,8 @@ h1.big{font-size:1.9rem;line-height:1.1}
     <label class="full" id="fGL">Grammes<input id="fG" type="number" inputmode="decimal" min="0" placeholder="ex. 150"></label>
     <label>Calories<input id="fK" type="number" inputmode="numeric" min="0" placeholder="0"></label>
     <label>Protéines (g)<input id="fP" type="number" inputmode="decimal" min="0" step="0.1" placeholder="0"></label>
-    <button class="add full" type="submit" id="fSubmit">Ajouter</button>
-    <div class="status full" id="status" role="status"></div>
+    <button class="add full phkeep" type="submit" id="fSubmit">Ajouter</button>
+    <div class="status full phkeep" id="status" role="status"></div>
   </form>
 
   <section class="block" id="copyBox" aria-label="Copier un repas d'hier">
@@ -1582,6 +1603,7 @@ for(const id of["#fK","#fP"])$(id).addEventListener("input",()=>{manual=true});
 $("#fM").value=new Date().getHours()<11?"matin":new Date().getHours()<16?"midi":"soir";
 $("#f").addEventListener("submit",e=>{
   e.preventDefault();
+  if(phOn()){phAdd();return}
   const al=$("#fAl").value.trim(); if(!al)return;
   recalc();
   const g=+$("#fG").value||0, k=+$("#fK").value||0, p=+$("#fP").value||0;
@@ -1609,7 +1631,7 @@ function frCalc(){
 }
 $("#modeS").onclick=()=>setAddMode(false);
 $("#modeR").onclick=()=>{setAddMode(true);$("#frK").focus()};
-$("#fM").addEventListener("change",frCalc);
+$("#fM").addEventListener("change",()=>{frCalc();if(phOn())phRender()});
 for(const id of["#frK","#frP","#frG","#frL"])$(id).addEventListener("input",frCalc);
 $("#fr").addEventListener("submit",e=>{
   e.preventDefault();
@@ -2674,6 +2696,7 @@ function momentAuto(){const h=new Date().getHours(),l=new Set((day(cur).repas||[
 function ouvrirAjout(rapide){
   if(cur===TODAY)$("#fM").value=momentAuto();
   showTab("add"); setAddMode(!!rapide); frCalc();
+  if(!rapide&&!S.aidePhrase&&$("#tour").hidden){setTimeout(()=>tourStart([{sel:"#fAl",t:"Astuce : tout d'un coup",p:"Tape plusieurs aliments séparés par des virgules, par exemple « 200 g riz, 150 g poulet, 2 œufs ». L'app les reconnaît et les ajoute tous en un appui."}],()=>{S.aidePhrase=true;persist();$("#fAl").focus()}),300);return}
   setTimeout(()=>(rapide?$("#frK"):$("#fAl")).focus(),60);
 }
 $("#hsFind").onclick=()=>ouvrirAjout(false);
@@ -3194,7 +3217,81 @@ function uSync(){
   $("#uQty").textContent=fmtQty(uQty); $("#uLab").textContent=`${uQty>1?u.p:u.s} · ${Math.round(uQty*u.g)} g`;
   $("#uQuick").innerHTML=[.5,1,2,3,4].map(q=>`<button type="button" data-q="${q}" aria-pressed="${q===uQty}">${fmtQty(q)}</button>`).join("");
 }
-function recalc(){recalcCore();uSync()}
+function recalc(){if(phCheck())return;recalcCore();uSync()}
+/* ---------- Ajout en une phrase : « 200 g riz, 150 g poulet, 2 œufs » ---------- */
+const NB_MOTS={un:1,une:1,deux:2,trois:3,quatre:4,cinq:5,six:6,sept:7,huit:8,dix:10,demi:.5,demie:.5};
+const PH_UNITS=[[/^(kg|kgs|kilos?)$/,"kg"],[/^(g|gr|grs|grammes?)$/,"g"],[/^cl$/,"cl"],[/^ml$/,"ml"],[/^(l|litres?)$/,"l"],[/^tranches?$/,"tranche"],[/^pots?$/,"pot"],[/^(doses?|scoops?|mesurettes?)$/,"dose"],
+ [/^(cs|cas|c\.a\.s|cuilleres?|cuill)$/,"cs"],[/^verres?$/,"verre"],[/^poignees?$/,"poignee"],[/^parts?$/,"part"],[/^bols?$/,"bol"],[/^(assiettes?)$/,"assiette"]];
+const PH_G={tranche:40,pot:125,dose:30,cs:15,verre:250,poignee:25,part:120,bol:300,assiette:350};
+let phText=null, phRows=[];
+const phOn=()=>/[,;+\n]/.test($("#fAl").value);
+function phEntry(o){return o?{nom:o.nom,k:+o.k||0,p:+o.p||0,g:o.g,l:o.l,src:o.src}:null}
+function phParse(seg){
+  let s=seg.trim().replace(/(\d)([a-zA-Zàâäéèêëîïôöûüç])/g,"$1 $2").replace(/\s+/g," "); if(!s)return null;
+  const w=s.split(" "); let n=null,u=null,uTxt="";const rest=[];
+  for(let i=0;i<w.length;i++){
+    const t=w[i], tl=norm(t);
+    if(n===null&&(/^\d+([.,]\d+)?$/.test(t)||/^\d+\/\d+$/.test(t)||t==="½"||(NB_MOTS[tl]!=null&&(i===0||rest.length)))){
+      n=/^\d+\/\d+$/.test(t)?t.split("/").reduce((a,b)=>+a/+b):/^\d/.test(t)?parseFloat(t.replace(",",".")):t==="½"?.5:NB_MOTS[tl];
+      const nx=w[i+1]?norm(w[i+1]):"", um=nx&&PH_UNITS.find(([re])=>re.test(nx));
+      if(um){u=um[1];uTxt=w[i+1];i++}
+      continue;
+    }
+    rest.push(t);
+  }
+  const nom=rest.join(" ").replace(/^(de |d'|d’|des |du |de la |la |le |les )/i,"").trim();
+  if(!nom)return{seg:s,nom:"",f:null,cands:[],g:0,lab:"",warn:true};
+  const ff=findFood(nom), f=ff?{nom:ff.nom,k:ff.kcal100,p:ff.prot100,g:ff.gluc100,l:ff.lip100,src:ff.src}:null;
+  const cands=candidates(nom,6).map(phEntry); if(f&&!cands.some(c=>norm(c.nom)===norm(f.nom)))cands.unshift(f);
+  const uu=(f&&unitFor(f.nom))||unitFor(nom);
+  let g=0,lab="",warn=!f||!!(ff&&ff.approx&&!norm(nom).split(" ").every(m=>norm(ff.nom).includes(m.replace(/(s|x)$/,""))));
+  if(u==="g")g=n; else if(u==="kg")g=n*1000; else if(u==="cl")g=n*10; else if(u==="ml")g=n; else if(u==="l")g=n*1000;
+  else if(u){const per=uu&&norm(uu.s).startsWith(u.slice(0,4))?uu.g:PH_G[u];g=n*per;lab=`${fmtQty(n)} ${uTxt}`}
+  else if(uu&&/^quart de /.test(uu.s)){g=(n??1)*uu.g*4;lab=`${fmtQty(n??1)} ${uu.s.replace(/^quart de /,"")}`}
+  else if(n!=null){if(uu){g=n*uu.g;lab=`${fmtQty(n)} ${n>1?uu.p:uu.s}`}else if(n>=15)g=n;else{g=n*100;warn=true}}
+  else if(uu){g=uu.g;lab=`1 ${uu.s}`}else{g=100;warn=true}
+  return{seg:s,nom,f,cands,g:Math.round(g),lab,warn};
+}
+function phCheck(){
+  const on=phOn(); $("#f").classList.toggle("phrase",on); $("#phBox").hidden=!on;
+  if(!on){if(phText!==null){phText=null;phRows=[];$("#fSubmit").textContent="Ajouter"}return false}
+  const v=$("#fAl").value;
+  if(v!==phText){phText=v;phRows=v.split(/[,;+\n]/).map(phParse).filter(Boolean)}
+  phRender(); return true;
+}
+function phVals(r){if(!r.f||!(r.g>0))return null;const k=r.f.k*r.g/100,p=r.f.p*r.g/100;return{k,p,gl:r.f.g!=null&&r.f.l!=null?{gluc:Math.round(r.f.g*r.g/10)/10,lip:Math.round(r.f.l*r.g/10)/10}:{}}}
+function phRender(){
+  const ok=phRows.filter(r=>phVals(r));
+  let tk=0,tp=0; for(const r of ok){const v=phVals(r);tk+=v.k;tp+=v.p}
+  $("#phBox").innerHTML=(phRows.length?phRows.map((r,i)=>{
+    const v=phVals(r), st=!r.f?'<span class="phst no" aria-label="Pas trouvé">?</span>':r.warn?'<span class="phst warn" aria-label="À vérifier">!</span>':'<span class="phst ok" aria-label="Reconnu">✓</span>';
+    const l1=r.f?`<select data-phf="${i}" aria-label="Aliment pour « ${esc(r.seg)} »">${r.cands.map((c,j)=>`<option value="${j}"${norm(c.nom)===norm(r.f.nom)?" selected":""}>${esc(c.nom)}</option>`).join("")}</select>`
+      :`<span class="phnf">${esc(r.nom||r.seg)}<small class="phhint" style="display:block;font-weight:400">pas trouvé : ajoute-le seul pour l'estimer</small></span>`;
+    return`<div class="phrow${r.f?"":" no"}">
+      <div class="phl1">${st}${l1}<button type="button" class="phx" data-phx="${i}" aria-label="Retirer ${esc(r.nom||r.seg)}">×</button></div>
+      ${r.f?`<div class="phl2"><label class="phg"><input type="number" inputmode="decimal" min="0" data-phg="${i}" value="${r.g||""}" aria-label="Grammes de ${esc(r.f.nom)}">g</label><span class="phq">${esc(r.lab)}</span><span class="phv">${v?`${fmt(v.k)} kcal · ${fmt(v.p)} g`:"—"}</span></div>`:""}
+    </div>`}).join(""):"")
+    +(ok.length?`<div class="phtot"><span class="phhint">${ok.length} aliment${ok.length>1?"s":""}${phRows.some(r=>r.warn&&r.f)?" · vérifie ceux marqués !":""}</span><span><b style="color:var(--accent)">${fmt(tk)} kcal</b> · <b style="color:var(--prot)">${fmt(tp)} g prot.</b></span></div>`
+      :`<div class="phhint">Sépare les aliments par des virgules : « 200 g riz, 150 g poulet, 2 œufs ».</div>`);
+  $("#fSubmit").textContent=ok.length?`Tout ajouter (${ok.length}) ${AU_MOMENT[$("#fM").value]||""}`:"Ajouter";
+}
+$("#phBox").addEventListener("change",e=>{
+  const f=e.target.closest("[data-phf]"), g=e.target.closest("[data-phg]");
+  if(f){const r=phRows[+f.dataset.phf];r.f=r.cands[+f.value];r.warn=false;const uu=unitFor(r.f.nom);if(r.lab&&uu&&/^\d/.test(r.lab)){const q=parseFloat(r.lab.replace(",","."))||1;r.g=Math.round(q*uu.g)}phRender()}
+  if(g){const r=phRows[+g.dataset.phg];r.g=Math.max(0,+g.value||0);r.lab="";r.warn=false;phRender()}
+});
+$("#phBox").addEventListener("click",e=>{
+  const x=e.target.closest("[data-phx]"); if(!x)return;
+  phRows.splice(+x.dataset.phx,1);
+  if(!phRows.length){$("#fAl").value="";phCheck();recalc();return}
+  phRender();
+});
+function phAdd(){
+  const ok=phRows.filter(r=>phVals(r)); if(!ok.length)return;
+  const mo=$("#fM").value; snapshot(); const d=clone(day(cur)); d.repas=d.repas||[];
+  for(const r of ok){const v=phVals(r);d.repas.push(Object.assign({moment:mo,aliment:r.f.nom,quantite:r.lab?`${r.lab} · ${r.g} g`:`${r.g} g`,grammes:r.g,kcal:Math.round(v.k),prot:Math.round(v.p*10)/10},v.gl))}
+  if(save(d)){$("#fAl").value="";phCheck();recalc();toast(`${ok.length} aliment${ok.length>1?"s":""} ajouté${ok.length>1?"s":""} ${AU_MOMENT[mo]||""}`)}
+}
 $("#uModeU").onclick=()=>{uMode="u";if(!(uQty>0))uQty=1;uApply()};
 $("#uModeG").onclick=()=>{uMode="g";uSync()};
 $("#uMinus").onclick=()=>{uQty=uQty>1?uQty-1:.5;uApply()};
@@ -3435,7 +3532,7 @@ function maybeTourRepas(){
   const row=$('#meals .row.editable'); if(!row)return;
   setTimeout(()=>{if(panel!=="repas"||S.aideRepas)return;tourStart([{sel:"#meals .row.editable",t:"Une erreur de quantité ?",p:"Touche un aliment pour changer les grammes, les portions ou le moment."}],()=>{S.aideRepas=true;persist()})},300);
 }
-$("#tourAgain").onclick=()=>{S.aideVue=false;S.aideRepas=false;persist();showTab("today");closePanel(true);maybeTour()};
+$("#tourAgain").onclick=()=>{S.aideVue=false;S.aideRepas=false;S.aidePhrase=false;persist();showTab("today");closePanel(true);maybeTour()};
 
 /* ---------- Compte de démonstration ----------
    Tout reste sur le téléphone. Le mot de passe n'est jamais gardé : seulement une empreinte PBKDF2-SHA-256 (sel aléatoire).
